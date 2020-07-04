@@ -11,11 +11,21 @@ import {
   SSOWebViewModalParams,
 } from "./components/login/ssoWebViewModal";
 import { CourseList } from "./components/courseList";
+import {
+  ForgotPasswordModal,
+  ForgotPasswordModalParams,
+} from "./components/login/forgotPasswordModal";
+import {
+  ResetPasswordModal,
+  ResetPasswordModalParams,
+} from "./components/login/resetPasswordModal";
 
 type StackParamList = {
   Login: undefined;
   "Course List": undefined;
-} & SSOWebViewModalParams;
+} & ForgotPasswordModalParams &
+  ResetPasswordModalParams &
+  SSOWebViewModalParams;
 
 const Stack = createStackNavigator<StackParamList>();
 
@@ -27,9 +37,14 @@ const App = () => {
           <NavigationContainer>
             <Stack.Navigator initialRouteName="Login">
               <Stack.Screen name="Login" component={Login} />
+              <Stack.Screen name="SSO" component={SSOWebViewModal} />
               <Stack.Screen
-                name="SSOWebViewModal"
-                component={SSOWebViewModal}
+                name="Forgot Password"
+                component={ForgotPasswordModal}
+              />
+              <Stack.Screen
+                name="Reset Password"
+                component={ResetPasswordModal}
               />
               <Stack.Screen name="Course List" component={CourseList} />
             </Stack.Navigator>

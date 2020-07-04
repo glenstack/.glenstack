@@ -68,6 +68,15 @@ export const ClientProvider: FC = ({ children }) => {
             },
           },
         },
+        Mutation: {
+          fields: {
+            viewerCredentials: {
+              merge(existing = {}, incoming: any) {
+                return { ...existing, ...incoming };
+              },
+            },
+          },
+        },
       },
     }),
     link: from([

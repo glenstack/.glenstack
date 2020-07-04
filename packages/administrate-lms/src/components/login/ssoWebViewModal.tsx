@@ -23,16 +23,13 @@ const DECODE_SSO_TOKEN_QUERY = gql`
 `;
 
 export type SSOWebViewModalParams = {
-  SSOWebViewModal: {
+  SSO: {
     url: URL;
     domain: string;
   };
 };
 
-type SSOWebViewModalRouteProp = RouteProp<
-  SSOWebViewModalParams,
-  "SSOWebViewModal"
->;
+type SSOWebViewModalRouteProp = RouteProp<SSOWebViewModalParams, "SSO">;
 
 export const SSOWebViewModal = () => {
   const navigator = useNavigation();

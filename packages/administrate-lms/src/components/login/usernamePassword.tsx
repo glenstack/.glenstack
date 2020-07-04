@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { View, TextInput, Text, Button } from "react-native";
 import { useLoginDispatch } from "../../providers/TokenProvider";
 import { useDomain } from "../../providers/DomainProvider";
+import { useNavigation } from "@react-navigation/native";
 
 export const UsernamePassword = () => {
+  const navigation = useNavigation();
   const domain = useDomain();
   const loginDispatch = useLoginDispatch();
   const [username, setUsername] = useState("");
@@ -43,6 +45,12 @@ export const UsernamePassword = () => {
         />
       </View>
       <Button title="Login" disabled={loading} onPress={login} />
+      <Button
+        title="Forgot Password"
+        onPress={() => {
+          navigation.navigate("Forgot Password", { username });
+        }}
+      />
     </View>
   );
 };
