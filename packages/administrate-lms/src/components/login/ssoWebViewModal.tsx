@@ -7,6 +7,7 @@ import {
   DecodeSSOTokenQuery,
   DecodeSSOTokenQuery_decodeSingleSignOnToken_SingleSignOnSuccess,
 } from "./__generated__/DecodeSSOTokenQuery";
+import { USER_AGENT } from "../../config";
 
 const DECODE_SSO_TOKEN_QUERY = gql`
   query DecodeSSOTokenQuery($token: String) {
@@ -73,9 +74,7 @@ export const SSOWebViewModal = () => {
   return (
     <WebView
       source={{ uri: url.toString() }}
-      userAgent={
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0"
-      }
+      userAgent={`Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0; ${USER_AGENT}`}
       onNavigationStateChange={({ url }) => {
         const capturedJWT = url.match(tokenRegex)?.groups?.jwt;
         if (capturedJWT) {

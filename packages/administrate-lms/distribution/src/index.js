@@ -8,8 +8,8 @@ export const handleEvent = (event) => {
   if (request.method.toUpperCase() !== "GET") return NOT_FOUND;
 
   const url = new URL(request.url);
-  const ANDROID_LINK = `exp://${url.host}/android-index.json`;
-  const IOS_LINK = `exp://${url.host}/ios-index.json`;
+  const ANDROID_LINK = `exp://${url.host}/dist/android-index.json`;
+  const IOS_LINK = `exp://${url.host}/dist/ios-index.json`;
 
   switch (url.pathname) {
     case "/":
@@ -35,6 +35,8 @@ export const handleEvent = (event) => {
       return new Response(qr.imageSync(IOS_LINK), {
         headers: { "Content-Type": "image/png" },
       });
+    case "/test":
+      return new Response(Test);
   }
 
   return NOT_FOUND;

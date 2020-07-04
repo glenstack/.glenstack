@@ -66,6 +66,11 @@ export const ClientProvider: FC = ({ children }) => {
                 return { ...existing, ...incoming };
               },
             },
+            registrations: {
+              merge(existing = {}, incoming: any) {
+                return { ...existing, ...incoming };
+              },
+            },
           },
         },
         Mutation: {

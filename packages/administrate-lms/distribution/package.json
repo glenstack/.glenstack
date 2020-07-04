@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "predeploy": "cp -r injectedScripts/ ../dist/injectedScripts",
     "deploy": "wrangler publish"
   },
   "dependencies": {

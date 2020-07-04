@@ -2,16 +2,9 @@ import { getAssetFromKV } from "@cloudflare/kv-asset-handler";
 import { handleEvent as server } from "../src";
 
 const handleError = (error) => {
+  // TODO
   console.error(error);
 };
-
-addEventListener("fetch", (event) => {
-  try {
-    event.respondWith(handleEvent(event));
-  } catch (e) {
-    event.respondWith(new Response("Internal Error", { status: 500 }));
-  }
-});
 
 async function handleEvent(event) {
   try {
@@ -41,3 +34,11 @@ async function handleEvent(event) {
     });
   }
 }
+
+addEventListener("fetch", (event) => {
+  try {
+    event.respondWith(handleEvent(event));
+  } catch (e) {
+    event.respondWith(new Response("Internal Error", { status: 500 }));
+  }
+});

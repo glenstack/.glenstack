@@ -19,13 +19,17 @@ import {
   ResetPasswordModal,
   ResetPasswordModalParams,
 } from "./components/login/resetPasswordModal";
+import { ContentViewer, ContentViewerParams } from "./components/contentViewer";
+import { Registration, RegistrationParams } from "./components/registration";
 
 type StackParamList = {
   Login: undefined;
   "Course List": undefined;
 } & ForgotPasswordModalParams &
   ResetPasswordModalParams &
-  SSOWebViewModalParams;
+  SSOWebViewModalParams &
+  RegistrationParams &
+  ContentViewerParams;
 
 const Stack = createStackNavigator<StackParamList>();
 
@@ -47,6 +51,8 @@ const App = () => {
                 component={ResetPasswordModal}
               />
               <Stack.Screen name="Course List" component={CourseList} />
+              <Stack.Screen name="Content Viewer" component={ContentViewer} />
+              <Stack.Screen name="Registration" component={Registration} />
             </Stack.Navigator>
           </NavigationContainer>
         </ClientProvider>

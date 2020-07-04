@@ -16,7 +16,7 @@ export const IdentityProvider = ({
     const url = new URL(
       `https://portal-auth.administratehq.com/oauth/initiate?portal_host=https://${domain}&initiate_endpoint=${singleSignOnInitiateEndpoint}&previous_path=/`
     );
-    navigation.navigate("SSOWebViewModal", { url, domain });
+    navigation.navigate("SSO", { url, domain });
   };
 
   return <Button title={name || ""} onPress={login} />;
