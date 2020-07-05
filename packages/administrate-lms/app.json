@@ -2,7 +2,9 @@
   "expo": {
     "name": "Administrate LMS",
     "slug": "administrate-lms",
+    "primaryColor": "#1990CE",
     "version": "1.0.0",
+    "scheme": "admlms",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "entryPoint": "./src/App.tsx",
@@ -16,7 +18,13 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
+      "bundleIdentifier": "com.administrate.lms",
+      "buildNumber": "1.0.0",
       "supportsTablet": true
+    },
+    "android": {
+      "package": "com.administrate.lms",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/icon.png"
