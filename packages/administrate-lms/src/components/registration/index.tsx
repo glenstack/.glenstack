@@ -1,8 +1,11 @@
 import React from "react";
-import { View, Text, Button } from "react-native";
+import { Text, View, TextInput } from "../base";
 import { gql, useQuery } from "@apollo/client";
 import { RegistrationQuery } from "./__generated__/RegistrationQuery";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
+import { TabsWithDescription } from "../tabsWithDescription/tabsWithDescription"
+import { ProgressBar } from "../progressBar/progressBar"
+import { CourseItem } from "../courseItem/courseItem"
 
 const REGISTRATION_QUERY = gql`
   query RegistrationQuery($registrationID: String) {
@@ -12,6 +15,8 @@ const REGISTRATION_QUERY = gql`
       edges {
         node {
           id
+          completedPiecesOfContent
+          totalPiecesOfContent
           course {
             id
             title
@@ -63,6 +68,8 @@ export type RegistrationParams = {
 type RegistrationRouteProp = RouteProp<RegistrationParams, "Registration">;
 
 export const Registration = () => {
+  const tabTitles = ["Overview", "Scores"];
+
   const navigation = useNavigation();
   const { registrationID } = useRoute<RegistrationRouteProp>().params;
   const { loading, error, data } = useQuery<RegistrationQuery>(
@@ -82,30 +89,39 @@ export const Registration = () => {
 
   return (
     <View>
-      <Text>{registration?.course?.title}</Text>
+      <TabsWithDescription title="Administrate LMS" subtitle="Location: Concordia University" tabTitles={tabTitles} selectedTitle={0}></TabsWithDescription>
+      <View className="m-6">
+        <ProgressBar numberOfStepsCompleted={registration.completedPiecesOfContent} numberOfSteps={registration.totalPiecesOfContent}/>
+      </View>
       {courseContent.map((content) => {
         const node = content?.node;
+        console.log(registration)
         if (node)
           if (node.__typename === "ExternalActivity") {
             return (
-              <Button
+              <CourseItem
                 key={JSON.stringify(node)}
                 title={`${node.externalActivityInstructions}`}
-                onPress={() => {}}
+                subtitle={`${node.type}`}
+                type={`${node.type}`}
+                clickFunction={() => {}}
               />
             );
           } else if ("name" in node) {
             return (
-              <Button
-                key={JSON.stringify(node)}
-                title={`${node.name}`}
-                onPress={() =>
-                  navigation.navigate("Content Viewer", {
-                    registrationID,
-                    contentID: node.id,
-                  })
-                }
-              />
+              <CourseItem
+              key={JSON.stringify(node)}
+              title={`${node.name}`}
+              subtitle={`${node.type}`}
+              type={`${node.type}`}
+              clickFunction={
+                () =>
+                navigation.navigate("Content Viewer", {
+                  registrationID,
+                  contentID: node.id,
+                })
+              }        
+            />
             );
           }
       })}
