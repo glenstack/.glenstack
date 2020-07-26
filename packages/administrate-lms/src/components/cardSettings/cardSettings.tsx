@@ -1,5 +1,6 @@
-import React, { useReducer } from "react";
-import { Text, View, TextInput } from "../base";
+import React from "react";
+import { Text, View } from "../base";
+import { DropDown } from "../dropDown/dropDown"
 
 
 // How do?
@@ -14,10 +15,31 @@ import { Text, View, TextInput } from "../base";
 type CardProps = {
   title: string,
   subtitle: string,
-  content: string
+  content: any[]
 }
 
 export const CardSettings = ({ title, subtitle, content }: CardProps) => {
+  var theBody = []
+
+  if(content){
+    console.log(content)
+    content.forEach(function(value){
+      console.log(content)
+      if(value && value[1]){
+        theBody.push(
+          <View className="m-4">
+            <Text className="font-bold text-gray-600">
+              {value[0]}
+            </Text>
+            <Text className="text-gray-600 border-b border-gray-600">
+              {value[1]}
+            </Text>
+          </View>
+        )
+      }
+    })
+  }
+
   return (
     <View className="m-4">
       <View className="bg-gray-900 rounded-t shadow-lg">
@@ -26,12 +48,8 @@ export const CardSettings = ({ title, subtitle, content }: CardProps) => {
         </View>
       </View>
       <View className="bg-gray-100 rounded-b shadow-lg">
-        <View className="mr-6 mt-4 ml-8">
-          <Text className="text-sm">{subtitle}</Text>
-        </View>
-        <View className="mr-6 mt-4 ml-8">
-          <Text className="text-xs">{content}</Text>
-        </View>
+        {theBody}
+        <DropDown title="Hi" hidden={true}></DropDown>
       </View>
     </View>
   );
