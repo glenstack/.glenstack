@@ -21,6 +21,7 @@ import {
 } from "./components/login/resetPasswordModal";
 import { ContentViewer, ContentViewerParams } from "./components/contentViewer";
 import { Registration, RegistrationParams } from "./components/registration";
+import { Profile } from "./components/profile";
 
 type StackParamList = {
   Login: undefined;
@@ -53,6 +54,7 @@ const App = () => {
               <Stack.Screen name="Course List" component={CourseList} />
               <Stack.Screen name="Content Viewer" component={ContentViewer} />
               <Stack.Screen name="Registration" component={Registration} />
+              <Stack.Screen name="Profile" component={Profile} />
             </Stack.Navigator>
           </NavigationContainer>
         </ClientProvider>

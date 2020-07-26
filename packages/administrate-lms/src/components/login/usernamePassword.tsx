@@ -20,7 +20,7 @@ export const UsernamePassword = () => {
 
   return (
     <View className="bg-blue-600 min-h-full">
-      <View className="mt-24">
+      <View className="mt-24 flex">
         <svg version="1.1">
           <g id="Layer_1">
             <g>
