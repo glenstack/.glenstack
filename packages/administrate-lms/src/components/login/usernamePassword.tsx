@@ -20,8 +20,8 @@ export const UsernamePassword = () => {
 
   return (
     <View className="bg-blue-600 min-h-full">
-      <View className="mt-24 flex">
-        <svg version="1.1">
+      <View className="mt-24 mb-24 flex content-center flex-wrap bg-red-0">
+        <svg width="400" height="80" viewBox="0 0 400 80" version="1.1">
           <g id="Layer_1">
             <g>
               <path fill="#FFFFFF" d="M40,65.6l-2.1,8.8H27.8l12.4-41H52l12.4,41H54l-2.1-8.8H40z M45.9,40.5l-4.3,18.1h8.6L45.9,40.5z"/>

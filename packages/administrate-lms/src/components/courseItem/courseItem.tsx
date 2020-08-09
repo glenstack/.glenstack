@@ -1,5 +1,8 @@
+// https://blog.logrocket.com/how-to-build-an-svg-circular-progress-component-using-react-and-react-hooks/
+
 import React from "react";
 import { Text, View } from "../base";
+import { ProgressCircle } from "../progressCircle/progressCircle";
 
 type CardProps = {
   title: string,
@@ -24,6 +27,8 @@ function ResourceType(props) {
   }
 
 export const CourseItem = ({ title, subtitle, clickFunction, type }: CardProps) => {
+
+  //TODO: align pill to right
   return (
     <View className="" onStartShouldSetResponder={() => clickFunction()}>
         <View className="border border-gray-300"></View>
@@ -34,6 +39,23 @@ export const CourseItem = ({ title, subtitle, clickFunction, type }: CardProps) 
             <View className="mt-4 ml-4 mb-4">
                 <Text className="font-bold text-base">{title}</Text>
                 <Text className="text-sm">{subtitle}</Text>
+            </View>
+            <View>
+              <ProgressCircle
+                progress={25}
+                size={50}
+                strokeWidth={5}
+                circleOneStroke='#f3f3f3'
+                circleTwoStroke="#186ec2"
+              />
+            </View>
+            <View className="flex-row bg-green-700 m-4 rounded border border-green-700">
+              <Text className="m-2 text-white">PASSED</Text>
+              <View className="bg-white rounded-r">
+                <Text className="m-2">
+                  0%
+                </Text>
+              </View>
             </View>
         </View>
     </View>

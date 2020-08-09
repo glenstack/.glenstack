@@ -68,7 +68,7 @@ export type RegistrationParams = {
 type RegistrationRouteProp = RouteProp<RegistrationParams, "Registration">;
 
 export const Registration = () => {
-  const tabTitles = ["Overview", "Scores"];
+  const tabTitles = ["Overview"];
 
   const navigation = useNavigation();
   const { registrationID } = useRoute<RegistrationRouteProp>().params;

@@ -23,7 +23,6 @@ import { ContentViewer, ContentViewerParams } from "./components/contentViewer";
 import { Registration, RegistrationParams } from "./components/registration";
 import { Profile } from "./components/profile";
 import { Achievements } from "./components/achievements";
-import { Scores } from "./components/scores";
 
 type StackParamList = {
   Login: undefined;
@@ -58,7 +57,6 @@ const App = () => {
               <Stack.Screen name="Overview" component={Registration} />
               <Stack.Screen name="Profile" component={Profile} />
               <Stack.Screen name="Achievements" component={Achievements} />
-              <Stack.Screen name="Scores" component={Scores} />
             </Stack.Navigator>
           </NavigationContainer>
         </ClientProvider>

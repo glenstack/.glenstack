@@ -54,6 +54,8 @@ const COURSE_LIST_QUERY = gql`
   `
 ;
 
+//TODO: Query for each course to retrieve specific progress details
+
 const tabTitles = ["Courses", "Achievements"];
 
 export const CourseList = () => {
