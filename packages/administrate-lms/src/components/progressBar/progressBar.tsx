@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { Text, View, TextInput } from "../base";
-import { Button, CheckBox } from "react-native";
-import { whitesmoke } from "color-name";
+import { Text, View } from "../base";
 
 type ProgressBarProps = {
   numberOfStepsCompleted: string,

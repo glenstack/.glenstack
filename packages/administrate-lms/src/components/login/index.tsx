@@ -45,7 +45,7 @@ export const Login = () => {
   });
 
   if (data?.viewer?.username)
-    navigation.dispatch(StackActions.replace("Course List"));
+    navigation.dispatch(StackActions.replace("Courses"));
 
   return (
     <>

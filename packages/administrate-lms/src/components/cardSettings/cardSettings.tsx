@@ -1,24 +1,12 @@
 import React from "react";
 import { Text, View } from "../base";
-import { DropDown } from "../dropDown/dropDown"
-
-
-// How do?
-// https://github.com/tailwindcss/discuss/issues/73
-// @responsive {
-//   .bg-gradient-blue-to-purple {
-//     background-image: linear-gradient(to right, config('colors.blue'), config('colors.purple'));
-//   }
-// }
-
 
 type CardProps = {
   title: string,
-  subtitle: string,
   content: any[]
 }
 
-export const CardSettings = ({ title, subtitle, content }: CardProps) => {
+export const CardSettings = ({ title, content }: CardProps) => {
   var theBody = []
 
   if(content){
@@ -49,7 +37,6 @@ export const CardSettings = ({ title, subtitle, content }: CardProps) => {
       </View>
       <View className="bg-gray-100 rounded-b shadow-lg">
         {theBody}
-        <DropDown title="Hi" hidden={true}></DropDown>
       </View>
     </View>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Button } from "react-native";
+import { View } from "react-native";
 import { gql, useQuery } from "@apollo/client";
 import { Logout } from "../login/logout";
 import { TabsWithDescription } from "../tabsWithDescription/tabsWithDescription"
@@ -54,7 +54,7 @@ const COURSE_LIST_QUERY = gql`
   `
 ;
 
-const tabTitles = ["Courses", "Resources"];
+const tabTitles = ["Courses", "Achievements"];
 
 export const CourseList = () => {
 
@@ -76,7 +76,7 @@ export const CourseList = () => {
           numberOfSteps={data?.registerables?.edges[value]?.node.totalPiecesOfContent}
           key={JSON.stringify(data?.registerables?.edges[value])}
           clickFunction={
-            () => navigation.navigate("Registration", {
+            () => navigation.navigate("Overview", {
               registrationID: data?.registerables?.edges[value]?.node?.id,
             })
           }
@@ -90,7 +90,7 @@ export const CourseList = () => {
   return (
     <View>
       <Logout />
-      <TabsWithDescription title="Administrate LMS" subtitle="Location: Concordia University" tabTitles={tabTitles} selectedTitle={0}></TabsWithDescription>
+      <TabsWithDescription title="Administrate LMS" subtitle="Location: Concordia University" tabTitles={tabTitles} selectedTab="Courses"></TabsWithDescription>
       <View>{cards}</View>
     </View>
   );

@@ -80,7 +80,7 @@ export const ContentViewer = () => {
           if (navigation.canGoBack()) {
             navigation.goBack();
           } else {
-            navigation.navigate("Course List");
+            navigation.navigate("Courses");
           }
         }
       }} // https://github.com/react-native-community/react-native-webview/issues/1291#issuecomment-609103010

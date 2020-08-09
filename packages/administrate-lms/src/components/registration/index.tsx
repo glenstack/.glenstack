@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, TextInput } from "../base";
+import { Text, View } from "../base";
 import { gql, useQuery } from "@apollo/client";
 import { RegistrationQuery } from "./__generated__/RegistrationQuery";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
@@ -89,7 +89,7 @@ export const Registration = () => {
 
   return (
     <View>
-      <TabsWithDescription title="Administrate LMS" subtitle="Location: Concordia University" tabTitles={tabTitles} selectedTitle={0}></TabsWithDescription>
+      <TabsWithDescription title="Administrate LMS" subtitle="Location: Concordia University" tabTitles={tabTitles} selectedTab="Overview"></TabsWithDescription>
       <View className="m-6">
         <ProgressBar numberOfStepsCompleted={registration.completedPiecesOfContent} numberOfSteps={registration.totalPiecesOfContent}/>
       </View>

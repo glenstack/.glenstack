@@ -1,16 +1,6 @@
-import React, { useReducer } from "react";
-import { Text, View, TextInput } from "../base";
-import { Button, CheckBox } from "react-native";
+import React from "react";
+import { Text, View } from "../base";
 import { ProgressBar } from "../progressBar/progressBar";
-
-// How do?
-// https://github.com/tailwindcss/discuss/issues/73
-// @responsive {
-//   .bg-gradient-blue-to-purple {
-//     background-image: linear-gradient(to right, config('colors.blue'), config('colors.purple'));
-//   }
-// }
-
 
 type CardProps = {
   title: string,

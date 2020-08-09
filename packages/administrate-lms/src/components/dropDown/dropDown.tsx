@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { Text, View } from "../base";
-import { Button } from "react-native";
-import { func } from "@hapi/joi";
+import { View } from "../base";
 
 type dropDownProps = {
   title: string
