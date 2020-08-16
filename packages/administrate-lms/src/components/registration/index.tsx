@@ -17,6 +17,23 @@ const REGISTRATION_QUERY = gql`
           id
           completedPiecesOfContent
           totalPiecesOfContent
+          contentResults {
+            edges {
+              node {
+                progress
+                score
+                attempts
+                completedAttempts
+                lastAccessed
+                status
+                id
+                contentId
+                ... on VideoContentResult {
+                  startAt
+                }
+              }
+            }
+          }
           course {
             id
             title
@@ -86,6 +103,9 @@ export const Registration = () => {
 
   const registration = data?.registrations?.edges?.find(() => true)?.node;
   const courseContent = registration?.course?.content?.edges || [];
+  const progressions = registration?.contentResults?.edges || [];
+  console.log("HERe")
+  console.log(progressions)
 
   return (
     <View>
@@ -94,6 +114,7 @@ export const Registration = () => {
         <ProgressBar numberOfStepsCompleted={registration.completedPiecesOfContent} numberOfSteps={registration.totalPiecesOfContent}/>
       </View>
       {courseContent.map((content) => {
+        console.log(progressions[content?.node?.order]?.node?.progress)
         const node = content?.node;
         console.log(registration)
         if (node)
@@ -105,6 +126,7 @@ export const Registration = () => {
                 subtitle={`${node.type}`}
                 type={`${node.type}`}
                 clickFunction={() => {}}
+                progress={progressions[content?.node?.order]?.node?.progress}
               />
             );
           } else if ("name" in node) {
@@ -120,7 +142,8 @@ export const Registration = () => {
                   registrationID,
                   contentID: node.id,
                 })
-              }        
+              }   
+              progress={progressions[content?.node?.order]?.node?.progress}     
             />
             );
           }
