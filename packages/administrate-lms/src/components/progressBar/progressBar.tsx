@@ -70,9 +70,9 @@ export const ProgressBar = ({ numberOfStepsCompleted, numberOfSteps }: ProgressB
       </Text>
       <View className="flex-row mt-2">
         <View className="min-w-full"> 
-          <View ref={targetRef} className="rounded-full bg-gray-200 py-2 px-4"></View>
+          <View ref={targetRef} className="rounded-full bg-gray-400 py-2 px-4"></View>
         </View>
-        <View className="rounded-full -ml-10 h-10 w-10 bg-gray-200 flex items-center justify-center -mt-3">
+        <View className="rounded-full -ml-10 h-10 w-10 bg-gray-400 flex items-center justify-center -mt-3">
           {completionTick}
         </View>
       </View>

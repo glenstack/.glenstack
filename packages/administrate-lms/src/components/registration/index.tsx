@@ -108,7 +108,7 @@ export const Registration = () => {
   console.log(progressions)
 
   return (
-    <View>
+    <View className="bg-white min-h-full">
       <TabsWithDescription title="Administrate LMS" subtitle="Location: Concordia University" tabTitles={tabTitles} selectedTab="Overview"></TabsWithDescription>
       <View className="m-6">
         <ProgressBar numberOfStepsCompleted={registration.completedPiecesOfContent} numberOfSteps={registration.totalPiecesOfContent}/>

@@ -31,16 +31,27 @@ export const CourseItem = ({ title, subtitle, clickFunction, type, progress }: C
 
   var progressIndicator = []
 
+  function truncate(input) {
+    if (input.length > 18) {
+       return input.substring(0, 18) + '...';
+    }
+    return input;
+ };
+
   if (progress == 100) {
     progressIndicator.push(
-      <View className="flex-row bg-green-700 m-4 rounded border border-green-700">
-      <Text className="m-2 text-white">PASSED</Text>
-      <View className="bg-white rounded-r">
-        <Text className="m-2">
-          100%
-        </Text>
+      <View className="flex-row m-4 rounded">
+        <View className="bg-green-700 mt-2 ml-2 mb-2 rounded-l">
+          <Text className="m-1 ml-2 text-xs text-white">PASSED</Text>
+        </View>
+        <View className="bg-white rounded-r">
+          <View className="mt-2 mr-2 mb-2 border border-green-700 rounded-r">
+            <Text className="text-xs m-1">
+              100%
+            </Text>
+          </View>
+        </View>
       </View>
-    </View>
     )
   }
   else if (progress > 0){
@@ -50,7 +61,7 @@ export const CourseItem = ({ title, subtitle, clickFunction, type, progress }: C
         progress={parseInt(progress)}
         size={50}
         strokeWidth={5}
-        circleOneStroke='#ffffff'
+        circleOneStroke='#f3f3f3'
         circleTwoStroke="#186ec2"
       />
     </View>
@@ -66,10 +77,12 @@ export const CourseItem = ({ title, subtitle, clickFunction, type, progress }: C
                 <ResourceType type={type} />
             </View>
             <View className="mt-4 ml-4 mb-4">
-                <Text className="font-bold text-base">{title}</Text>
-                <Text className="text-sm">{subtitle}</Text>
+                <Text className="font-bold text-sm">{ truncate(title) }</Text>
+                <Text className="text-xs">{subtitle}</Text>
             </View>
-            {progressIndicator}
+            <View className="absolute top-0 right-0">
+              {progressIndicator}
+            </View>
         </View>
     </View>
   );
