@@ -4,6 +4,7 @@ import { gql, useQuery } from "@apollo/client";
 import { Logout } from "../login/logout";
 import { TabsWithDescription } from "../tabsWithDescription/tabsWithDescription"
 import { useNavigation } from "@react-navigation/native";
+import { CardAchievement } from "../cardAchievement/cardAchievement"
 
 const ACHIEVEMENTS_QUERY = gql`
 query getAchievements($achievementOrder: AchievementFieldOrder) {
@@ -58,10 +59,26 @@ export const Achievements = () => {
 
   // TODO: Loading & error states
 
+  const achievements = data?.achievements?.edges || []
+
+  //TODO: Certificate URL
+
   return (
     <View>
       <Logout />
       <TabsWithDescription title="Administrate LMS" subtitle="Location: Concordia University" tabTitles={tabTitles} selectedTab="Achievements"></TabsWithDescription>
+      {achievements.map((achievement) => {
+        return(
+          <CardAchievement
+            title={achievement?.node?.achievementType.name}
+            expires={achievement?.node?.expiresAt}
+            issuedFrom={achievement?.node?.registerable?.title}
+            status={achievement?.node?.lifecycleState}
+          >
+          </CardAchievement>
+        )
+        }
+      )}
     </View>
   );
 };
