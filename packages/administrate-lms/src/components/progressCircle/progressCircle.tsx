@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View } from "../base";
+import { View, Text } from "../base";
 import PropTypes from 'prop-types';
 
 export const ProgressCircle = props => {
@@ -26,40 +26,39 @@ export const ProgressCircle = props => {
     }, [setOffset, progress, circumference, offset]);
 
     return (
-        <View>
-            <svg
-                className="svg"
-                width={size}
-                height={size}
-            >
-                <circle
-                    fill="none"
-                    className="svg-circle-bg"
-                    stroke={circleOneStroke}
-                    cx={center}
-                    cy={center}
-                    r={radius}
-                    strokeWidth={strokeWidth}
-                />
-                <circle
-                    fill="none"
-                    className="svg-circle"
-                    ref={circleRef}
-                    stroke={circleTwoStroke}
-                    cx={center}
-                    cy={center}
-                    r={radius}
-                    strokeWidth={strokeWidth}
-                    strokeDasharray={circumference}
-                    strokeDashoffset={offset}
-                />
-                <text 
-                    x={`${center}`} 
-                    y={`${center}`} 
-                    className="svg-circle-text">
-                        {progress}%
-                </text>
-            </svg>
+        <View className="mr-4 mt-1">
+            <View>
+                <svg
+                    className="svg"
+                    width={size}
+                    height={size}
+                >
+                    <circle
+                        fill="none"
+                        className="svg-circle-bg"
+                        stroke={circleOneStroke}
+                        cx={center}
+                        cy={center}
+                        r={radius}
+                        strokeWidth={strokeWidth}
+                    />
+                    <circle
+                        fill="none"
+                        className="svg-circle"
+                        ref={circleRef}
+                        stroke={circleTwoStroke}
+                        cx={center}
+                        cy={center}
+                        r={radius}
+                        strokeWidth={strokeWidth}
+                        strokeDasharray={circumference}
+                        strokeDashoffset={offset}
+                    />
+                </svg>
+            </View>
+            <Text className="-mt-8 ml-4">
+                {progress}%
+            </Text>
         </View>
     );
 }

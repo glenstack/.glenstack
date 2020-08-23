@@ -3,7 +3,7 @@ import { Text, View } from "../base";
 import { gql, useQuery } from "@apollo/client";
 import { RegistrationQuery } from "./__generated__/RegistrationQuery";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
-import { TabsWithDescription } from "../tabsWithDescription/tabsWithDescription"
+import { Header } from "../header/header"
 import { ProgressBar } from "../progressBar/progressBar"
 import { CourseItem } from "../courseItem/courseItem"
 
@@ -109,7 +109,7 @@ export const Registration = () => {
 
   return (
     <View className="bg-white min-h-full">
-      <TabsWithDescription title="Administrate LMS" subtitle="Location: Concordia University" tabTitles={tabTitles} selectedTab="Overview"></TabsWithDescription>
+      <Header title="My Courses"></Header>
       <View className="m-6">
         <ProgressBar numberOfStepsCompleted={registration.completedPiecesOfContent} numberOfSteps={registration.totalPiecesOfContent}/>
       </View>
