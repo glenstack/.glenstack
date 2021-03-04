@@ -1,58 +1,59 @@
 {
   "name": "glenstack.com",
+  "version": "0.1.0",
   "private": true,
-  "homepage": "https://glenstack.com/",
-  "description": "The landing site, glenstack.com",
-  "bugs": {
-    "url": "https://github.com/glenstack/glenstack/issues",
-    "email": "hello@glenstack.com"
-  },
   "dependencies": {
-    "@expo/html-elements": "0.0.0-alpha.5",
-    "@glenstack/ui": "*",
-    "expo": "38.0.3",
-    "gatsby": "2.23.11",
-    "gatsby-image": "2.4.9",
-    "gatsby-plugin-manifest": "2.4.14",
-    "gatsby-plugin-offline": "3.2.13",
-    "gatsby-plugin-postcss": "2.3.6",
-    "gatsby-plugin-react-helmet": "3.3.6",
-    "gatsby-plugin-react-native-web": "3.1.0",
-    "gatsby-plugin-sharp": "2.6.14",
-    "gatsby-source-filesystem": "2.3.14",
-    "gatsby-transformer-sharp": "2.5.7",
-    "prismjs": "1.20.0",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "react-helmet": "6.1.0",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-38.0.0.tar.gz",
-    "react-native-gesture-handler": "https://github.com/software-mansion/react-native-gesture-handler.git#95bfb4df7ce9b1e222d50ead99eee7e27cd79043",
-    "react-native-web": "0.13.0",
-    "react-transition-group": "4.4.1"
-  },
-  "devDependencies": {
-    "@cloudflare/wrangler": "1.10.3",
-    "@tailwindcss/ui": "0.3.0",
-    "@types/react-native": "0.62.14",
-    "@types/react-transition-group": "4.4.0",
-    "autoprefixer": "9.8.4",
-    "babel-preset-expo": "8.2.3",
-    "expo-cli": "3.21.13",
-    "prettier": "2.0.5",
-    "tailwindcss": "1.4.6"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gatsbyjs/gatsby-starter-blog.git"
+    "@testing-library/jest-dom": "5.11.9",
+    "@testing-library/react": "11.2.5",
+    "@testing-library/user-event": "12.8.1",
+    "@types/jest": "26.0.20",
+    "@types/node": "14.14.31",
+    "@types/react": "17.0.2",
+    "@types/react-dom": "17.0.1",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "react-scripts": "4.0.3",
+    "typescript": "4.2.2",
+    "web-vitals": "1.1.0"
   },
   "scripts": {
-    "build": "gatsby build",
-    "lint": "prettier -c \"./src/**/*.{js,jsx,ts,tsx,json,md}\" \"./*.{js,jsx,ts,tsx,json,md}\"",
-    "format": "npm run lint -- --write",
-    "start": "gatsby develop --open",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean",
-    "deploy": "wrangler publish"
+    "start": "craco start",
+    "build": "craco build",
+    "build:fab": "npm run build && npm run fab:build",
+    "fab:build": "fab build",
+    "fab:serve": "fab serve fab.zip",
+    "test": "craco test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@craco/craco": "6.1.1",
+    "@fab/actions": "1.0.0-rc.9",
+    "@fab/cli": "1.0.0-rc.9",
+    "@fab/input-static": "1.0.0-rc.9",
+    "@fab/plugin-render-html": "1.0.0-rc.9",
+    "@fab/plugin-rewire-assets": "1.0.0-rc.9",
+    "@fab/server": "1.0.0-rc.9.p1",
+    "@tailwindcss/postcss7-compat": "2.0.3",
+    "autoprefixer": "9.8.6",
+    "postcss": "7.0.35",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.3"
   }
 }

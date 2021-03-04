@@ -4,7 +4,7 @@
 
 ## Getting Started
 
-1. `git clone git@github.com:glenstack/glenstack.git`
+1. `git clone git@github.com:glenstack/.glenstack.git`
 
 1. `cd glenstack`
 
