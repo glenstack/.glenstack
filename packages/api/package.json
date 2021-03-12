@@ -1,0 +1,20 @@
+{
+  "name": "@glenstack/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {},
+  "devDependencies": {
+    "@cloudflare/workers-types": "2.1.0",
+    "@cloudflare/wrangler": "1.15.0",
+    "ts-loader": "8.0.18",
+    "typescript": "4.2.3",
+    "webpack": "5.25.0"
+  },
+  "dependencies": {
+    "@glenstack/cf-workers-graphql": "1.0.4",
+    "@graphql-tools/schema": "6.0.18",
+    "faunadb": "4.1.1",
+    "graphql": "15.3.0",
+    "graphql-tag": "2.11.0"
+  }
+}

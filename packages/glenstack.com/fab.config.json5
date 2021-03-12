@@ -1,4 +1,3 @@
-// For more information, see https://fab.dev/kb/configuration
 {
   plugins: {
     "@fab/input-static": {
@@ -8,24 +7,12 @@
       fallback: "/index.html",
     },
     "@fab/plugin-rewire-assets": {},
-    // This section defines your build & runtime toolchains. See https://fab.dev/kb/plugins
+    "./api/index": {},
   },
   settings: {
-    // This section defines the variables that are injected, depending on environment.
-    // See https://fab.dev/kb/settings for more info.
     production: {
-      // This environment is special. These variables get compiled into the FAB itself,
-      // allowing for many production-specific optimisations. See https://fab.dev/kb/production
-      // Example setting:
-      // API_URL: 'https://api.example.com/graphql'
-    },
-  },
-  deploy: {
-    "cf-workers": {
-      account_id: "41d154df19739a540756d193a9715370",
-      api_token: "@CF_WORKERS_API_TOKEN",
-      workers_dev: true,
-      script_name: "glenstack-com",
+      WAITLIST_REFERRAL_BUMP_SIZE: 5,
+      BUILD_DATETIME: "2021-03-05T12:34:56Z",
     },
   },
 }
