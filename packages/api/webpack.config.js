@@ -8,7 +8,6 @@ module.exports = {
   mode: "production",
   resolve: {
     extensions: [".ts", ".js"],
-    plugins: [],
     alias: {
       fs: path.resolve(__dirname, "./null.js"),
     },
@@ -16,7 +15,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.ts$/,
         loader: "ts-loader",
         options: {
           transpileOnly: true,
