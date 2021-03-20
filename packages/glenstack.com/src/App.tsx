@@ -1,6 +1,12 @@
 import { ReactComponent as ChevronRight } from "heroicons/solid/chevron-right.svg";
 import { useState } from "react";
-import { SEO } from "./SEO";
+//import { SEO } from "./SEO";
+import Astroghost1 from "./svg/astroghost_1";
+import Astroghost2 from "./svg/astroghost_2";
+import HeaderBackdrop from "./svg/header_backdrop";
+import HeaderBackdropMobile from "./svg/header_backdrop_mobile";
+import SpaceBackdrop from "./svg/space_backdrop";
+import Logo from "./svg/logo";
 
 type Data = {
   loading: boolean;
@@ -63,7 +69,43 @@ export const App = () => {
 
   return (
     <div className="bg-white">
-      <SEO />
+    <div className="container relative overflow-hidden max-w-full">
+      <div className="flex">
+        <SpaceBackdrop className="flex-none transform -scale-x-1 -scale-y-1"/>
+        <div className="transform translate-x-full">
+          <SpaceBackdrop className="flex-none fixed transform -translate-x-1"/>
+        </div>
+      </div>
+      <div className="absolute top-0 left-0">
+        <div className="container absolute">
+          <HeaderBackdrop viewBox="0 0 4782 2258" className="hidden md:block"></HeaderBackdrop>
+          <HeaderBackdropMobile viewBox="0 0 1213 715" className="md:hidden transform -translate-y-64"></HeaderBackdropMobile>
+        </div>
+        <div className="container relative">
+          <div className="flex ml-4 mt-4">
+            <Logo className="flex-none" viewBox="0 0 200 200"/>
+            <p className="font-sans font-bold flex-none -ml-6 text-white text-5xl">Glenstack</p>
+          </div>
+          <p className="font-sans font-bold text-left ml-4 -mt-2 text-white text-4xl sm:text-5xl ml-0 md:text-left md:ml-8">Store, sell and share data</p>
+          <p className="font-sans font-bold text-left ml-4 mt-0 text-white text-xl sm:text-2xl mt-4 ml-0 md:text-left md:ml-8">Access rich data, or monetise your own<br/>View and edit collaboratively.</p>
+          <p className="font-sans font-bold text-white text-lg mt-6 mr-4 text-right md:text-left md:ml-24 md:mt-8 md:mr-0">Coming soon</p>
+        </div>
+      </div>
+      <div className="container absolute top-32">
+        <p className="text-white mt-96 font-sans font-bold text-3xl flex justify-left text-center md:absolute md:mt-80 md:mr-4 lg:mr-0 lg:mt-48 lg:relative ml-0 sm:ml-16 md:text-right md:right-0 lg:text-left lg:ml-152">Sign up now and:<br/>• Gain early access<br/>• Get increased payouts  for access to all<br/>your monetised bases - permanently.</p>
+        <div className="container relative">
+          <div className="top-40 py-3 m-4 text-center bg-white rounded md:mt-128 md:ml-64 lg:ml-156 lg:mt-8 md:mr-4 xl:top-8 xl:rounded-r-none xl:absolute xl:ml-152 xl:px-48 xl:mt-0">someone@example.com</div>
+          <div className="text-white ml-16 mr-16 text-center rounded font-bold top-40 py-3 px-6 bg-yellow-400 ml-0 md:ml-96 md:mt-8 md:mr-32 lg:ml-176 lg:mt-8 lg:mr-20 xl:mr-0 xl:mt-0 xl:left-0 xl:top-8 xl:rounded-l-none xl:ml-280 xl:absolute xl:ml-280">Sign me up!</div>
+        </div>
+      </div>
+      <div className="absolute top-32 left-0 mt-96 ml-48 invisible lg:visible">
+        <Astroghost1/>
+      </div>        
+      <div className="absolute top-0 right-0 invisible transform scale-50 mt-56 md:mt-32 sm:visible md:scale-50 lg:mt-8 lg:scale-100">
+        <Astroghost2/>
+      </div>        
+    </div>
+      {/* <SEO /> */}
       <main>
         {/* Hero section */}
         <div className="pt-8 overflow-hidden sm:pt-12 lg:relative lg:py-48">
