@@ -10,7 +10,7 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    hello: async () => JSON.stringify(await testFauna()),
+    hello: async () => JSON.stringify("hello"),
   },
 };
 
