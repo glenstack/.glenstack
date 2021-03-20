@@ -10,8 +10,9 @@ export function collection(this: any, name: string = ''): any {
         get_ref(){
             return ref
         },
+
         create() {
-            const inputs = { name };
+            const inputs = { name }
 
             return Query(
                 inputs,
@@ -19,19 +20,27 @@ export function collection(this: any, name: string = ''): any {
             );
         },
         get() {
-            const inputs = { ref };
+            const inputs = { ref }
 
             return Query(
                 inputs,
                 q.Get(q.Var('ref')))
-                ;
+                
         },
 
         insert(data: Record<string, any>) {
             const inputs = { ref };
             return Query(inputs, q.Create(q.Var('ref'), {
-                data: data
+                data
             }))
+        },
+
+        findById(id: string) {
+            const inputs = { ref };
+
+            return Query(
+                inputs,
+                q.Get(q.Ref(q.Var('ref'), id)))
         },
 
         findAll(){

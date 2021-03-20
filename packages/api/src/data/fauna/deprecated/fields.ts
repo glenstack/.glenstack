@@ -1,6 +1,6 @@
 import { query as q } from 'faunadb';   
-import {Query, Queries} from './query' 
-import { collection } from './collection';
+import {Query, Queries} from '../query' 
+import { collection } from '../collection';
 import { relation } from './relation';
 import { print } from 'graphql';
 

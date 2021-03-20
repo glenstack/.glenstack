@@ -1,6 +1,6 @@
 import { query as q } from 'faunadb';   
-import {Query, Queries} from './query' 
-import { collection } from './collection';
+import {Query, Queries} from '../query' 
+import { collection } from '../collection';
 
 export function relation(name: string = ''): any  {
 
