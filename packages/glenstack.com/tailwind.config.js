@@ -27,6 +27,30 @@ module.exports = {
         '25': '.25',
         '-1': '-1',
       },
+      keyframes: {
+        slideinleft: {
+          '0%': { transform: 'translateX(-750px)' },
+          '100%': { transform: 'translateX(0px)' }
+        },
+        slideinright: {
+          '0%': { transform: 'translateX(1500px)' },
+          '100%': { transform: 'translateX(0px)' }
+        },  
+        fadein: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '100' }
+        },              
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-2deg)' },
+          '50%': { transform: 'rotate(2deg)' },
+        }
+      },
+      animation: {
+        fadein: 'fadein 1s ease-in-out',
+        slideinright: 'slideinright 1s ease-in-out',         
+        slideinleft: 'slideinleft 2s ease-in-out',
+        wiggle: 'wiggle 2s ease-in-out infinite',
+      },
     },
   },
   variants: {

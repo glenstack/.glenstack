@@ -91,17 +91,17 @@ export const App = () => {
           <p className="font-sans font-bold text-white text-lg mt-6 mr-4 text-right md:text-left md:ml-24 md:mt-8 md:mr-0">Coming soon</p>
         </div>
       </div>
-      <div className="container absolute top-32">
+      <div className="animate-fadein container absolute top-32">
         <p className="text-white mt-96 font-sans font-bold text-3xl flex justify-left text-center md:absolute md:mt-80 md:mr-4 lg:mr-0 lg:mt-48 lg:relative ml-0 sm:ml-16 md:text-right md:right-0 lg:text-left lg:ml-152">Sign up now and:<br/>• Gain early access<br/>• Get increased payouts  for access to all<br/>your monetised bases - permanently.</p>
         <div className="container relative">
           <div className="top-40 py-3 m-4 text-center bg-white rounded md:mt-128 md:ml-64 lg:ml-156 lg:mt-8 md:mr-4 xl:top-8 xl:rounded-r-none xl:absolute xl:ml-152 xl:px-48 xl:mt-0">someone@example.com</div>
           <div className="text-white ml-16 mr-16 text-center rounded font-bold top-40 py-3 px-6 bg-yellow-400 ml-0 md:ml-96 md:mt-8 md:mr-32 lg:ml-176 lg:mt-8 lg:mr-20 xl:mr-0 xl:mt-0 xl:left-0 xl:top-8 xl:rounded-l-none xl:ml-280 xl:absolute xl:ml-280">Sign me up!</div>
         </div>
       </div>
-      <div className="absolute top-32 left-0 mt-96 ml-48 invisible lg:visible">
+      <div className="animate-slideinleft absolute top-32 left-0 mt-96 ml-48 invisible lg:visible">
         <Astroghost1/>
       </div>        
-      <div className="absolute top-0 right-0 invisible transform scale-50 mt-56 md:mt-32 sm:visible md:scale-50 lg:mt-8 lg:scale-100">
+      <div className="animate-slideinright absolute top-0 right-0 invisible transform scale-50 mt-56 md:mt-32 sm:visible md:scale-50 lg:mt-8 lg:scale-100">
         <Astroghost2/>
       </div>        
     </div>
