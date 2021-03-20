@@ -1,35 +1,53 @@
-import { query as q } from 'faunadb';   
-import {Query} from './query' 
+import { query as q } from 'faunadb';
+import { Query } from './query'
 
-export function collection(this: any, name: string = ''): any  {
-    const self  = this;
+export function collection(this: any, name: string = ''): any {
+    const self = this;
     const ref = q.Collection(name);
 
     return {
-        create() {
 
+        get_ref(){
+            return ref
+        },
+        create() {
             const inputs = { name };
 
-            return self.query(Query(
+            return Query(
                 inputs,
                 q.CreateCollection({ name })
-            ));
+            );
         },
         get() {
             const inputs = { ref };
-            
-            return self.query(Query(
+
+            return Query(
                 inputs,
                 q.Get(q.Var('ref')))
-            );
+                ;
         },
 
-        date(){
+        insert(data: Record<string, any>) {
+            const inputs = { ref };
+            return Query(inputs, q.Create(q.Var('ref'), {
+                data: data
+            }))
+        },
 
-            return self.query(Query({},q.ToDate("2020-03-12")))
+        findAll(){
+            const inputs = { ref };
+            return Query(inputs,q.Map(
+                q.Paginate(q.Documents(q.Var('ref'))),
+                q.Lambda(x => q.Get(x))
+              ))
+        },
+
+        date() {
+
+            return Query({}, q.ToDate("2020-03-12"))
 
         }
-     
-}
+
+    }
 
 }

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "ts-node-dev src/data/fauna/index.ts --debounce"
+    "test": "ts-node-dev src/data/index.ts --debounce"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "2.1.0",

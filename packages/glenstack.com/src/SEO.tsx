@@ -36,7 +36,7 @@ export const SEO: FC = () => {
     },
     copyrightYear: "2021",
     dateCreated: "2021-03-05",
-    dateModified: (window as any).FAB_SETTINGS.BUILD_DATETIME,
+    //dateModified: (window as any).FAB_SETTINGS.BUILD_DATETIME, Fails on post-commit hook
     datePublished: "2021-03-05",
     headline,
     inLanguage: "en",

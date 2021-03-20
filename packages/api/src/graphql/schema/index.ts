@@ -1,6 +1,6 @@
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import gql from "graphql-tag";
-import { testFauna } from "../../data/fauna";
+
 
 const typeDefs = gql`
   type Query {

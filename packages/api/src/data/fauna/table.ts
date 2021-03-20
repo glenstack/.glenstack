@@ -1,29 +1,20 @@
 import { query as q } from 'faunadb';   
-import {Query} from './query' 
+import {Query, Queries} from './query' 
+import { collection } from './collection';
+import { fields } from './fields';
 
-export function table(this: any, name: string = ''): any  {
-    const self  = this;
+export function table(name: string = ''): any  {
 
-    const rows = self.collection(name);
-    const fields = self.collection(name+"_fields");
-    const table_to_fields = self.collection(name+"_to_fields");
+    const rows = collection(name);
+    const _fields = fields(name+"_fields",rows.ref);
+    const table_to_fields = collection(name+"_to_fields");
     return {
-        async create() {
-            return [await rows.create(), await fields.create(), await table_to_fields.create()]
-        },
-        get() {
-            const inputs = { rows };
-            
-            return self.query(Query(
-                inputs,
-                q.Get(q.Var('ref')))
-            );
-        },
+        ...rows,
+        fields: _fields,
 
-        add_field(fieldName: string) {
-            
-        }
-     
+        create() {
+            return Queries([rows.create(), _fields.create(), table_to_fields.create()])
+        },
 }
 
 }
