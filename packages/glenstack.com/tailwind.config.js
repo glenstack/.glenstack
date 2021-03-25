@@ -12,6 +12,18 @@ module.exports = {
       fontFamily: {
         sans: ["Inter var", ...defaultTheme.fontFamily.sans],
       },
+      width: {
+        '100': '25rem',
+        '120': '30rem',
+        '-120': '-30rem',        
+        '128': '32rem',
+        '136': '34rem',
+        '152': '38rem',
+        '156': '39rem',
+        '176': '44rem',
+        '232': '58rem',
+        '280': '70rem',
+      },      
       margin: {
         '100': '25rem',
         '120': '30rem',
