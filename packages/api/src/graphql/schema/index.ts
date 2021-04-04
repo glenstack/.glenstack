@@ -129,9 +129,22 @@ const bookType = new GraphQLFaunaObjectType({
   collectionName: "books",
   fields: () => ({
     id: {type: GraphQLID},
-    userTitle: { type: GraphQLString }
+    userTitle: { type: GraphQLString },
+    authors: {type: GraphQLList(authorType)}
+
   }),
-  mappings:  {userTitle: "title"}
+  mappings:  {userTitle: "title", authors: q.Ref(q.Collection("fields"), "294845329476420097")}
+})
+
+const authorType = new GraphQLFaunaObjectType({
+  name: 'Author',
+  collectionName: "authors",
+  fields: () => ({
+    id: {type: GraphQLID},
+    userName: { type: GraphQLString }
+    
+  }),
+  mappings:  {userName: "name"}
 })
 
 const queryType = new GraphQLObjectType({
@@ -152,7 +165,7 @@ const queryType = new GraphQLObjectType({
         console.log("res"+JSON.stringify(result))
       
         // console.log("ref"+JSON.stringify())
-        return result.data
+        return result
         return [{title: 'Harry Potter'}]
         // q.Select("data",collection("books").findMany()) 
     }
@@ -167,7 +180,7 @@ const CURRENT_DOC = "__CD__"
 const CURRENT_DOC_VAR = q.Var(CURRENT_DOC)
 
 const nestedQuery = (query: any, field:any, fieldObj:any, isList: boolean) => {
-    if (isList) return q.Map(query, q.Lambda(CURRENT_DOC, fieldObj))
+    if (isList) return q.Select("data",q.Map(query, q.Lambda(CURRENT_DOC, fieldObj)))
     return q.Let(
         {
             [CURRENT_DOC]: query,
@@ -210,6 +223,8 @@ const generateParseFn = (typeInfo, fieldName) => node => {
 const generateSelector = (name: string, parentType:any, isLeaf = true) => {
   console.log("FQL"+JSON.stringify(parentType.fql))
   // if (c?.fields?.[name]) return [name, parentType.fql?.fields?.[name](CURRENT_DOC_VAR, q)]
+  // if (name === "authors") return [name,q.Select(["data"], CURRENT_DOC_VAR)]
+  
   if (isLeaf) {
       if (name === "id" )
           return [name, q.Select(["ref","id"], CURRENT_DOC_VAR)]
@@ -283,25 +298,44 @@ const generateFaunaQuery = (resolveInfo: GraphQLResolveInfo, query: Expr) => {
           typeInList
       } = parseFieldNode(node)
 
+      let nextQuery
+
       if (isRoot && !isFaunaObjectType)
           throw new Error("Invalid root type. Must be a FaunaGraphQL type")
       if (isLeaf)
           return generateSelector(returnName, parentType)
+      
+      // if (selectionSet && !isRoot) {
+      //       return generateSelector(returnName, parentType)
+      //   } 
+      
       console.log("parse"+JSON.stringify(parseFieldNode(node)))
-      if (isRoot)  {
-        console.log("coll"+JSON.stringify(typeInList.collectionName))
+      if (isRoot) nextQuery = query 
+      if (!nextQuery )
+      {
+        console.log(JSON.stringify(type))
+        nextQuery = q.Map(q.Paginate(
+        q.Match(q.Index("relationsA"), [
+          parentType.mappings[name],
+          q.Select(["ref"], CURRENT_DOC_VAR)
+          // q.Ref(q.Collection("books"), "294845496036426241")
+        ])
+      ),q.Lambda("ref", q.Get(q.Var("ref"))))
+      }
+     
         return [
           returnName,
-          nestedQuery(query, field, selectionSet, isList),
+          nestedQuery(nextQuery, field, selectionSet, isList),
       ]
-      }
+      
+      
       return {}
   },}
   }
   
   try {
     const res = visit(operation, visitWithTypeInfo(typeInfo, visitor))
-    console.log(res.selectionSet.rootFQL.raw)
+    console.log("fqlend"+JSON.stringify(res.selectionSet.rootFQL.raw))
     return res.selectionSet.rootFQL
   } catch (err) {
     console.error(err)
