@@ -43,11 +43,11 @@ export function collection(this: any, name: string = ''): any {
                 q.Get(q.Ref(q.Var('ref'), id)))
         },
 
-        findAll(){
+        findMany(){
             const inputs = { ref };
             return Query(inputs,q.Map(
                 q.Paginate(q.Documents(q.Var('ref'))),
-                q.Lambda(x => q.Get(x))
+                q.Lambda(x => q.Select("data",q.Get(x)))
               ))
         },
 
