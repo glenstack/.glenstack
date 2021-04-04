@@ -14,7 +14,8 @@ import {
   defaultFieldResolver,
   GraphQLSchema,
   GraphQLString,
-  GraphQLObjectType
+  GraphQLObjectType,
+  GraphQLID
 } from "graphql"
 
 // import { SchemaDirectiveVisitor } from '@graphql-tools/utils';
@@ -105,7 +106,7 @@ const gdl = new DataLayer();
 
 class GraphQLFaunaObjectType extends GraphQLObjectType {
   collectionName: string
-  fql: object
+  mappings: object
   constructor({
       name,
       fields,
@@ -113,12 +114,12 @@ class GraphQLFaunaObjectType extends GraphQLObjectType {
       interfaces = undefined,
       isTypeOf = undefined,
       fqlTypeCheck = undefined,
-      fql = {},
+      mappings = {},
   }) {
       // if (interfaces?.length) validateInterfaces(interfaces)
       super({ name, fields, interfaces, isTypeOf })
       this.collectionName = collectionName
-      this.fql = fql
+      this.mappings = mappings
   }
   static isFaunaGraphQLType: true
 }
@@ -127,9 +128,10 @@ const bookType = new GraphQLFaunaObjectType({
   name: 'Book',
   collectionName: "books",
   fields: () => ({
-    title: { type: GraphQLString }
+    id: {type: GraphQLID},
+    userTitle: { type: GraphQLString }
   }),
-  fql:  {hello: "yes"}
+  mappings:  {userTitle: "title"}
 })
 
 const queryType = new GraphQLObjectType({
@@ -141,14 +143,16 @@ const queryType = new GraphQLObjectType({
       
       resolve: async (obj: any, { size }, context: any, info: any) => {
         console.log("hello")
-        console.log("res"+JSON.stringify(await gdl.query(generateFaunaQuery(info, q.Map(
+        let result = await gdl.query(generateFaunaQuery(info, q.Map(
           q.Paginate(q.Documents(q.Collection("books")), {
               size,
           }),
           q.Lambda("ref", q.Get(q.Var("ref")))
-      )))))
+      )))
+        console.log("res"+JSON.stringify(result))
       
         // console.log("ref"+JSON.stringify())
+        return result.data
         return [{title: 'Harry Potter'}]
         // q.Select("data",collection("books").findMany()) 
     }
@@ -207,12 +211,14 @@ const generateSelector = (name: string, parentType:any, isLeaf = true) => {
   console.log("FQL"+JSON.stringify(parentType.fql))
   // if (c?.fields?.[name]) return [name, parentType.fql?.fields?.[name](CURRENT_DOC_VAR, q)]
   if (isLeaf) {
-      if (name === "id" || name === "ref")
+      if (name === "id" )
+          return [name, q.Select(["ref","id"], CURRENT_DOC_VAR)]
+      if (name === "ref")
           return [name, q.Select(["ref"], CURRENT_DOC_VAR)]
       if (name === "ts")
           return [name, q.Select(["ts"], CURRENT_DOC_VAR)]
   }
-  return [name, q.Select(["data", name], CURRENT_DOC_VAR)]
+  return [name, q.Select(["data", parentType.mappings[name]], CURRENT_DOC_VAR)]
 }
 
 const defaultEmbedQuery = (fieldName, isList) => {
