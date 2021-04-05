@@ -18,95 +18,13 @@ import {
   GraphQLID
 } from "graphql"
 
-// import { SchemaDirectiveVisitor } from '@graphql-tools/utils';
-
-// export class renameField extends SchemaDirectiveVisitor {
-//   visitFieldDefinition(field: any) {
-//     const { name } = this.args;
-//     const { resolve = defaultFieldResolver } = field;
-//     field.resolve = async (object: any, args:  any, context: any, info: any) => {
-//       object[field.name] = object[name];
-//       delete object[name];
-//       return resolve.call(this, object, args, context, info);
-//     };
-//   }
-// }
-
-
 const gdl = new DataLayer();
-
-// s
-
-// const typeDefs = gql`
-
-// directive @renameField(name: String = "abc") on FIELD_DEFINITION | OBJECT
-
-//   type Query {
-//     hello: String!
-//     books: [Book]
-//   }
-//   type Book {
-//     id: String!
-//     titleo: String @renameField(name: "title")
-//     authors: [Author]
-//   }
-//   type Author {
-//     name: String
-//   }
-// `;
-
-// const resolvers = {
-//   Query: {
-//     hello: async () => JSON.stringify("hello"),
-//     books: async (obj: any, args: any, context: any, info: any) => {
-//       console.log("hello")
-//       console.log("res"+JSON.stringify(await gdl.query(generateFaunaQuery(info))))
-//       return [{title: 'Harry Potter'}]
-//       // q.Select("data",collection("books").findMany()) 
-//   }
-//   // Book: {
-//   //   authors(book: any) {
-//   //     return [{"name": "jo"}]
-//   //     }
-//   //   }
-// }
-// };
-
-// const generateFaunaQuery = (resolveInfo: GraphQLResolveInfo) => {
-//   // let query = parseResolveInfo(resolveInfo)
-//   const parsedResolveInfoFragment = parseResolveInfo(resolveInfo);
-//   const simplifiedFragment = simplifyParsedResolveInfoFragmentWithType(
-//     parsedResolveInfoFragment,
-//     resolveInfo.returnType
-//   );
-//   console.log(JSON.stringify(resolveInfo))
-//   const {fields, name} = simplifiedFragment
-//   // console.log("hi" + JSON.stringify(Object.values(fields)))
-//   let nested = {}
-//   for (let field of Object.values(fields)) {
-//     console.log(JSON.stringify(field))
-//       nested[field.name] = q.Select(["data",field.name],q.Var("doc"))
-//   }
-//   // console.log(JSON.stringify(simplifiedFragment))
-
-//   // let entity = resolveInfo.fieldNodes[0]; //if multiple queries in graphql query, should iterate rather than taking first element
-//   // console.log("nested"+JSON.stringify(nested))
-//   // console.log("name"+name)
-//   return q.Map(q.Paginate(q.Documents(q.Collection(name))),q.Lambda("docRef",q.Let({"doc": q.Get(q.Var("docRef"))}, nested)))
-  
-
-//   // console.log(JSON.stringify(resolveInfo.fieldNodes[0].selectionSet.selections))
-
-// }
-
-
-
 
 
 
 class GraphQLFaunaObjectType extends GraphQLObjectType {
   collectionName: string
-  mappings: object
+  metaSchema: object
   constructor({
       name,
       fields,
@@ -114,37 +32,38 @@ class GraphQLFaunaObjectType extends GraphQLObjectType {
       interfaces = undefined,
       isTypeOf = undefined,
       fqlTypeCheck = undefined,
-      mappings = {},
+      metaSchema = {},
   }) {
       // if (interfaces?.length) validateInterfaces(interfaces)
       super({ name, fields, interfaces, isTypeOf })
       this.collectionName = collectionName
-      this.mappings = mappings
+      this.metaSchema = metaSchema
   }
   static isFaunaGraphQLType: true
 }
 
 const bookType = new GraphQLFaunaObjectType({
   name: 'Book',
-  collectionName: "books",
+  collectionName: "294845138632442369",
   fields: () => ({
     id: {type: GraphQLID},
-    userTitle: { type: GraphQLString },
+    title: { type: GraphQLString },
     authors: {type: GraphQLList(authorType)}
 
   }),
-  mappings:  {userTitle: "title", authors: q.Ref(q.Collection("fields"), "294845329476420097")}
+  metaSchema:  {title: { fieldId: "294845251673129473", type:"string"}, authors: { fieldId: "294845329476420097", type:"relation",  from: 'A'}}
 })
 
 const authorType = new GraphQLFaunaObjectType({
   name: 'Author',
-  collectionName: "authors",
+  collectionName: "294845159814726145",
   fields: () => ({
     id: {type: GraphQLID},
-    userName: { type: GraphQLString }
+    name: { type: GraphQLString },
+    books: {type: GraphQLList(bookType)}
     
   }),
-  mappings:  {userName: "name"}
+  metaSchema:  {name: { fieldId: "294845354656924161", type:"string"}, books: { fieldId: "294845383336526337", type:"relation",  from: 'B'}}
 })
 
 const queryType = new GraphQLObjectType({
@@ -152,22 +71,38 @@ const queryType = new GraphQLObjectType({
   fields: {
     books: {
       type: GraphQLList(bookType),
-      // `args` describes the arguments that the `user` query accepts
       
       resolve: async (obj: any, { size }, context: any, info: any) => {
-        console.log("hello")
+      
         let result = await gdl.query(generateFaunaQuery(info, q.Map(
-          q.Paginate(q.Documents(q.Collection("books")), {
+          q.Paginate(q.Documents(q.Collection(bookType.collectionName)), {
               size,
           }),
           q.Lambda("ref", q.Get(q.Var("ref")))
       )))
         console.log("res"+JSON.stringify(result))
       
-        // console.log("ref"+JSON.stringify())
+      
         return result
-        return [{title: 'Harry Potter'}]
-        // q.Select("data",collection("books").findMany()) 
+      
+    }
+    },
+    authors: {
+      type: GraphQLList(authorType),
+      
+      resolve: async (obj: any, { size }, context: any, info: any) => {
+      
+        let result = await gdl.query(generateFaunaQuery(info, q.Map(
+          q.Paginate(q.Documents(q.Collection(authorType.collectionName)), {
+              size,
+          }),
+          q.Lambda("ref", q.Get(q.Var("ref")))
+      )))
+        console.log("res"+JSON.stringify(result))
+      
+      
+        return result
+      
     }
     }
   }
@@ -189,7 +124,7 @@ const nestedQuery = (query: any, field:any, fieldObj:any, isList: boolean) => {
     )
 }
 
-const generateParseFn = (typeInfo, fieldName) => node => {
+const generateParseFn = (typeInfo, fieldName, gqlSchema) => node => {
   const name = node.name.value
   const type = typeInfo.getType()
   const parentType = typeInfo.getParentType()
@@ -202,7 +137,8 @@ const generateParseFn = (typeInfo, fieldName) => node => {
   // @ts-ignore
   const typeInList = isList ? type.ofType : null
   const isLeaf = isLeafType(type) || isLeafType(typeInList)
-  const isRoot = name === fieldName
+  const isRoot = parentType === gqlSchema.getQueryType() //TODO: Consider mutation and subscription type
+  console.log("types"+gqlSchema.getQueryType()+parentType)
   const returnName = isRoot ? "rootFQL" : name
 
   return {
@@ -233,7 +169,7 @@ const generateSelector = (name: string, parentType:any, isLeaf = true) => {
       if (name === "ts")
           return [name, q.Select(["ts"], CURRENT_DOC_VAR)]
   }
-  return [name, q.Select(["data", parentType.mappings[name]], CURRENT_DOC_VAR)]
+  return [name, q.Select(["data", parentType.metaSchema[name].fieldId], CURRENT_DOC_VAR)]
 }
 
 const defaultEmbedQuery = (fieldName, isList) => {
@@ -247,10 +183,10 @@ const defaultEmbedQuery = (fieldName, isList) => {
 
 
 const generateFaunaQuery = (resolveInfo: GraphQLResolveInfo, query: Expr) => {
-  const { operation, schema: querySchema, fieldName } = resolveInfo
-  const typeInfo = new TypeInfo(querySchema)
+  const { operation, schema: gqlSchema, fieldName } = resolveInfo
+  const typeInfo = new TypeInfo(gqlSchema)
 
-  const parseFieldNode = generateParseFn(typeInfo, fieldName)
+  const parseFieldNode = generateParseFn(typeInfo, fieldName, gqlSchema)
   console.log(JSON.stringify("pn"+parseFieldNode))
 
   const visitor = {
@@ -315,10 +251,10 @@ const generateFaunaQuery = (resolveInfo: GraphQLResolveInfo, query: Expr) => {
       {
         console.log(JSON.stringify(type))
         nextQuery = q.Map(q.Paginate(
-        q.Match(q.Index("relationsA"), [
-          parentType.mappings[name],
+        q.Match(q.Index("relations"+parentType.metaSchema[name].from), [
+          parentType.metaSchema[name].fieldId,
           q.Select(["ref"], CURRENT_DOC_VAR)
-          // q.Ref(q.Collection("books"), "294845496036426241")
+          
         ])
       ),q.Lambda("ref", q.Get(q.Var("ref"))))
       }
