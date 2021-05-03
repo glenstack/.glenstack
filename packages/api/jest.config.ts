@@ -5,5 +5,6 @@ const config: Config.InitialOptions = {
   testEnvironment: "node",
   displayName: "API",
   collectCoverageFrom: ["src/**/*"],
+  coverageReporters: [["lcov", { projectRoot: "../.." }]],
 };
 export default config;
