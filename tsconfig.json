@@ -6,6 +6,7 @@
     "lib": ["ES2020", "WebWorker"],
     "strict": true,
     "preserveConstEnums": true,
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "esModuleInterop": true
   }

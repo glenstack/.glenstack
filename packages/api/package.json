@@ -1,10 +1,9 @@
 {
   "name": "@glenstack/api",
-  "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --outfile=dist/index.js --format=esm",
+    "build": "esbuild src/index.ts --bundle --outfile=dist/index.js --format=esm --minify --sourcemap",
     "lint": "eslint --ignore-path .gitignore 'src/**/*'",
     "check-types": "tsc",
     "prettier": "prettier -c ../../.prettierrc --ignore-path .gitignore '**/*.(js|ts|json|md)'",
@@ -34,6 +33,7 @@
     "eslint-config-prettier": "8.3.0",
     "faunadb": "4.2.0",
     "graphql": "15.3.0",
-    "graphql-tag": "2.11.0"
+    "graphql-tag": "2.11.0",
+    "toucan-js": "2.5.0-beta.1"
   }
 }

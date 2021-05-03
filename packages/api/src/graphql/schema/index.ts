@@ -290,7 +290,8 @@ const generateFaunaQuery = (resolveInfo: GraphQLResolveInfo, query: Expr) => {
   return q.ToDate("2020-03-12");
 };
 
-export const schema = new GraphQLSchema({ query: queryType });
+export const schema = {};
+// export const schema = new GraphQLSchema({ query: queryType });
 // export const schema = makeExecutableSchema({ typeDefs, resolvers,  schemaDirectives: {
 //   renameField
 // } });
