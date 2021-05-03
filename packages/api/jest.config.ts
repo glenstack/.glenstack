@@ -7,4 +7,5 @@ const config: Config.InitialOptions = {
   collectCoverageFrom: ["src/**/*"],
   coverageReporters: [["lcov", { projectRoot: "../.." }]],
 };
+
 export default config;
