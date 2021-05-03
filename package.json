@@ -3,11 +3,13 @@
   "private": true,
   "devDependencies": {
     "husky": "6.0.0",
-    "lerna": "4.0.0"
+    "lerna": "4.0.0",
+    "lint-staged": "10.5.4"
   },
   "scripts": {
     "postinstall": "lerna bootstrap && husky install",
     "test": "lerna run test",
+    "validate": "lerna run validate",
     "start": "lerna run --parallel start",
     "build": "lerna run build"
   }
