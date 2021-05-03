@@ -2,11 +2,23 @@
 
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 
+## Rrerequisites
+
+- [nvm (Node Version Manager)](https://github.com/nvm-sh/nvm) v0.38.0.
+
+  Install with:
+
+  ```sh
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+  ```
+
 ## Getting Started
 
 1. `git clone git@github.com:glenstack/.glenstack.git`
 
-1. `cd glenstack`
+1. `cd .glenstack`
+
+1. `nvm use`
 
 1. `npm i`
 
