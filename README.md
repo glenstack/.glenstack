@@ -22,6 +22,10 @@
 
 1. `npm i`
 
+## Recommended Extensions
+
+Opening this project in [Visual Studio Code](https://code.visualstudio.com/) should prompt you to optionally install the recommended extensions. If not, search for `@recommended` in the Extensions panel. These will probably enhance your developer experience and should be considered.
+
 ## Scripts
 
 Unless otherwise specified, these scripts are run across all packages.
