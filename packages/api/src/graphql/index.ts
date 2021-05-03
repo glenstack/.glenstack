@@ -1,14 +1,15 @@
 import { schema } from "./schema";
 import { makeGraphQLHandler } from "@glenstack/cf-workers-graphql";
-import Toucan from "toucan-js";
+import type Toucan from "toucan-js";
 
-export const handleRequest = (request: Request, sentry: Toucan) =>
+export const handleRequest = (
+  request: Request,
+  sentry: Toucan
+): Promise<Response> =>
   makeGraphQLHandler(schema, {
     makeErrorResponse: async (request, error) => {
       sentry.captureException(error);
-      return new Response(
-        JSON.stringify({ message: error.message, stack: error.stack }),
-        { headers: { "Content-Type": "application/json" } }
-      );
+      // TODO: Nice error page
+      return new Response("Internal error", { status: 500 });
     },
   })(request);
