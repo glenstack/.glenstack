@@ -3,7 +3,7 @@
   "private": true,
   "main": "dist/worker.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --outfile=dist/worker.js --format=esm --minify --sourcemap",
+    "build": "esbuild src/index.ts --bundle --outfile=dist/worker.js --format=esm --minify --sourcemap --define:VERSION=\\\"$(git rev-parse HEAD)\\\"",
     "lint": "eslint --ignore-path .gitignore 'src/**/*'",
     "check-types": "tsc",
     "prettier": "prettier -c ../../.prettierrc --ignore-path .gitignore '**/*.(js|ts|json|md)'",

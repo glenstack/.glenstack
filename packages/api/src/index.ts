@@ -7,7 +7,7 @@ addEventListener("fetch", (event) => {
     dsn: SENTRY_DSN,
     event,
     pkg,
-    release: undefined,
+    release: VERSION,
     rewriteFrames: {
       root: "/",
     },
