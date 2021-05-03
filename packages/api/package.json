@@ -18,7 +18,7 @@
   "dependencies": {
     "@glenstack/cf-workers-graphql": "1.0.4",
     "@graphql-tools/schema": "6.0.18",
-    "faunadb": "4.1.1",
+    "faunadb": "4.2.0",
     "graphql": "15.3.0",
     "graphql-tag": "2.11.0"
   }
