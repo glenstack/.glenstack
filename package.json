@@ -8,9 +8,6 @@
   },
   "scripts": {
     "postinstall": "lerna bootstrap && husky install",
-    "test": "lerna run test",
-    "validate": "lerna run validate",
-    "start": "lerna run --parallel start",
-    "build": "lerna run build"
+    "coverage": "lerna run coverage"
   }
 }

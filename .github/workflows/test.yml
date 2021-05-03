@@ -17,5 +17,11 @@ jobs:
           node-version: "${{ steps.nvm.outputs.NVMRC }}"
       - name: Install
         run: npm ci
-      - name: Test
-        run: npm test
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v2.7.5
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        with:
+          coverageCommand: npm run coverage
+          coverageLocations: |
+            ${{github.workspace}}/package/api/coverage/lcov.info:lcov
