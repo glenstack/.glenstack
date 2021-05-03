@@ -11,7 +11,8 @@
     "check-format": "npm run prettier -- --list-different",
     "precommit": "npm run check-types && lint-staged && npm run build",
     "validate": "concurrently 'npm:check-types' 'npm:check-format' 'npm:lint' 'npm:build'",
-    "test": "jest --coverage",
+    "test": "jest",
+    "coverage": "npm run test -- --coverage",
     "test:watch": "npm run test -- --watch",
     "test:ragnor": "ts-node-dev src/data/index.ts --debounce",
     "start": "wrangler dev"
