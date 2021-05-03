@@ -8,6 +8,9 @@ addEventListener("fetch", (event) => {
     event,
     pkg,
     release: VERSION,
+    rewriteFrames: {
+      root: "/",
+    },
   });
   event.respondWith(handleEvent(event, sentry));
 });
