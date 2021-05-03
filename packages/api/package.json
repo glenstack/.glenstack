@@ -1,9 +1,9 @@
 {
   "name": "@glenstack/api",
   "private": true,
-  "main": "dist/index.js",
+  "main": "dist/worker.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --outfile=dist/index.js --format=esm --minify --sourcemap",
+    "build": "esbuild src/index.ts --bundle --outfile=dist/worker.js --format=esm --minify --sourcemap",
     "lint": "eslint --ignore-path .gitignore 'src/**/*'",
     "check-types": "tsc",
     "prettier": "prettier -c ../../.prettierrc --ignore-path .gitignore '**/*.(js|ts|json|md)'",

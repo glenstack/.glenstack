@@ -54,4 +54,4 @@ jobs:
           SENTRY_PROJECT: api
         with:
           environment: production
-          sourcemaps: "./packages/api/dist/index.js.map"
+          sourcemaps: "./packages/api/dist/worker.js.map"
