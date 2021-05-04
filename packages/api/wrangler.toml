@@ -12,4 +12,4 @@ upload.format = "service-worker"
 [env.production]
 name = "api"
 route = "https://glenstack.dev/graphql*"
-vars = { ENVIRONMENT = "production"}
+vars = { ENVIRONMENT = "production" }

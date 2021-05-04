@@ -25,3 +25,4 @@ jobs:
           coverageCommand: npm run coverage
           coverageLocations: |
             ${{github.workspace}}/packages/api/coverage/lcov.info:lcov
+            ${{github.workspace}}/packages/auth/coverage/lcov.info:lcov

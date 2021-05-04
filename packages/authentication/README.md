@@ -1,12 +1,12 @@
-# API
+# Authentication
 
-The API that powers Glenstack. It lives at https://glenstack.dev/graphql.
+The authentication service that powers Glenstack. It lives at https://glenstack.dev/login.
 
 ## Scripts
 
 - `npm run start`
 
-  Starts a local version of the API with `wrangler dev` which auto-updates when a change is detected. It is available at [http://127.0.0.1:8787/](http://127.0.0.1:8787/).
+  Starts a local version of the authentication service with `wrangler dev` which auto-updates when a change is detected. It is available at [http://127.0.0.1:8787/](http://127.0.0.1:8787/).
 
   If for some reason you need or want it, you can also elect to run `npm run start:https` which serves this API at [https://127.0.0.1:8787/](https://127.0.0.1:8787/) using a self-signed certificate. You'll need `--insecure` if using cURL, and your browser might throw a warning.
 
