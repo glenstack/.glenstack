@@ -2,7 +2,7 @@ import Toucan from "toucan-js";
 import pkg from "../package.json";
 import { gitHub } from "./external/gitHub";
 import { redirectWithFlash } from "./utils";
-import { signUp } from "./signup";
+import { signUp } from "./signUp";
 
 addEventListener("fetch", (event) => {
   const sentry = new Toucan({
