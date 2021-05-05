@@ -1,7 +1,7 @@
 name = "authentication-dev"
 type = "javascript"
 account_id = "41d154df19739a540756d193a9715370"
-zone_id = "b871929efc74ff6123beaff3a5f55841"
+zone_id = "1a50aad2a97cd8ee713df553f2214779"
 workers_dev = true
 vars = { ENVIRONMENT = "development", SENTRY_DSN = "", GITHUB_CLIENT_ID = "6eb5a1498759538f2d8c", GITHUB_CLIENT_SECRET = "", RS512_PRIVATE_PEM = """-----BEGIN RSA PRIVATE KEY-----
 MIIJKgIBAAKCAgEAr/gEclbhtKRZzMNPn/dVelyCED2IYP5af3A91Z4lTC/fa1ec
