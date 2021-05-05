@@ -82,3 +82,7 @@ upload.format = "service-worker"
 name = "authentication"
 route = "https://glenstack.dev/login*"
 vars = { ENVIRONMENT = "production", GITHUB_CLIENT_ID = "6eb5a1498759538f2d8c" }
+
+kv_namespaces = [
+  { binding = "AUTHENTICATION_DATASTORE", id = "f54d9036183e49bab8aabeea47b7d717", preview_id = "f54d9036183e49bab8aabeea47b7d717" }
+]
