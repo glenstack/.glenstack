@@ -17,7 +17,7 @@ const sign = ({
 
   const header = { alg: "RS512", typ: "JWT" };
   const payload = {
-    iss: "https://glenstack.com/",
+    iss: "https://auth.glenstack.com/",
     sub,
     aud,
     exp: KJUR.jws.IntDate.get(exp),
@@ -35,8 +35,8 @@ const sign = ({
 };
 
 export interface SignUpJWT {
-  iss: "https://glenstack.com/";
-  aud: "https://glenstack.com/login/signup";
+  iss: "https://auth.glenstack.com/";
+  aud: "https://glenstack.com/signup";
   exp: number;
   nbf: number;
   iat: number;
@@ -50,8 +50,8 @@ export interface SignUpJWT {
 export const verifySignUpJWT = (jwt: string): SignUpJWT | undefined => {
   const isValid = KJUR.jws.JWS.verifyJWT(jwt, RS512_PUBLIC_PEM, {
     alg: ["RS512"],
-    iss: ["https://glenstack.com/"],
-    aud: ["https://glenstack.com/login/signup"],
+    iss: ["https://auth.glenstack.com/"],
+    aud: ["https://glenstack.com/signup"],
   });
   if (isValid) {
     return KJUR.jws.JWS.parse(jwt).payloadObj as SignUpJWT;
@@ -68,7 +68,7 @@ export const createSignUpJWT = ({
   userHints?: Partial<Omit<User, "id">>;
 }) =>
   sign({
-    aud: "https://glenstack.com/login/signup",
+    aud: "https://glenstack.com/signup",
     exp: "now + 1hour",
     data: {
       external: external.id,

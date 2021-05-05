@@ -18,7 +18,7 @@ export const signUp = async (request: Request, sentry: Toucan) => {
     const cookie = cookieParse(request.headers.get("cookie") || "");
     const jwt = verifySignUpJWT(cookie.glenstack_signup);
     if (jwt === undefined) {
-      return redirectWithFlash("/login", [
+      return redirectWithFlash("https://glenstack.com/login", [
         {
           message: "Could not verify your user account. Please try again.",
           category: "error",
@@ -59,7 +59,7 @@ export const signUp = async (request: Request, sentry: Toucan) => {
     }
 
     return redirectWithFlash(
-      "/login",
+      "https://glenstack.com/login",
       errorMessages.map((message) => ({
         message,
         category: "error",

@@ -1,6 +1,5 @@
 import type Toucan from "toucan-js";
 import { ClientError, External, ExternalError } from ".";
-import { User } from "../user";
 
 class GitHub extends External {
   constructor() {
@@ -10,7 +9,7 @@ class GitHub extends External {
   redirect() {
     // TODO: Should provide and validate with a `state` parameter to prevent CSRF
     return new Response(null, {
-      status: 301,
+      status: 302,
       headers: {
         Location: `https://github.com/login/oauth/authorize?scope=user:email&client_id=${GITHUB_CLIENT_ID}`,
       },

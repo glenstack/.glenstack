@@ -54,23 +54,28 @@ export abstract class External {
         sentry
       );
       if (user) {
-        return signIn(user);
+        return await signIn(user);
       } else {
         return new Response(null, {
           status: 302,
           headers: {
-            Location: "/login/signup",
+            Location: "https://glenstack.com/signup",
             "Set-Cookie": cookieSerialize(
               "glenstack_signup",
               createSignUpJWT({ externalID, external: this, userHints }),
-              { secure: true, maxAge: 60 * 60, path: "/login" }
+              {
+                secure: true,
+                maxAge: 60 * 60,
+                domain: "glenstack.com",
+                path: "/",
+              }
             ),
           },
         });
       }
     } catch (error) {
       if (error instanceof ClientError) {
-        return redirectWithFlash("/login", [
+        return redirectWithFlash("https://glenstack.com/login", [
           {
             message: error.message,
             category: "error",
@@ -78,7 +83,7 @@ export abstract class External {
         ]);
       } else {
         sentry.captureException(error);
-        return redirectWithFlash("/login", [
+        return redirectWithFlash("https://glenstack.com/login", [
           {
             message:
               error instanceof ExternalError

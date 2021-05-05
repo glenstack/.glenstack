@@ -12,6 +12,7 @@ export const flash = (flashContents: Flash[]) => ({
     JSON.stringify(flashContents),
     {
       secure: true,
+      domain: "glenstack.com",
       path: "/",
     }
   ),

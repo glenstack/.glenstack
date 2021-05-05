@@ -80,7 +80,7 @@ upload.format = "service-worker"
 
 [env.production]
 name = "authentication"
-route = "https://glenstack.dev/login*"
+route = "https://auth.glenstack.com/*"
 vars = { ENVIRONMENT = "production", GITHUB_CLIENT_ID = "6eb5a1498759538f2d8c" }
 
 kv_namespaces = [

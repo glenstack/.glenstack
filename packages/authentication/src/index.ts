@@ -30,14 +30,17 @@ const handleEvent = async (
       return gitHub.redirect();
     } else if (pathname === "/login/github/callback" && method === "GET") {
       return await gitHub.callback(request, sentry);
-    } else if (pathname === "/login/signup" && method === "POST") {
+    } else if (pathname === "/signup" && method === "POST") {
       return await signUp(request, sentry);
     } else {
-      return fetch(request);
+      return new Response(null, {
+        status: 302,
+        headers: { Location: "https://glenstack.com/login" },
+      });
     }
   } catch (error) {
     sentry.captureException(error);
-    return redirectWithFlash("/login", [
+    return redirectWithFlash("https://glenstack.com/login", [
       {
         message:
           "An unexpected error has occurred. The Glenstack team has been notified.",
