@@ -43,16 +43,13 @@ export abstract class External {
     sentry: Toucan
   ): Promise<{
     externalID: string;
-    user?: User;
-    userHints?: Partial<Omit<User, "id">>;
+    userHints?: Partial<Omit<User, "id" | "externals">>;
   }>;
 
   async callback(request: Request, sentry: Toucan) {
     try {
-      const { externalID, user, userHints } = await this._callback(
-        request,
-        sentry
-      );
+      const { externalID, userHints } = await this._callback(request, sentry);
+      const user = await this.findUser({ externalID: externalID.toString() });
       if (user) {
         return await signIn(user);
       } else {

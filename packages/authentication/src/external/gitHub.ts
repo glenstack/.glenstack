@@ -60,9 +60,6 @@ class GitHub extends External {
       throw new ExternalError(this);
     }
 
-    let user = await this.findUser({ externalID: externalID.toString() });
-    if (user) return { externalID, user };
-
     return { externalID, userHints: { name, email } };
   }
 }

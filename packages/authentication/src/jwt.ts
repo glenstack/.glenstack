@@ -40,11 +40,9 @@ export interface SignUpJWT {
   exp: number;
   nbf: number;
   iat: number;
-  data: {
-    "https://glenstack.com/#external": string;
-    "https://glenstack.com/#externalID": string;
-    "https://glenstack.com/#userHints"?: string;
-  };
+  "https://glenstack.com/#external": string;
+  "https://glenstack.com/#externalID": string;
+  "https://glenstack.com/#userHints"?: string;
 }
 
 export const verifySignUpJWT = (jwt: string): SignUpJWT | undefined => {

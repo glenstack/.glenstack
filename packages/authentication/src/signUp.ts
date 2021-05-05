@@ -25,29 +25,33 @@ export const signUp = async (request: Request, sentry: Toucan) => {
         },
       ]);
     }
-    const external = externals.find(
-      (external) => external.id === jwt.data["https://glenstack.com/#external"]
-    );
+    // TODO
+    // const external = externals.find(
+    //   (external) => external.id === jwt["https://glenstack.com/#external"]
+    // );
+    const external = gitHub;
     if (external === undefined) {
       const error = new Error(
-        `A user tried to sign up with a valid JWT tied to an unknown external service: ${jwt.data["https://glenstack.com/#external"]}`
+        `A user tried to sign up with a valid JWT tied to an unknown external service: ${jwt["https://glenstack.com/#external"]}`
       );
       sentry.captureException(error);
       throw error;
     }
 
-    const data = new URLSearchParams(await request.text());
+    const data = Object.fromEntries(
+      new URLSearchParams(await request.text()).entries()
+    );
     const userData = signUpBodySchema.parse(data);
 
     const user = await User.create({
       ...userData,
       externals: {
-        [external.id]: jwt.data["https://glenstack.com/#externalID"],
+        [external.id]: jwt["https://glenstack.com/#externalID"],
       },
     });
 
     await gitHub.linkUser({
-      externalID: jwt.data["https://glenstack.com/#externalID"],
+      externalID: jwt["https://glenstack.com/#externalID"],
       user,
     });
 
