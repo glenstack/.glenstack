@@ -5,27 +5,6 @@ on:
       - master
 
 jobs:
-  # deploy-glenstack.com:
-  #   runs-on: ubuntu-latest
-  #   name: Deploy glenstack.com
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #     - name: Read .nvmrc
-  #       run: echo ::set-output name=NVMRC::$(cat .nvmrc)
-  #       id: nvm
-  #     - name: Setup node
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: "${{ steps.nvm.outputs.NVMRC }}"
-  #     - name: Install
-  #       run: npm ci
-  #     - name: Build and Upload FAB to Linc
-  #       uses: gregbrimble/linc-fab-action@v1.0.0
-  #       with:
-  #         api_key: ${{ secrets.LINC_API_KEY }}
-  #         site_name: glenstack-glenstack
-  #         working_directory: packages/glenstack.com/
   deploy-api:
     runs-on: ubuntu-latest
     name: Deploy API
@@ -107,7 +86,7 @@ jobs:
           environment: production
           apiToken: ${{ secrets.CF_API_TOKEN }}
           workingDirectory: "./packages/glenstack.com"
-      - name: Create Sentry release
+      - name: Create glenstack-com-worker Sentry release
         uses: getsentry/action-release@v1.1.5
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -116,7 +95,7 @@ jobs:
         with:
           environment: production
           sourcemaps: "./packages/glenstack.com/workers-site/dist"
-      - name: Create Sentry release
+      - name: Create glenstack-com Sentry release
         uses: getsentry/action-release@v1.1.5
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
