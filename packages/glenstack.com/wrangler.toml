@@ -9,6 +9,7 @@ site = { bucket = "build", entry-point = "workers-site"}
 [build]
 command = "npm install && npm run build"
 upload.format = "service-worker"
+cwd = "workers-site"
 
 [env.production]
 name = "glenstack-com"
