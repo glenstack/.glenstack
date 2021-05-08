@@ -1,0 +1,16 @@
+name = "glenstack-com-dev"
+type = "javascript"
+account_id = "41d154df19739a540756d193a9715370"
+zone_id = "1a50aad2a97cd8ee713df553f2214779"
+workers_dev = true
+vars = { ENVIRONMENT = "development", SENTRY_DSN = "", SENTRY_DSN_WORKER = "" }
+site = { bucket = "build", entry-point = "workers-site"}
+
+[build]
+command = "npm install && npm run build"
+upload.format = "service-worker"
+
+[env.production]
+name = "glenstack-com"
+route = "https://glenstack.com/*"
+vars = { ENVIRONMENT = "production", SENTRY_DSN = "https://aa035eb2fe294f1784ab4f9e63c89815@o434884.ingest.sentry.io/5754963" }
