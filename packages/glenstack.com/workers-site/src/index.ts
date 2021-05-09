@@ -23,36 +23,11 @@ addEventListener("fetch", (event) => {
   event.respondWith(handleEvent(event, sentry));
 });
 
-const handleException = async (
-  event: FetchEvent,
-  sentry: Toucan,
-  status: number,
-  statusText: string
-) => {
-  try {
-    const response = await getAssetFromKV(event, {
-      defaultMimeType: "text/html",
-      mapRequestToAsset: (request) =>
-        new Request(`${new URL(request.url).origin}/index.html`),
-    });
-
-    return new Response(response.body, { ...response, status });
-  } catch (error) {
-    sentry.captureMessage(`Failed to generate a ${status} response.`);
-    sentry.captureException(error);
-    return new Response(`<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>${statusText} | Glenstack</title>
-  </head>
-  <body>
-    <p>${statusText}, and an error has occurred. The Glenstack team have been alerted. Try going <a href="https://glenstack.com/">home</a>.</p>
-  </body>
-</html>
-`);
-  }
-};
+const redirect = async (status: number) =>
+  new Response(null, {
+    status: 302,
+    headers: { Location: `/${status}` },
+  });
 
 const handleEvent = async (event: FetchEvent, sentry: Toucan) => {
   const options: Parameters<typeof getAssetFromKV>[1] = {
@@ -74,12 +49,12 @@ const handleEvent = async (event: FetchEvent, sentry: Toucan) => {
     return response;
   } catch (error) {
     if (error instanceof NotFoundError) {
-      return await handleException(event, sentry, 404, "Not found");
+      return await redirect(404);
     } else if (error instanceof MethodNotAllowedError) {
-      return await handleException(event, sentry, 405, "Method not allowed");
+      return await redirect(405);
     }
 
     sentry.captureException(error);
-    return await handleException(event, sentry, 500, "Internal error");
+    return await redirect(500);
   }
 };
