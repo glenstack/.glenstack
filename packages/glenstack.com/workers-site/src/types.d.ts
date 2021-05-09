@@ -1,2 +1,2 @@
-declare const SENTRY_DSN: string;
+declare const SENTRY_DSN_WORKER: string;
 declare const VERSION: string;

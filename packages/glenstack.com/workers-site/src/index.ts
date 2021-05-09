@@ -12,7 +12,7 @@ const cacheControl = undefined; // { bypassCache: true }
 
 addEventListener("fetch", (event) => {
   const sentry = new Toucan({
-    dsn: SENTRY_DSN,
+    dsn: SENTRY_DSN_WORKER,
     event,
     pkg,
     release: VERSION,
