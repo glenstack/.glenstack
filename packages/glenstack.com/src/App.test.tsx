@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { App } from "./App";
 
-test("renders learn react link", () => {
+test("renders the word 'Glenstack'", () => {
   render(<App />);
-  const linkElement = screen.getByText(/Hello/i);
-  expect(linkElement).toBeInTheDocument();
+  const glenstackElements = screen.getAllByText(/Glenstack/i);
+  expect(glenstackElements.length).toBeGreaterThan(0);
 });

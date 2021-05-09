@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom";
 import * as Sentry from "@sentry/react";
+import "@fontsource/inter/variable-full.css";
 import "./index.css";
 import { App } from "./App";
 import { reportWebVitals } from "./reportWebVitals";

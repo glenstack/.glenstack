@@ -3,7 +3,8 @@
   "name": "worker",
   "main": "dist/worker.js",
   "dependencies": {
-    "@cloudflare/kv-asset-handler": "0.1.1"
+    "@cloudflare/kv-asset-handler": "0.1.1",
+    "toucan-js": "2.5.0-beta.1"
   },
   "scripts": {
     "prebuild": "cd ..; npm run build",
