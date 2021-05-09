@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import gql from "graphql-tag";
 import { DataLayer } from "../../data";

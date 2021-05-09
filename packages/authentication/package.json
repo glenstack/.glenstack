@@ -4,7 +4,7 @@
   "main": "dist/worker.js",
   "scripts": {
     "build": "esbuild src/index.ts --bundle --outfile=dist/worker.js --format=esm --minify --sourcemap --define:VERSION=\\\"$(git rev-parse HEAD)\\\"",
-    "lint": "eslint --ignore-path .gitignore 'src/**/*'",
+    "lint": "eslint --ignore-path .gitignore --max-warnings=0 'src/**/*'",
     "check-types": "tsc",
     "prettier": "prettier --config ../../.prettierrc --ignore-path .gitignore '**/*.(js|ts|json|md)'",
     "format": "npm run prettier -- --write",
