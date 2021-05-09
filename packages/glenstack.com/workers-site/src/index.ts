@@ -33,7 +33,7 @@ const handleException = async (
     const response = await getAssetFromKV(event, {
       defaultMimeType: "text/html",
       mapRequestToAsset: (request) =>
-        new Request(`${new URL(request.url).origin}/${status}.html`, request),
+        new Request(`${new URL(request.url).origin}/index.html`),
     });
 
     return new Response(response.body, { ...response, status });
