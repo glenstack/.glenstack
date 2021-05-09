@@ -166,7 +166,7 @@ export const generateFaunaQuery = (resolveInfo: GraphQLResolveInfo, query: Expr)
         let nextQuery
   
         if (isRoot && !isFaunaObjectType)
-            throw new Error("Invalid root type. Must be a FaunaGraphQL type")
+            throw new Error("Invalid root type. Must be a FaunaGraphQL type.")
         if (isLeaf)
             return generateSelector(returnName, parentType)
         
@@ -176,12 +176,14 @@ export const generateFaunaQuery = (resolveInfo: GraphQLResolveInfo, query: Expr)
         
         console.log("parse"+JSON.stringify(parseFieldNode(node)))
         if (isRoot) nextQuery = query 
-        if (!nextQuery )
+        if (!nextQuery)
         {
-          console.log(JSON.stringify(type))
-          nextQuery = q.Map(q.Paginate(
-          q.Match(q.Index("relations"+parentType.metaSchema[name].from), [
-            parentType.metaSchema[name].fieldId,
+          if (parentType.metaSchema[name].type !== "relation") {
+            throw new Error('Current node should be a relation.');
+          }
+            nextQuery = q.Map(q.Paginate(
+            q.Match(q.Index("relations"+parentType.metaSchema[name].relation), [
+            parentType.metaSchema[name].relationshipRef,
             q.Select(["ref"], CURRENT_DOC_VAR)
             
           ])
