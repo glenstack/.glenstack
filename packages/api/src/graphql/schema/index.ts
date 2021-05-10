@@ -182,6 +182,12 @@ const mutationType = new GraphQLObjectType({
   }
 }}})
 
+const resolvers = {
+  Query: {
+    hello: () => "Hello, world!",
+    version: () => VERSION,
+  },
+};
 
 export const schema  = new GraphQLSchema({query: queryType, mutation: mutationType});
 // export const schema = makeExecutableSchema({ typeDefs, resolvers,  schemaDirectives: {

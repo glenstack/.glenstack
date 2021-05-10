@@ -1,11 +1,24 @@
+import Toucan from "toucan-js";
 import { handleRequest as graphql } from "./graphql";
+import pkg from "../package.json";
 
 addEventListener("fetch", (event) => {
-  event.respondWith(handleEvent(event));
+  const sentry = new Toucan({
+    dsn: SENTRY_DSN,
+    event,
+    pkg,
+    release: VERSION,
+    rewriteFrames: {
+      root: "/",
+    },
+  });
+  event.respondWith(handleEvent(event, sentry));
 });
 
-const handleEvent = async (event: FetchEvent): Promise<Response> => {
+const handleEvent = async (
+  event: FetchEvent,
+  sentry: Toucan
+): Promise<Response> => {
   const { request } = event;
-
-  return await graphql(request);
+  return await graphql(request, sentry);
 };

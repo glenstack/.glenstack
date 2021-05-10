@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "wix.vscode-import-cost",
+    "mrmlnc.vscode-json5",
+    "esbenp.prettier-vscode",
+    "tamasfe.even-better-toml"
+  ]
+}

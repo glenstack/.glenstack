@@ -1,15 +1,21 @@
 import faunadb from "faunadb";
 
 export const client = new faunadb.Client({
-  secret: "fnAEEMbV7JACBXz13uUH33hfoqHx2Md51caXK4-9",
-  fetch: (info: RequestInfo, init: RequestInit = {}): Promise<Response> => {
-    const signal = init.signal;
-    delete init.signal;
-    const abortPromise = new Promise((resolve) => {
+  secret: "REPLACEME",
+  fetch: (requestInfo, requestInit) => {
+    const signal = requestInit?.signal;
+    delete requestInit?.signal;
+    const abortPromise = new Promise<Response>((resolve, reject) => {
       if (signal) {
-        signal.onabort = resolve;
+        console.warn(
+          "Aborting a fetch is not yet supported in Cloudflare Workers."
+        );
+        signal.onabort = () => reject(new Error("The operation was aborted."));
       }
     });
-    return Promise.race([abortPromise, fetch(info, init)]) as Promise<Response>;
+    return Promise.race([
+      abortPromise,
+      fetch(requestInfo as RequestInfo, requestInit as RequestInit | undefined),
+    ]);
   },
 });

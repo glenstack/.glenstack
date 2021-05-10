@@ -1,0 +1,34 @@
+{
+  "private": true,
+  "name": "worker",
+  "main": "dist/worker.js",
+  "dependencies": {
+    "@cloudflare/kv-asset-handler": "0.1.1"
+  },
+  "scripts": {
+    "prebuild": "cd ..; npm run build",
+    "build": "esbuild src/index.ts --bundle --outfile=dist/worker.js --format=esm --minify --sourcemap --define:VERSION=\\\"$(git rev-parse HEAD)\\\"",
+    "lint": "eslint --ignore-path .gitignore 'src/**/*'",
+    "check-types": "tsc",
+    "precommit": "npm run check-types && lint-staged && npm run build && npm run coverage",
+    "validate": "concurrently 'npm:check-types' 'npm:lint' 'npm:coverage'",
+    "test": "jest",
+    "coverage": "npm run test -- --coverage",
+    "test:watch": "npm run test -- --watch"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "2.2.2",
+    "@types/jest": "26.0.23",
+    "@typescript-eslint/eslint-plugin": "4.22.1",
+    "@typescript-eslint/parser": "4.22.1",
+    "concurrently": "6.1.0",
+    "esbuild": "0.11.20",
+    "eslint": "7.26.0",
+    "eslint-config-prettier": "8.3.0",
+    "jest": "26.6.3",
+    "lint-staged": "11.0.0",
+    "ts-jest": "26.5.6",
+    "ts-node": "9.1.1",
+    "typescript": "4.2.4"
+  }
+}

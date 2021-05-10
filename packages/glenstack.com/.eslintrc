@@ -1,0 +1,15 @@
+{
+  "extends": ["react-app", "eslint:recommended", "prettier"],
+  "overrides": [
+    {
+      "files": "**/*.ts?(x)",
+      "plugins": ["@typescript-eslint/eslint-plugin"],
+      "extends": [
+        "react-app",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+      ]
+    }
+  ]
+}

@@ -1,14 +1,22 @@
-import React from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom";
-import "@fontsource/inter";
+import * as Sentry from "@sentry/react";
 import "./index.css";
 import { App } from "./App";
-import reportWebVitals from "./reportWebVitals";
+import { reportWebVitals } from "./reportWebVitals";
+
+Sentry.init({
+  dsn:
+    process.env.NODE_ENV === "production"
+      ? process.env.REACT_APP_SENTRY_DSN
+      : "",
+  release: process.env.REACT_APP_GIT_SHA,
+});
 
 ReactDOM.render(
-  <React.StrictMode>
+  <StrictMode>
     <App />
-  </React.StrictMode>,
+  </StrictMode>,
   document.getElementById("root")
 );
 
