@@ -3,12 +3,13 @@
   "name": "worker",
   "main": "dist/worker.js",
   "dependencies": {
-    "@cloudflare/kv-asset-handler": "0.1.1"
+    "@cloudflare/kv-asset-handler": "0.1.1",
+    "toucan-js": "2.5.0-beta.1"
   },
   "scripts": {
     "prebuild": "cd ..; npm run build",
     "build": "esbuild src/index.ts --bundle --outfile=dist/worker.js --format=esm --minify --sourcemap --define:VERSION=\\\"$(git rev-parse HEAD)\\\"",
-    "lint": "eslint --ignore-path .gitignore 'src/**/*'",
+    "lint": "eslint --ignore-path .gitignore --max-warnings=0 'src/**/*'",
     "check-types": "tsc",
     "precommit": "npm run check-types && lint-staged && npm run build && npm run coverage",
     "validate": "concurrently 'npm:check-types' 'npm:lint' 'npm:coverage'",
