@@ -46,7 +46,7 @@ export abstract class External {
     userHints?: Partial<Omit<User, "id" | "externals">>;
   }>;
 
-  async callback(request: Request, sentry: Toucan) {
+  async callback(request: Request, sentry: Toucan): Promise<Response> {
     try {
       const { externalID, userHints } = await this._callback(request, sentry);
       const user = await this.findUser({ externalID: externalID.toString() });

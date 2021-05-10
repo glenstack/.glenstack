@@ -1,6 +1,6 @@
 import { makeGraphQLHandler } from "@glenstack/cf-workers-graphql";
 import type Toucan from "toucan-js";
-import { schema } from "../data";
+import { schema } from "./schema";
 import { makeContextValue } from "./context";
 
 export const handleRequest = (

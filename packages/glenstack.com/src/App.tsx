@@ -4,7 +4,6 @@ import { Login } from "./pages/authentication/login";
 import { Homepage } from "./pages/landing";
 import { Terms } from "./pages/landing/terms";
 import { About } from "./pages/landing/about";
-import { Product } from "./pages/landing/product";
 import { MethodNotAllowed } from "./pages/landing/methodNotAllowed";
 import { InternalError } from "./pages/landing/internalError";
 import { NotFound } from "./pages/landing/notFound";
@@ -21,9 +20,6 @@ export const App: FC = () => {
         </Route>
         <Route path="/about" exact>
           <About />
-        </Route>
-        <Route path="/product" exact>
-          <Product />
         </Route>
         <Route path="/" exact>
           <Homepage />

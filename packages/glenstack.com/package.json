@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "@fontsource/inter": "4.3.0",
+    "@fontsource/jost": "4.3.0",
     "@headlessui/react": "1.1.1",
     "@heroicons/react": "1.0.1",
     "@sentry/react": "6.3.5",

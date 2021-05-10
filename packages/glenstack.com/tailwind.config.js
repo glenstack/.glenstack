@@ -48,7 +48,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ["Inter var", ...defaultTheme.fontFamily.sans],
+        sans: ["JostVariable", ...defaultTheme.fontFamily.sans],
       },
     },
   },
