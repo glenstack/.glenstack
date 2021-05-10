@@ -1,7 +1,7 @@
 import faunadb from "faunadb";
 
 export const client = new faunadb.Client({
-  secret: "REPLACEME",
+  secret: FAUNA_ADMIN_KEY,
   fetch: (requestInfo, requestInit) => {
     const signal = requestInit?.signal;
     delete requestInit?.signal;
