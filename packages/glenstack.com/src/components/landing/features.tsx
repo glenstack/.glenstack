@@ -125,7 +125,7 @@ export const Features: FC = () => {
     <div className="bg-indigo-900">
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 sm:pt-20 sm:pb-24 lg:max-w-7xl lg:pt-24 lg:px-8">
         <h2 className="text-3xl font-extrabold text-white tracking-tight">
-          A Feature-Rich Data Platform
+          A Complete Data Hub
         </h2>
         <p className="mt-4 max-w-3xl text-lg text-indigo-200">
           Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et

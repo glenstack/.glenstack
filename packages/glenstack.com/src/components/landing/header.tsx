@@ -13,7 +13,7 @@ export const Header: FC = () => {
   return (
     <div className="min-h-screen">
       <div className="relative overflow-hidden">
-        <div className="bg-indigo-900">
+        <div className="bg-indigo-900 pb-28">
           <Popover as="header" className="relative">
             {({ open }) => (
               <>
@@ -24,9 +24,10 @@ export const Header: FC = () => {
                   >
                     <div className="flex items-center flex-1">
                       <div className="flex items-center justify-between w-full md:w-auto">
-                        <Link to="/">
+                        <Link to="/" className="flex text-white items-center">
                           <span className="sr-only">Glenstack</span>
                           <Logo className="h-8 w-auto sm:h-10 text-white" />
+                          <p className="ml-4 text-lg font-medium">Glenstack</p>
                         </Link>
                         <div className="-mr-2 flex items-center md:hidden">
                           <Popover.Button className="bg-gray-900 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-800 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white">
@@ -35,30 +36,31 @@ export const Header: FC = () => {
                           </Popover.Button>
                         </div>
                       </div>
-                      <div className="hidden space-x-8 md:flex md:ml-10">
+                    
+                    </div>
+                    <div className="hidden md:flex md:items-center md:space-x-6">
+                    <div className="hidden space-x-8 md:flex md:ml-10">
                         {navigation.map((item) => (
                           <a
                             key={item.name}
                             href={item.href}
-                            className="text-base font-medium text-white hover:text-gray-300"
+                            className="text-base text-white hover:text-gray-300"
                           >
                             {item.name}
                           </a>
                         ))}
                       </div>
-                    </div>
-                    <div className="hidden md:flex md:items-center md:space-x-6">
-                      <Link
-                        to="/login"
-                        className="text-base font-medium text-white hover:text-gray-300"
-                      >
-                        Log in
-                      </Link>
                       <Link
                         to="/contact"
+                        className="text-base text-white hover:text-gray-300"
+                      >
+                        Contact us
+                      </Link>
+                      <Link
+                        to="/login"
                         className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700"
                       >
-                        Contact Us
+                        Log in
                       </Link>
                     </div>
                   </nav>
@@ -135,13 +137,19 @@ export const Header: FC = () => {
 
           <div className="mt-20 mx-auto max-w-7xl px-4 sm:mt-24 sm:px-6">
             <div className="text-center">
-              <h1 className="text-5xl tracing-tight font-extrabold text-white sm:text-5xl md:text-6xl">
+              {/* <h1 className="text-5xl tracing-tight font-extrabold text-white sm:text-5xl md:text-6xl">
                 Glenstack
-              </h1>
-              <p className="pt-8 text-2xl tracking-tight font-extrabold text-white sm:text-3xl md:text-4xl">
+              </h1> */}
+              <h1 className="mt-4 text-xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-5xl lg:mt-6 xl:text-5xl">
+                      <span className="block">Create, exchange and collaborate on</span>
+                      <span className="block text-yellow-500">
+                        data
+                      </span>
+                    </h1>
+              {/* <p className="pt-8 text-2xl tracking-tight font-extrabold text-white sm:text-3xl md:text-4xl">
                 <span className="">Create, exchange, and collaborate on </span>
                 <span className="text-yellow-500">data</span>
-              </p>
+              </p> */}
               <p className="pt-8 text-lg tracking-tight font-semibold text-gray-300">
                 Join the waitlist now to secure early access when we launch
                 later this summer.
@@ -182,31 +190,7 @@ export const Header: FC = () => {
           </div>
         </div>
 
-        <main>
-          <div className="pt-10 bg-indigo-900 sm:pt-16 lg:pt-8 lg:pb-14 lg:overflow-hidden">
-            <div className="mx-auto max-w-7xl lg:px-8">
-              <div className="lg:grid lg:grid-cols-2 lg:gap-8">
-                <div className="mx-auto max-w-md px-4 sm:max-w-2xl sm:px-6 sm:text-center lg:px-0 lg:text-left lg:flex lg:items-center">
-                  <div className="lg:py-24">
-                    <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-6xl lg:mt-6 xl:text-6xl">
-                      <span className="block">A better way to</span>
-                      <span className="block text-indigo-400">
-                        ship web apps
-                      </span>
-                    </h1>
-                    <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                      Anim aute id magna aliqua ad ad non deserunt sunt. Qui
-                      irure qui Lorem cupidatat commodo. Elit sunt amet fugiat
-                      veniam occaecat fugiat.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* More main page content here... */}
-        </main>
+      
       </div>
     </div>
   );
