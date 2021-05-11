@@ -11,7 +11,7 @@ const navigation = [
 
 export const Header: FC = () => {
   return (
-    <div className="min-h-screen">
+    <div className="">
       <div className="relative overflow-hidden">
         <div className="bg-indigo-900 pb-28">
           <Popover as="header" className="relative">
@@ -140,7 +140,7 @@ export const Header: FC = () => {
               {/* <h1 className="text-5xl tracing-tight font-extrabold text-white sm:text-5xl md:text-6xl">
                 Glenstack
               </h1> */}
-              <h1 className="mt-4 text-xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-5xl lg:mt-6 xl:text-5xl">
+              <h1 className="mt-4 text-3xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-5xl lg:mt-6 xl:text-5xl">
                       <span className="block">Create, exchange and collaborate on</span>
                       <span className="block text-yellow-500">
                         data
