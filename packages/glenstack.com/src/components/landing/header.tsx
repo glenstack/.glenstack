@@ -11,9 +11,9 @@ const navigation = [
 
 export const Header: FC = () => {
   return (
-    <div className="">
+    <div>
       <div className="relative overflow-hidden">
-        <div className="bg-indigo-900 pb-28">
+        <div className="bg-indigo-900">
           <Popover as="header" className="relative">
             {({ open }) => (
               <>
@@ -135,7 +135,7 @@ export const Header: FC = () => {
             )}
           </Popover>
 
-          <div className="mt-20 mx-auto max-w-7xl px-4 sm:mt-24 sm:px-6">
+          <div className="py-20 mx-auto max-w-7xl px-4 sm:py-48 sm:px-6">
             <div className="text-center">
               {/* <h1 className="text-5xl tracing-tight font-extrabold text-white sm:text-5xl md:text-6xl">
                 Glenstack
