@@ -171,7 +171,7 @@ export const Header: FC = () => {
                     <div className="mt-3 sm:mt-0 sm:ml-3">
                       <button
                         type="submit"
-                        className="block w-full py-3 px-4 rounded-md shadow bg-rose-500 text-white font-medium hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 focus:ring-offset-gray-900"
+                        className="block w-full py-3 px-4 rounded-md shadow bg-rose-600 text-white font-medium hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 focus:ring-offset-gray-900"
                       >
                         Join the waitlist
                       </button>
