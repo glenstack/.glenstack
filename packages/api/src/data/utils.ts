@@ -1,4 +1,4 @@
-/* eslint-ignore */
+/* eslint-disable */
 // @ts-nocheck
 import { Expr, query as q } from "faunadb";
 import {

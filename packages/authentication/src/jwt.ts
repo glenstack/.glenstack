@@ -64,7 +64,7 @@ export const createSignUpJWT = ({
   externalID: string;
   external: External;
   userHints?: Partial<Omit<User, "id">>;
-}) =>
+}): ReturnType<typeof sign> =>
   sign({
     aud: "https://glenstack.com/signup",
     exp: "now + 1hour",

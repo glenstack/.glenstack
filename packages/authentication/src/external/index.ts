@@ -39,8 +39,7 @@ export abstract class External {
 
   abstract redirect(): Response;
   protected abstract _callback(
-    request: Request,
-    sentry: Toucan
+    request: Request
   ): Promise<{
     externalID: string;
     userHints?: Partial<Omit<User, "id" | "externals">>;
@@ -48,7 +47,7 @@ export abstract class External {
 
   async callback(request: Request, sentry: Toucan): Promise<Response> {
     try {
-      const { externalID, userHints } = await this._callback(request, sentry);
+      const { externalID, userHints } = await this._callback(request);
       const user = await this.findUser({ externalID: externalID.toString() });
       if (user) {
         return await signIn(user);
@@ -93,11 +92,15 @@ export abstract class External {
     }
   }
 
-  generateKey({ externalID }: { externalID: string }) {
+  generateKey({ externalID }: { externalID: string }): string {
     return `External:${this.id}:${externalID}`;
   }
 
-  async findUser({ externalID }: { externalID: string }) {
+  async findUser({
+    externalID,
+  }: {
+    externalID: string;
+  }): Promise<User | undefined> {
     const idBuffer = await AUTHENTICATION_DATASTORE.get(
       this.generateKey({ externalID }),
       "arrayBuffer"
@@ -109,7 +112,13 @@ export abstract class External {
     }
   }
 
-  async linkUser({ externalID, user }: { externalID: string; user: User }) {
+  async linkUser({
+    externalID,
+    user,
+  }: {
+    externalID: string;
+    user: User;
+  }): Promise<void> {
     await AUTHENTICATION_DATASTORE.put(
       this.generateKey({ externalID }),
       uuidStringToBuffer(user.id),

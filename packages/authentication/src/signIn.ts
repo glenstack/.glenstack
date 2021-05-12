@@ -1,9 +1,11 @@
 import { serialize as cookieSerialize } from "cookie";
 import { User } from "./user";
 
-export const signIn = async (user: User) => {
+export const signIn = async (user: User): Promise<Response> => {
   const headers = new Headers();
   headers.set("Location", "https://glenstack.com/");
+
+  console.log(user);
 
   // TODO
   // "Set-Cookie": cookieSerialize("glenstack_accessToken", ),

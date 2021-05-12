@@ -6,7 +6,7 @@ interface Flash {
   category?: "error" | "warning" | "info";
 }
 
-export const flash = (flashContents: Flash[]) => ({
+export const flash = (flashContents: Flash[]): { "Set-Cookie": string } => ({
   "Set-Cookie": cookieSerialize(
     "glenstack_flashMessages",
     JSON.stringify(flashContents),
@@ -18,7 +18,10 @@ export const flash = (flashContents: Flash[]) => ({
   ),
 });
 
-export const redirectWithFlash = (location: string, flashContents: Flash[]) =>
+export const redirectWithFlash = (
+  location: string,
+  flashContents: Flash[]
+): Response =>
   new Response(null, {
     status: 302,
     headers: {
@@ -27,8 +30,8 @@ export const redirectWithFlash = (location: string, flashContents: Flash[]) =>
     },
   });
 
-export const uuidStringToBuffer = (id: string) =>
+export const uuidStringToBuffer = (id: string): ArrayBuffer =>
   new Uint8Array(uuidParse(id)).buffer;
 
-export const uuidBufferToString = (buffer: ArrayBuffer) =>
+export const uuidBufferToString = (buffer: ArrayBuffer): string =>
   uuidStringify(new Uint8Array(buffer));

@@ -15,5 +15,6 @@ export type Context = {
 export const makeContextValue: ContextValueMaker = async (
   request
 ): Promise<Context> => {
+  console.log(request);
   return {};
 };

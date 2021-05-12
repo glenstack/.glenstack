@@ -13,7 +13,10 @@ const signUpBodySchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
 });
 
-export const signUp = async (request: Request, sentry: Toucan) => {
+export const signUp = async (
+  request: Request,
+  sentry: Toucan
+): Promise<Response> => {
   try {
     const cookie = cookieParse(request.headers.get("cookie") || "");
     const jwt = verifySignUpJWT(cookie.glenstack_signup);
@@ -25,6 +28,7 @@ export const signUp = async (request: Request, sentry: Toucan) => {
         },
       ]);
     }
+    console.log(externals);
     // TODO
     // const external = externals.find(
     //   (external) => external.id === jwt["https://glenstack.com/#external"]

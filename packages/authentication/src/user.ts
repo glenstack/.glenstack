@@ -24,20 +24,21 @@ export class User {
     this.externals = externals;
   }
 
-  static async create(userOptions: Omit<UserOptions, "id">) {
+  static async create(userOptions: Omit<UserOptions, "id">): Promise<User> {
     const id = uuidv4();
     const user = new User({ ...userOptions, id });
     // TODO: Save
     return user;
   }
 
-  static async load({ id }: { id: string }) {
+  static async load({ id }: { id: string }): Promise<User | undefined> {
     // TODO: Load
     return users.find((user) => user.id === id);
   }
 }
 
-let users: User[] = [
+const users: User[] = [
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   /* @ts-ignore */
   new User({
     id: "38be66e1-b691-4c19-9509-cb442d5c695e",

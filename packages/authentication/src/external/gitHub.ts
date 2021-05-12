@@ -1,4 +1,3 @@
-import type Toucan from "toucan-js";
 import { ClientError, External, ExternalError } from ".";
 
 class GitHub extends External {
@@ -16,7 +15,7 @@ class GitHub extends External {
     });
   }
 
-  async _callback(request: Request, sentry: Toucan) {
+  async _callback(request: Request) {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
     if (code === null) {
