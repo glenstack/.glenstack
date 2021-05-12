@@ -72,15 +72,15 @@ import { FC } from "react";
 
 const features = [
   {
-    name: "Auto-Generate GraphQL APIs",
+    name: "Auto-Generated GraphQL APIs",
     description:
-      "Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et magna sit morbi lobortis.",
+      "Instantly turn your data into a full database with GraphQL API and documentation.",
     icon: ChipIcon,
   },
   {
     name: "Live Collaborative Editing",
     description:
-      "Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et magna sit morbi lobortis.",
+      "Collaborate live with your team or crowdsource your data from external ",
     icon: UsersIcon,
   },
   {
@@ -90,32 +90,32 @@ const features = [
     icon: ShareIcon,
   },
   {
-    name: "No-Code Interfaces",
-    description: "Anyone can use Glenstack—no technical knowledge required.",
+    name: "No-code Spreadsheet UI",
+    description: "Easily edit your data.",
     icon: DesktopComputerIcon,
   },
   {
-    name: "Highly Available",
+    name: "External collaborators",
     description:
-      "Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et magna sit morbi lobortis.",
+      "Crowdsource your data",
     icon: CloudIcon,
   },
   {
-    name: "Secure Backups",
+    name: "Secure Backups & 1-click Exports",
     description:
       "Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et magna sit morbi lobortis.",
     icon: SaveAsIcon,
   },
   {
-    name: "Global Scale",
+    name: "Global low-latency",
     description:
-      "Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et magna sit morbi lobortis.",
+      "Access your data with low latency from anywhere in the world with consistent and globally replicated data.",
     icon: GlobeAltIcon,
   },
   {
-    name: "Build with Glenstack",
+    name: "Incredibly scalable",
     description:
-      "We want to help. If you have any questions about Glenstack, then please contact us.",
+      "Your database scales automatically without having to worry about data sharding, clustering, replication, upgrades.",
     icon: HeartIcon,
   },
 ];

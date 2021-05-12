@@ -22,11 +22,12 @@ export const Explainer: FC = () => {
 
         <div className="relative mt-12 lg:mt-24 lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
           <div className="relative">
-            <span className="mb-10 rounded-xl bg-yellow-50 px-2.5 py-1 text-xs font-semibold text-yellow-500 tracking-wide uppercase">
-              NO CODE
+            <span className="mb-10 rounded-xl bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-600 tracking-wide uppercase">
+              create
             </span>
             <h3 className="mt-3 text-2xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
-              Create
+              Seamlessly create and <br></br>access your data{" "}
+              <span className="text-rose-600">without code</span>.
             </h3>
             <p className="mt-3 text-lg text-gray-500">
               Seamlessly create data with our no-code spreadsheet UI or drag and
@@ -49,13 +50,17 @@ export const Explainer: FC = () => {
         <div className="relative mt-12 sm:mt-16 lg:mt-24">
           <div className="lg:grid lg:grid-flow-row-dense lg:grid-cols-2 lg:gap-8 lg:items-center">
             <div className="lg:col-start-2">
-              <h3 className="text-2xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
-                Collaborate
+              <span className="mb-10 rounded-xl bg-yellow-50 px-2.5 py-1 text-xs font-semibold text-yellow-500 tracking-wide uppercase">
+                collaborate
+              </span>
+              <h3 className="mt-3 text-2xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
+                Easily collaborate on data<br></br> with your team,<br></br>or
+                the <span className="text-yellow-500">entire world</span>.
               </h3>
               <p className="mt-3 text-lg text-gray-500">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit
-                ex obcaecati natus eligendi delectus, cum deleniti sunt in
-                labore nihil quod quibusdam expedita nemo.
+                Glenstack makes it easy to collaborate live on data with your
+                team. You can also crowdsource your data and allow external
+                collaborators to submit data that to be approved by your team.
               </p>
             </div>
 
@@ -72,14 +77,17 @@ export const Explainer: FC = () => {
 
         <div className="relative mt-12 lg:mt-24 lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
           <div className="relative">
-            <h3 className="text-2xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
-              Marketplace
+            <span className="mb-10 rounded-xl bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-600 tracking-wide uppercase">
+              exchange
+            </span>
+            <h3 className="mt-3 text-2xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
+              Share or access live, ready-to-query<br></br>data from our{" "}
+              <span className="text-rose-600">marketplace</span>.
             </h3>
             <p className="mt-3 text-lg text-gray-500">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur
-              minima sequi recusandae, porro maiores officia assumenda aliquam
-              laborum ab aliquid veritatis impedit odit adipisci optio iste
-              blanditiis facere. Totam, velit.
+              Share or sell your data on our data marketplace and build a
+              business on top of your data. Access third-party data to power
+              your app or provide deeper insights to your organization.
             </p>
           </div>
 
