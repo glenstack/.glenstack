@@ -5,14 +5,13 @@ import exchangeImage from "./assets/exchange.png";
 
 /* This example requires Tailwind CSS v2.0+ */
 // import { AnnotationIcon, GlobeAltIcon, LightningBoltIcon, MailIcon, ScaleIcon } from '@heroicons/react/outline'
-
 export const Explainer: FC = () => {
   return (
     <div className="py-16 overflow-hidden lg:py-24">
       <div className="relative max-w-xl mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl">
         <div className="relative">
           <h2 className="text-center text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            A better way to send money
+            Your database in one click
           </h2>
           <p className="mt-4 max-w-3xl mx-auto text-center text-xl text-gray-500">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus
@@ -60,7 +59,7 @@ export const Explainer: FC = () => {
               <p className="mt-3 text-lg text-gray-500">
                 Glenstack makes it easy to collaborate live on data with your
                 team. You can also crowdsource your data and allow external
-                collaborators to submit data that to be approved by your team.
+                collaborators to submit data to be approved by your team.
               </p>
             </div>
 
