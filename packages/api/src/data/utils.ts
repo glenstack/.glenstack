@@ -69,7 +69,9 @@ const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
   // @ts-ignore
   const typeInList = isList ? type.ofType : null;
   const isLeaf = isLeafType(type) || isLeafType(typeInList);
-  const isRoot = parentType === gqlSchema.getQueryType(); //TODO: Consider mutation and subscription type
+  const isRoot =
+    parentType === gqlSchema.getQueryType() ||
+    parentType === gqlSchema.getMutationType(); //TODO: Consider mutation and subscription type
   console.log("types" + gqlSchema.getQueryType() + parentType);
   const returnName = isRoot ? "rootFQL" : name;
 

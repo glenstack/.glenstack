@@ -1,10 +1,8 @@
 import { ApolloServer } from "apollo-server";
-// import { ApolloServer } from "apollo-server";
-// const { ApolloServer } = require("apollo-server");
-// import { schema } from "./index";
 
-// const server = new ApolloServer({ schema });
-// server.listen();
+import { schema } from "./index";
 
-console.log("hi");
-console.log(ApolloServer);
+const server = new ApolloServer({ schema });
+server.listen().then(({ url }) => {
+  console.log(`🚀  Server ready at ${url}`);
+});

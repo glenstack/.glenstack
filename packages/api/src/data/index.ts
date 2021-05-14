@@ -170,7 +170,7 @@ const mutationType = new GraphQLObjectType({
   name: "Mutation",
   fields: {
     createBook: {
-      type: GraphQLList(bookType),
+      type: bookType,
       args: {
         input: { type: bookInputType },
       },
@@ -180,6 +180,7 @@ const mutationType = new GraphQLObjectType({
         console.log(info);
         let data = {};
         let relationQueries;
+
         for (let [key, value] of Object.entries(args.input)) {
           if (bookType.metaSchema[key].type === "relation") {
             console.log("side:" + bookType.metaSchema[key].relation);
@@ -199,7 +200,7 @@ const mutationType = new GraphQLObjectType({
         }
 
         // let data = {data: Object.fromEntries(Object.entries(args.input).filter(([key, value]) => bookType.metaSchema[key].type !== "relation").map( ([key, value]) => [bookType.metaSchema[key].fieldId, value] ))}
-        let res = await client.query(
+        let creationResult = await client.query(
           q.Let(
             {
               docRef: q.Select(
@@ -207,12 +208,17 @@ const mutationType = new GraphQLObjectType({
                 q.Create(q.Collection(bookType.collectionName), { data })
               ),
             },
-            { finished: relationQueries }
+            { ref: q.Var("docRef") }
           )
         );
+        let result = await client.query(
+          generateFaunaQuery(info, q.Get(creationResult.ref))
+        );
+
         console.log(JSON.stringify(data));
-        console.log(JSON.stringify(res));
-        return {};
+        console.log("info" + JSON.stringify(info.selectionSet));
+        console.log("res" + JSON.stringify(creationResult.ref));
+        return result;
       },
     },
   },
