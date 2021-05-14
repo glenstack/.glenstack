@@ -42,6 +42,8 @@ const bookType = new GraphQLFaunaObjectType({
       ),
       type: "relation",
       relation: "A",
+      from: "A",
+      to: "B",
     },
   },
 });
@@ -116,6 +118,8 @@ const authorType = new GraphQLFaunaObjectType({
       ),
       type: "relation",
       relation: "B",
+      from: "B",
+      to: "A",
     },
   },
 });
@@ -183,14 +187,19 @@ const mutationType = new GraphQLObjectType({
 
         for (let [key, value] of Object.entries(args.input)) {
           if (bookType.metaSchema[key].type === "relation") {
-            console.log("side:" + bookType.metaSchema[key].relation);
+            console.log("side:" + bookType.metaSchema[key].from);
+            let relatedType = bookType.getFields()[key].type;
+            if (relatedType instanceof GraphQLList) {
+              relatedType = relatedType.ofType;
+            }
+            console.log(relatedType.collectionName);
             relationQueries = q.Create(q.Collection("relations"), {
               data: {
                 relationshipRef: bookType.metaSchema[key].relationshipRef,
-                [bookType.metaSchema[key].relation]: q.Var("docRef"),
-                [bookType.metaSchema[key].relation === "A" ? "B" : "A"]: q.Ref(
-                  q.Collection("294845159814726145"),
-                  value.connect[0]
+                [bookType.metaSchema[key].from]: q.Var("docRef"),
+                [bookType.metaSchema[key].to]: q.Ref(
+                  q.Collection(relatedType.collectionName),
+                  value.connect[0] //TODO: Allow multiple connects
                 ),
               },
             });
@@ -208,7 +217,7 @@ const mutationType = new GraphQLObjectType({
                 q.Create(q.Collection(bookType.collectionName), { data })
               ),
             },
-            { ref: q.Var("docRef") }
+            { ref: q.Var("docRef"), relationQueries }
           )
         );
         let result = await client.query(
