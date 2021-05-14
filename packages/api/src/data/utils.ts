@@ -15,6 +15,7 @@ import {
   GraphQLID,
 } from "graphql";
 
+import { getArgumentValues } from "graphql/execution/values";
 export class GraphQLFaunaObjectType extends GraphQLObjectType {
   collectionName: string;
   metaSchema: object;
@@ -61,7 +62,6 @@ const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
   const type = typeInfo.getType();
   const parentType = typeInfo.getParentType();
   const field = typeInfo.getFieldDef();
-
   if (!type && !field) {
     throw new Error(`No field ${name}`);
   }
@@ -69,6 +69,8 @@ const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
   // @ts-ignore
   const typeInList = isList ? type.ofType : null;
   const isLeaf = isLeafType(type) || isLeafType(typeInList);
+  const isQuery = parentType === gqlSchema.getQueryType();
+  const isMutation = parentType === gqlSchema.getMutationType();
   const isRoot =
     parentType === gqlSchema.getQueryType() ||
     parentType === gqlSchema.getMutationType(); //TODO: Consider mutation and subscription type
@@ -84,6 +86,8 @@ const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
     typeInList,
     isLeaf,
     isRoot,
+    isQuery,
+    isMutation,
     returnName,
     selectionSet: node.selectionSet,
     isFaunaObjectType: isFaunaObjectType(typeInList || type),
@@ -117,7 +121,7 @@ const defaultEmbedQuery = (fieldName, isList) => {
 
 export const generateFaunaQuery = (
   resolveInfo: GraphQLResolveInfo,
-  query: Expr
+  query?: Expr
 ) => {
   const { operation, schema: gqlSchema, fieldName } = resolveInfo;
   const typeInfo = new TypeInfo(gqlSchema);
@@ -161,6 +165,8 @@ export const generateFaunaQuery = (
           isList,
           isLeaf,
           isRoot,
+          isQuery,
+          isMutation,
           isFaunaObjectType,
           returnName,
           selectionSet,
@@ -177,21 +183,77 @@ export const generateFaunaQuery = (
         //       return generateSelector(returnName, parentType)
         //   }
 
+        console.log("neww" + JSON.stringify(getArgumentValues(field, node)));
+        console.log("node" + type.collectionName);
         console.log("parse" + JSON.stringify(parseFieldNode(node)));
-        if (isRoot) nextQuery = query;
+
+        // if (isQuery && isRoot) nextQuery = query;
+        if (isMutation && isRoot) {
+          const bookType = type;
+          let data = {};
+          let relationQueries;
+          const args = getArgumentValues(field, node);
+          for (let [key, value] of Object.entries(args.input)) {
+            if (bookType.metaSchema[key].type === "relation") {
+              console.log("side:" + bookType.metaSchema[key].from);
+              let relatedType = bookType.getFields()[key].type;
+              if (relatedType instanceof GraphQLList) {
+                relatedType = relatedType.ofType;
+              }
+              console.log(relatedType.collectionName);
+              relationQueries = q.Create(q.Collection("relations"), {
+                data: {
+                  relationshipRef: bookType.metaSchema[key].relationshipRef,
+                  [bookType.metaSchema[key].from]: q.Var("docRef"),
+                  [bookType.metaSchema[key].to]: q.Ref(
+                    q.Collection(relatedType.collectionName),
+                    value.connect[0] //TODO: Allow multiple connects
+                  ),
+                },
+              });
+            } else {
+              data[bookType.metaSchema[key].fieldId] = value;
+            }
+          }
+          // let creationResult = await client.query(
+          //   q.Let(
+          //     {
+          //       docRef: q.Select(
+          //         ["ref"],
+          //         q.Create(q.Collection(bookType.collectionName), { data })
+          //       ),
+          //     },
+          //     { ref: q.Var("docRef"), relationQueries }
+          //   )
+          // );
+          nextQuery = q.Select(
+            ["doc"],
+            q.Let(
+              {
+                docRef: q.Select(
+                  ["ref"],
+                  q.Create(q.Collection(bookType.collectionName), { data })
+                ),
+              },
+              { doc: q.Get(q.Var("docRef")), relationQueries }
+            )
+          );
+
+          console.log("is mutation" + JSON.stringify(parseFieldNode(node)));
+          // nextQuery = q.Get(creationResult.ref);
+        } else if (isRoot) {
+          nextQuery = query;
+        }
         if (!nextQuery) {
           if (parentType.metaSchema[name].type !== "relation") {
             throw new Error("Current node should be a relation.");
           }
           nextQuery = q.Map(
             q.Paginate(
-              q.Match(
-                q.Index("relations" + parentType.metaSchema[name].relation),
-                [
-                  parentType.metaSchema[name].relationshipRef,
-                  q.Select(["ref"], CURRENT_DOC_VAR),
-                ]
-              )
+              q.Match(q.Index("relations" + parentType.metaSchema[name].from), [
+                parentType.metaSchema[name].relationshipRef,
+                q.Select(["ref"], CURRENT_DOC_VAR),
+              ])
             ),
             q.Lambda("ref", q.Get(q.Var("ref")))
           );
