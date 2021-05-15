@@ -30,7 +30,9 @@ const bookType = new GraphQLFaunaObjectType({
   fields: () => ({
     id: { type: GraphQLID },
     title: { type: GraphQLString },
-    authors: { type: GraphQLList(authorType) },
+    authors: {
+      type: GraphQLList(authorType),
+    },
   }),
   metaSchema: {
     title: { fieldId: "294845251673129473", type: "string" },
@@ -41,7 +43,9 @@ const bookType = new GraphQLFaunaObjectType({
         "296152190589862405"
       ),
       type: "relation",
-      relation: "A",
+      // relation: "A",
+      from: "A",
+      to: "B",
     },
   },
 });
@@ -115,7 +119,9 @@ const authorType = new GraphQLFaunaObjectType({
         "296152190589862405"
       ),
       type: "relation",
-      relation: "B",
+      // relation: "B",
+      from: "B",
+      to: "A",
     },
   },
 });
@@ -170,49 +176,60 @@ const mutationType = new GraphQLObjectType({
   name: "Mutation",
   fields: {
     createBook: {
-      type: GraphQLList(bookType),
+      type: bookType,
       args: {
         input: { type: bookInputType },
       },
       resolve: async (obj: any, args, context: any, info: any) => {
-        debug(args);
-        console.log(JSON.stringify(args));
-        console.log(info);
-        let data = {};
-        let relationQueries;
-        for (let [key, value] of Object.entries(args.input)) {
-          if (bookType.metaSchema[key].type === "relation") {
-            console.log("side:" + bookType.metaSchema[key].relation);
-            relationQueries = q.Create(q.Collection("relations"), {
-              data: {
-                relationshipRef: bookType.metaSchema[key].relationshipRef,
-                [bookType.metaSchema[key].relation]: q.Var("docRef"),
-                [bookType.metaSchema[key].relation === "A" ? "B" : "A"]: q.Ref(
-                  q.Collection("294845159814726145"),
-                  value.connect[0]
-                ),
-              },
-            });
-          } else {
-            data[bookType.metaSchema[key].fieldId] = value;
-          }
-        }
+        // debug(args);
+        // console.log(JSON.stringify("start"));
+        // console.log(JSON.stringify(args));
+        // console.log(JSON.stringify(info));
+        // console.log(info.fieldNodes[0]);
+        // let data = {};
+        // let relationQueries;
 
-        // let data = {data: Object.fromEntries(Object.entries(args.input).filter(([key, value]) => bookType.metaSchema[key].type !== "relation").map( ([key, value]) => [bookType.metaSchema[key].fieldId, value] ))}
-        let res = await client.query(
-          q.Let(
-            {
-              docRef: q.Select(
-                ["ref"],
-                q.Create(q.Collection(bookType.collectionName), { data })
-              ),
-            },
-            { finished: relationQueries }
-          )
-        );
-        console.log(JSON.stringify(data));
-        console.log(JSON.stringify(res));
-        return {};
+        // for (let [key, value] of Object.entries(args.input)) {
+        //   if (bookType.metaSchema[key].type === "relation") {
+        //     console.log("side:" + bookType.metaSchema[key].from);
+        //     let relatedType = bookType.getFields()[key].type;
+        //     if (relatedType instanceof GraphQLList) {
+        //       relatedType = relatedType.ofType;
+        //     }
+        //     console.log(relatedType.collectionName);
+        //     relationQueries = q.Create(q.Collection("relations"), {
+        //       data: {
+        //         relationshipRef: bookType.metaSchema[key].relationshipRef,
+        //         [bookType.metaSchema[key].from]: q.Var("docRef"),
+        //         [bookType.metaSchema[key].to]: q.Ref(
+        //           q.Collection(relatedType.collectionName),
+        //           value.connect[0] //TODO: Allow multiple connects
+        //         ),
+        //       },
+        //     });
+        //   } else {
+        //     data[bookType.metaSchema[key].fieldId] = value;
+        //   }
+        // }
+
+        // // let data = {data: Object.fromEntries(Object.entries(args.input).filter(([key, value]) => bookType.metaSchema[key].type !== "relation").map( ([key, value]) => [bookType.metaSchema[key].fieldId, value] ))}
+        // let creationResult = await client.query(
+        //   q.Let(
+        //     {
+        //       docRef: q.Select(
+        //         ["ref"],
+        //         q.Create(q.Collection(bookType.collectionName), { data })
+        //       ),
+        //     },
+        //     { ref: q.Var("docRef"), relationQueries }
+        //   )
+        // );
+        let result = await client.query(generateFaunaQuery(info));
+
+        // console.log(JSON.stringify(data));
+        console.log("info" + JSON.stringify(result));
+        // console.log("res" + JSON.stringify(creationResult.ref));
+        return result;
       },
     },
   },
