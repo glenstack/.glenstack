@@ -1031,7 +1031,7 @@ export const CreateIllustration: FC<SVGProps<SVGSVGElement>> = (props) => (
           fill="#cc0062"
         />
       </g>
-      <g fill="#c4c4c4" fill-opacity=".46">
+      <g fill="#c4c4c4" fillOpacity=".46">
         <circle r="5" transform="matrix(-1 0 0 1 405 207)" />
         <circle r="3" transform="matrix(-1 0 0 1 397 49)" />
         <circle r="4" transform="matrix(-1 0 0 1 262 342)" />
