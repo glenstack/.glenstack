@@ -4,16 +4,13 @@ import { Logo } from "../Logo";
 import { Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 
-const navigation = [
-  { name: "Product", to: "/features" },
-  { name: "About", href: "/about" },
-];
+const navigation = [{ name: "About", href: "/about" }];
 
 export const Header: FC = () => {
   return (
     <div>
       <div className="relative overflow-hidden">
-        <div className="bg-indigo-900">
+        <div className="bg-indigo-900 h-screen">
           <Popover as="header" className="relative">
             {({ open }) => (
               <>
@@ -36,10 +33,9 @@ export const Header: FC = () => {
                           </Popover.Button>
                         </div>
                       </div>
-                    
                     </div>
                     <div className="hidden md:flex md:items-center md:space-x-6">
-                    <div className="hidden space-x-8 md:flex md:ml-10">
+                      <div className="hidden space-x-8 md:flex md:ml-10">
                         {navigation.map((item) => (
                           <a
                             key={item.name}
@@ -54,13 +50,13 @@ export const Header: FC = () => {
                         to="/contact"
                         className="text-base text-white hover:text-gray-300"
                       >
-                        Contact us
+                        Sign In
                       </Link>
                       <Link
-                        to="/login"
+                        to="/waitlist"
                         className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700"
                       >
-                        Log in
+                        Join Waitlist
                       </Link>
                     </div>
                   </nav>
@@ -134,63 +130,35 @@ export const Header: FC = () => {
               </>
             )}
           </Popover>
-
-          <div className="py-20 mx-auto max-w-7xl px-4 sm:py-48 sm:px-6">
-            <div className="text-center">
-              {/* <h1 className="text-5xl tracing-tight font-extrabold text-white sm:text-5xl md:text-6xl">
+          <div className="h-full flex justify-center items-center">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6">
+              <div className="text-center">
+                {/* <h1 className="text-5xl tracing-tight font-extrabold text-white sm:text-5xl md:text-6xl">
                 Glenstack
               </h1> */}
-              <h1 className="mt-4 text-3xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-5xl lg:mt-6 xl:text-5xl">
-                      <span className="block">Create, exchange and collaborate on</span>
-                      <span className="block text-yellow-500">
-                        data
-                      </span>
-                    </h1>
-              {/* <p className="pt-8 text-2xl tracking-tight font-extrabold text-white sm:text-3xl md:text-4xl">
-                <span className="">Create, exchange, and collaborate on </span>
-                <span className="text-yellow-500">data</span>
-              </p> */}
-              <p className="pt-8 text-lg tracking-tight font-semibold text-gray-300">
-                Join the waitlist now to secure early access when we launch
-                later this summer.
-              </p>
-              <div className="mt-10 sm:mt-12">
-                <form action="#" className="sm:max-w-xl sm:mx-auto">
-                  <div className="sm:flex">
-                    <div className="min-w-0 flex-1">
-                      <label htmlFor="email" className="sr-only">
-                        Email address
-                      </label>
-                      <input
-                        id="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        className="block w-full px-4 py-3 rounded-md border-0 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 focus:ring-offset-gray-900"
-                      />
-                    </div>
-                    <div className="mt-3 sm:mt-0 sm:ml-3">
+                <h1 className="mt-4 text-3xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-5xl lg:mt-6 xl:text-5xl">
+                  <span className="block">
+                    Create, exchange and collaborate on
+                  </span>
+                  <span className="block text-yellow-500">data</span>
+                </h1>
+
+                <div className="mt-10 sm:mt-20">
+                  <form action="#" className="sm:max-w-xl sm:mx-auto">
+                    <div className="flex justify-center">
                       <button
                         type="submit"
-                        className="block w-full py-3 px-4 rounded-md shadow bg-rose-600 text-white font-medium hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 focus:ring-offset-gray-900"
+                        className="block py-3 px-7 rounded-full shadow bg-rose-600 text-white font-medium hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 focus:ring-offset-gray-900"
                       >
-                        Join the waitlist
+                        Join Waitlist
                       </button>
                     </div>
-                  </div>
-                  <p className="mt-3 text-sm text-gray-300 sm:mt-4">
-                    By providing your email, you agree to our{" "}
-                    <Link to="/terms" className="font-medium text-white">
-                      terms of service
-                    </Link>
-                    .
-                  </p>
-                </form>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-      
       </div>
     </div>
   );

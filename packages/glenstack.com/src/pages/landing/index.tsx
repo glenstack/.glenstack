@@ -11,7 +11,7 @@ export const Homepage: FC = () => {
       <Header />
       <Explainer />
       <Features />
-      <FooterCTA />
+      {/* <FooterCTA /> */}
       <Footer />
     </>
   );

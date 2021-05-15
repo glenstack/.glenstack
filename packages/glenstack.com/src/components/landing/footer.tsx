@@ -81,7 +81,7 @@ const navigation = {
 
 export const Footer: FC = () => {
   return (
-    <footer className="bg-white" aria-labelledby="footerHeading">
+    <footer className="bg-white pt-20" aria-labelledby="footerHeading">
       <h2 id="footerHeading" className="sr-only">
         Footer
       </h2>

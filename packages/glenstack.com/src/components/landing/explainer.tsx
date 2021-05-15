@@ -1,5 +1,9 @@
 import { FC } from "react";
-import createImage from "./assets/create.png";
+import {
+  CreateIllustration,
+  CollaborateIllustration,
+  ExchangeIllustration,
+} from "../illustrations";
 import collaborateImage from "./assets/collaborate.png";
 import exchangeImage from "./assets/exchange.png";
 
@@ -11,11 +15,11 @@ export const Explainer: FC = () => {
       <div className="relative max-w-xl mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl">
         <div className="relative">
           <h2 className="text-center text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Your database in one click
+            Your Hub for Everything Data
           </h2>
           <p className="mt-4 max-w-3xl mx-auto text-center text-xl text-gray-500">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus
-            magnam voluptatum cupiditate veritatis in, accusamus quisquam.
+            Glenstack provides you with all the tools you need to power your app
+            with your own or external data.
           </p>
         </div>
 
@@ -25,24 +29,19 @@ export const Explainer: FC = () => {
               create
             </span>
             <h3 className="mt-3 text-2xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
-              Seamlessly create and <br></br>access your data{" "}
-              <span className="text-rose-600">without code</span>.
+              Get your no-code database <br></br>in one click, with{" "}
+              <span className="text-rose-600">GraphQl API</span>.
             </h3>
             <p className="mt-3 text-lg text-gray-500">
               Seamlessly create data with our no-code spreadsheet UI or drag and
-              drop your existing csv and json files to automatically generate a
+              drop your existing CSV and JSON files to automatically generate a
               database. Instantly access your data with our auto-generated
               GraphQL API.
             </p>
           </div>
 
           <div className="mt-10 -mx-4 relative lg:mt-0" aria-hidden="true">
-            <img
-              className="relative mx-auto"
-              width={490}
-              src={createImage}
-              alt=""
-            />
+            <CreateIllustration className="relative mx-auto h-108" />
           </div>
         </div>
 
@@ -64,12 +63,7 @@ export const Explainer: FC = () => {
             </div>
 
             <div className="mt-10 -mx-4 relative lg:mt-0 lg:col-start-1">
-              <img
-                className="relative mx-auto"
-                width={490}
-                src={collaborateImage}
-                alt=""
-              />
+              <CollaborateIllustration className="relative mx-auto h-108" />
             </div>
           </div>
         </div>
@@ -91,12 +85,7 @@ export const Explainer: FC = () => {
           </div>
 
           <div className="mt-10 -mx-4 relative lg:mt-0" aria-hidden="true">
-            <img
-              className="relative mx-auto"
-              width={490}
-              src={exchangeImage}
-              alt=""
-            />
+            <ExchangeIllustration className="relative mx-auto h-108" />
           </div>
         </div>
       </div>

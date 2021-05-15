@@ -90,20 +90,20 @@ const features = [
     icon: ShareIcon,
   },
   {
-    name: "No-code Spreadsheet UI",
-    description: "Easily edit your data.",
+    name: "No-code Spreadsheet View",
+    description: "Easily edit your data without code.",
     icon: DesktopComputerIcon,
   },
   {
-    name: "External collaborators",
+    name: "External Collaborators",
     description:
-      "Crowdsource your data",
+      "Crowdsource your data and approve data submissions from external contributors.",
     icon: CloudIcon,
   },
   {
     name: "Secure Backups & 1-click Exports",
     description:
-      "Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et magna sit morbi lobortis.",
+      "Get absolute safety and zero lock-in with secure backups and 1-click exports.",
     icon: SaveAsIcon,
   },
   {
