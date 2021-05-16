@@ -40,28 +40,14 @@ const bookType = new GraphQLFaunaObjectType({
   },
 });
 
-class GraphQLFaunaInputObjectType extends GraphQLInputObjectType {
-  collectionName: string;
-  constructor(args: any) {
-    super(args);
-    this.collectionName = args.collectionName;
-  }
-}
-class GraphQLFaunaRelatedInputObjectType extends GraphQLInputObjectType {
-  relatedType: GraphQLFaunaInputObjectType;
-  constructor(args: any) {
-    super(args);
-    this.relatedType = args.relatedType;
-  }
-}
-const bookInputType = new GraphQLFaunaInputObjectType({
+const bookInputType = new GraphQLInputObjectType({
   name: "bookInput",
   fields: () => ({
     title: { type: new GraphQLNonNull(GraphQLString) },
     authors: { type: relatedAuthorsInputType },
   }),
 });
-const authorInputType = new GraphQLFaunaInputObjectType({
+const authorInputType = new GraphQLInputObjectType({
   name: "authorInput",
   fields: () => ({
     title: { type: new GraphQLNonNull(GraphQLString) },
@@ -69,28 +55,18 @@ const authorInputType = new GraphQLFaunaInputObjectType({
   }),
 });
 
-const relatedAuthorsInputType = new GraphQLFaunaRelatedInputObjectType({
+const relatedAuthorsInputType = new GraphQLInputObjectType({
   name: "relatedAuthorsInput",
-  relatedType: authorInputType,
   fields: () => ({
     connect: { type: new GraphQLList(GraphQLID) },
   }),
 });
-const relatedBooksInputType = new GraphQLFaunaRelatedInputObjectType({
+const relatedBooksInputType = new GraphQLInputObjectType({
   name: "relatedBooksInput",
-  relatedType: bookInputType,
   fields: () => ({
     connect: { type: new GraphQLList(GraphQLID) },
   }),
 });
-
-// const relatedInputType = new GraphQLInputObjectType({
-//   name: 'relatedInput',
-//   fields: () => ({
-
-//     ids
-
-//   })})
 
 const authorType = new GraphQLFaunaObjectType({
   name: "Author",
