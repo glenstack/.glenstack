@@ -1,6 +1,8 @@
 import { FC } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { Login } from "./pages/authentication/login";
+import { WaitList } from "./pages/authentication/waitlist";
+
 import { Homepage } from "./pages/landing";
 import { Terms } from "./pages/landing/terms";
 import { About } from "./pages/landing/about";
@@ -15,6 +17,9 @@ export const App: FC = () => {
       <Switch>
         <Route path="/login" exact>
           <Login />
+        </Route>
+        <Route path="/waitlist" exact>
+          <WaitList />
         </Route>
         <Route path="/terms" exact>
           <Terms />
