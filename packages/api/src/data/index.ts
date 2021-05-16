@@ -181,54 +181,8 @@ const mutationType = new GraphQLObjectType({
         input: { type: bookInputType },
       },
       resolve: async (obj: any, args, context: any, info: any) => {
-        // debug(args);
-        // console.log(JSON.stringify("start"));
-        // console.log(JSON.stringify(args));
-        // console.log(JSON.stringify(info));
-        // console.log(info.fieldNodes[0]);
-        // let data = {};
-        // let relationQueries;
-
-        // for (let [key, value] of Object.entries(args.input)) {
-        //   if (bookType.metaSchema[key].type === "relation") {
-        //     console.log("side:" + bookType.metaSchema[key].from);
-        //     let relatedType = bookType.getFields()[key].type;
-        //     if (relatedType instanceof GraphQLList) {
-        //       relatedType = relatedType.ofType;
-        //     }
-        //     console.log(relatedType.collectionName);
-        //     relationQueries = q.Create(q.Collection("relations"), {
-        //       data: {
-        //         relationshipRef: bookType.metaSchema[key].relationshipRef,
-        //         [bookType.metaSchema[key].from]: q.Var("docRef"),
-        //         [bookType.metaSchema[key].to]: q.Ref(
-        //           q.Collection(relatedType.collectionName),
-        //           value.connect[0] //TODO: Allow multiple connects
-        //         ),
-        //       },
-        //     });
-        //   } else {
-        //     data[bookType.metaSchema[key].fieldId] = value;
-        //   }
-        // }
-
-        // // let data = {data: Object.fromEntries(Object.entries(args.input).filter(([key, value]) => bookType.metaSchema[key].type !== "relation").map( ([key, value]) => [bookType.metaSchema[key].fieldId, value] ))}
-        // let creationResult = await client.query(
-        //   q.Let(
-        //     {
-        //       docRef: q.Select(
-        //         ["ref"],
-        //         q.Create(q.Collection(bookType.collectionName), { data })
-        //       ),
-        //     },
-        //     { ref: q.Var("docRef"), relationQueries }
-        //   )
-        // );
         let result = await client.query(generateFaunaQuery(info));
 
-        // console.log(JSON.stringify(data));
-        console.log("info" + JSON.stringify(result));
-        // console.log("res" + JSON.stringify(creationResult.ref));
         return result;
       },
     },

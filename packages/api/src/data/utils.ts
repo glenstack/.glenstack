@@ -183,11 +183,12 @@ export const generateFaunaQuery = (
         //       return generateSelector(returnName, parentType)
         //   }
 
-        console.log("neww" + JSON.stringify(getArgumentValues(field, node)));
-        console.log("node" + type.collectionName);
+        console.log(
+          "arguments:" + JSON.stringify(getArgumentValues(field, node))
+        );
+
         console.log("parse" + JSON.stringify(parseFieldNode(node)));
 
-        // if (isQuery && isRoot) nextQuery = query;
         if (isMutation && isRoot) {
           const bookType = type;
           let data = {};
@@ -215,17 +216,6 @@ export const generateFaunaQuery = (
               data[bookType.metaSchema[key].fieldId] = value;
             }
           }
-          // let creationResult = await client.query(
-          //   q.Let(
-          //     {
-          //       docRef: q.Select(
-          //         ["ref"],
-          //         q.Create(q.Collection(bookType.collectionName), { data })
-          //       ),
-          //     },
-          //     { ref: q.Var("docRef"), relationQueries }
-          //   )
-          // );
           nextQuery = q.Select(
             ["doc"],
             q.Let(
@@ -238,9 +228,6 @@ export const generateFaunaQuery = (
               { doc: q.Get(q.Var("docRef")), relationQueries }
             )
           );
-
-          console.log("is mutation" + JSON.stringify(parseFieldNode(node)));
-          // nextQuery = q.Get(creationResult.ref);
         } else if (isRoot) {
           nextQuery = query;
         }
@@ -263,8 +250,6 @@ export const generateFaunaQuery = (
           returnName,
           nestedQuery(nextQuery, field, selectionSet, isList),
         ];
-
-        return {};
       },
     },
   };
@@ -277,5 +262,4 @@ export const generateFaunaQuery = (
     console.error(err);
     throw err;
   }
-  return q.ToDate("2020-03-12");
 };
