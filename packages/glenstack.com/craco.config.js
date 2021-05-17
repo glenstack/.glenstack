@@ -8,6 +8,7 @@ module.exports = {
     configure: (jestConfig) => {
       jestConfig.displayName = "glenstack-com";
       jestConfig.coverageReporters = [["lcov", { projectRoot: "../.." }]];
+      jestConfig.moduleNameMapper["\\.mdx$"] = "identity-obj-proxy";
       return jestConfig;
     },
   },

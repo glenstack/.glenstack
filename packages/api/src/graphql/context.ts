@@ -1,4 +1,5 @@
-import type { ContextValueMaker } from "@glenstack/cf-workers-graphql";
+import { GraphQLResolveInfo } from "graphql";
+import Toucan from "toucan-js";
 import type { v4 as uuid } from "uuid";
 
 type User = {
@@ -10,11 +11,18 @@ type User = {
 
 export type Context = {
   user?: User;
+  sentry: Toucan;
 };
 
-export const makeContextValue: ContextValueMaker = async (
-  request
+export const makeContextValue = async (
+  request: Request,
+  sentry: Toucan
 ): Promise<Context> => {
-  console.log(request);
-  return {};
+  return { sentry };
 };
+
+export interface Resolver<Return, Arguments = Record<string, unknown>> {
+  (obj: Arguments, context: Context, info: GraphQLResolveInfo):
+    | Promise<Return>
+    | Return;
+}
