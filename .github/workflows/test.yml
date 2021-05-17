@@ -22,7 +22,7 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
         with:
-          coverageCommand: npm run coverage
+          coverageCommand: npm run validate
           coverageLocations: |
             ${{github.workspace}}/packages/api/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/authentication/coverage/lcov.info:lcov
