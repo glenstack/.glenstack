@@ -5,10 +5,12 @@ import { WaitList } from "./pages/authentication/waitlist";
 
 import { Homepage } from "./pages/landing";
 import { Terms } from "./pages/landing/terms";
+import { Privacy } from "./pages/landing/privacy";
 import { About } from "./pages/landing/about";
 import { MethodNotAllowed } from "./pages/landing/methodNotAllowed";
 import { InternalError } from "./pages/landing/internalError";
 import { NotFound } from "./pages/landing/notFound";
+import { Blog } from "./pages/blog";
 
 export const App: FC = () => {
   return (
@@ -23,8 +25,14 @@ export const App: FC = () => {
         <Route path="/terms" exact>
           <Terms />
         </Route>
+        <Route path="/privacy" exact>
+          <Privacy />
+        </Route>
         <Route path="/about" exact>
           <About />
+        </Route>
+        <Route path="/blog">
+          <Blog />
         </Route>
         <Route path="/" exact>
           <Homepage />

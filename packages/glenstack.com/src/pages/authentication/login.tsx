@@ -1,5 +1,5 @@
 import { FC } from "react";
 
 export const Login: FC = () => {
-  return <></>;
+  return <div>Login</div>;
 };

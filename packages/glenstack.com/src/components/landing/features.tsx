@@ -1,122 +1,63 @@
 import {
-  ChipIcon,
-  CloudIcon,
-  // CubeTransparentIcon,
-  // CubeIcon,
-  // DatabaseIcon,
-  DesktopComputerIcon,
-  // DocumentDuplicateIcon,
-  // DocumentSearchIcon,
-  // DocumentTextIcon,
-  // FingerPrintIcon,
-  GlobeAltIcon,
-  // GlobeIcon,
   HeartIcon,
-  // HomeIcon,
-  // KeyIcon,
-  // LockClosedIcon,
-  // SearchCircleIcon,
-  // SearchIcon,
-  // ServerIcon,
-  // ShieldCheckIcon,
-  // SparklesIcon,
-  // StatusOnlineIcon,
-  // SupportIcon,
-  // TableIcon,
-  // TemplateIcon,
-  // TerminalIcon,
-  // TrendingUpIcon,
-  // UploadIcon,
-  // UserGroupIcon,
-  UsersIcon,
-  // ViewGridAddIcon,
-  ShareIcon,
-  // PencilAltIcon,
-  SaveAsIcon,
+  LightningBoltIcon,
+  UserGroupIcon,
+} from "@heroicons/react/solid";
+import {
+  CloudIcon,
+  CloudDownloadIcon,
+  CollectionIcon,
+  GlobeIcon,
+  ViewGridAddIcon,
 } from "@heroicons/react/outline";
 import { FC } from "react";
 
-// const cool = [
-//   ChipIcon,
-//   CloudIcon,
-//   CubeTransparentIcon,
-//   CubeIcon,
-//   DatabaseIcon,
-//   DesktopComputerIcon,
-//   DocumentDuplicateIcon,
-//   DocumentSearchIcon,
-//   DocumentTextIcon,
-//   FingerPrintIcon,
-//   GlobeAltIcon,
-//   GlobeIcon,
-//   HeartIcon,
-//   HomeIcon,
-//   KeyIcon,
-//   LockClosedIcon,
-//   SearchCircleIcon,
-//   SearchIcon,
-//   ServerIcon,
-//   ShieldCheckIcon,
-//   SparklesIcon,
-//   StatusOnlineIcon,
-//   SupportIcon,
-//   TableIcon,
-//   TemplateIcon,
-//   TerminalIcon,
-//   TrendingUpIcon,
-//   UploadIcon,
-//   UserGroupIcon,
-//   UsersIcon,
-//   ViewGridAddIcon,
-// ];
-
 const features = [
   {
-    name: "Auto-Generated GraphQL APIs",
-    description:
-      "Instantly turn your data into a full database with GraphQL API and documentation.",
-    icon: ChipIcon,
+    name: "No-Code Editor",
+    description: "Upload and edit your data as easily as a spreadsheet.",
+    icon: ViewGridAddIcon,
   },
   {
-    name: "Live Collaborative Editing",
-    description:
-      "Collaborate live with your team or crowdsource your data from external ",
-    icon: UsersIcon,
-  },
-  {
-    name: "Version Control",
-    description:
-      "Git-like atomic versioning allows changes to be tracked and reverted.",
-    icon: ShareIcon,
-  },
-  {
-    name: "No-code Spreadsheet View",
-    description: "Easily edit your data without code.",
-    icon: DesktopComputerIcon,
+    name: "Bring Your Team",
+    description: "Seamlessly collaborate across your organization.",
+    icon: UserGroupIcon,
   },
   {
     name: "External Collaborators",
     description:
-      "Crowdsource your data and approve data submissions from external contributors.",
+      "Crowdsource your data and approve submissions from external contributors.",
+    icon: HeartIcon,
+  },
+  {
+    name: "Incredibly Scalable",
+    description:
+      "You don’t have to worry about sharding, clustering, or redundancy.",
     icon: CloudIcon,
   },
   {
-    name: "Secure Backups & 1-click Exports",
+    name: "Global Low Latency",
     description:
-      "Get absolute safety and zero lock-in with secure backups and 1-click exports.",
-    icon: SaveAsIcon,
+      "Access your data with low latency from anywhere in the world with consistent and replicated data.",
+    icon: GlobeIcon,
   },
   {
-    name: "Global low-latency",
+    name: "Zero Lock-In",
     description:
-      "Access your data with low latency from anywhere in the world with consistent and globally replicated data.",
-    icon: GlobeAltIcon,
+      "Get started with Glenstack immediately without fear of vendor lock-in—we offer 1-click exports for your data.",
+    icon: CloudDownloadIcon,
   },
   {
-    name: "Incredibly scalable",
+    name: "Version Control",
     description:
-      "Your database scales automatically without having to worry about data sharding, clustering, replication, upgrades.",
-    icon: HeartIcon,
+      "Snapshot backups and atomic versioning allows changes to be tracked and reverted.",
+    icon: CollectionIcon,
+  },
+  {
+    name: "Instant GraphQL APIs",
+    description:
+      "Immediately serve your data with secure and production-ready GraphQL.",
+    icon: LightningBoltIcon,
   },
 ];
 
@@ -125,11 +66,13 @@ export const Features: FC = () => {
     <div className="bg-indigo-900">
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 sm:pt-20 sm:pb-24 lg:max-w-7xl lg:pt-24 lg:px-8">
         <h2 className="text-3xl font-extrabold text-white tracking-tight">
-          A Complete Data Hub
+          The Platform for Data
         </h2>
         <p className="mt-4 max-w-3xl text-lg text-indigo-200">
-          Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et
-          magna sit morbi lobortis. Blandit aliquam sit nisl euismod mattis in.
+          Glenstack is a production-ready, modern data platform. And as such, we
+          are embracing the latest and greatest technologies as we deliver our
+          application quickly, securely, and with the features our customers
+          demand.
         </p>
         <div className="mt-12 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
           {features.map((feature) => (

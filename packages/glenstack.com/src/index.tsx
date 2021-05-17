@@ -1,9 +1,11 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom";
 import * as Sentry from "@sentry/react";
+import { ApolloProvider } from "@apollo/client";
 import "@fontsource/jost/variable.css";
 import "./index.css";
 import { App } from "./App";
+import { client } from "./client";
 import { reportWebVitals } from "./reportWebVitals";
 
 Sentry.init({
@@ -16,7 +18,9 @@ Sentry.init({
 
 ReactDOM.render(
   <StrictMode>
-    <App />
+    <ApolloProvider client={client}>
+      <App />
+    </ApolloProvider>
   </StrictMode>,
   document.getElementById("root")
 );

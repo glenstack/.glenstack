@@ -24,7 +24,9 @@ export const Header: FC = () => {
                         <Link to="/" className="flex text-white items-center">
                           <span className="sr-only">Glenstack</span>
                           <Logo className="h-8 w-auto sm:h-10 text-white" />
-                          <p className="ml-4 text-lg font-medium">Glenstack</p>
+                          <p className="ml-4 text-lg font-semibold">
+                            Glenstack
+                          </p>
                         </Link>
                         <div className="-mr-2 flex items-center md:hidden">
                           <Popover.Button className="bg-gray-900 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-800 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white">
@@ -133,14 +135,12 @@ export const Header: FC = () => {
           <div className="h-full flex justify-center items-center">
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
               <div className="text-center">
-                {/* <h1 className="text-5xl tracing-tight font-extrabold text-white sm:text-5xl md:text-6xl">
-                Glenstack
-              </h1> */}
-                <h1 className="mt-4 text-3xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-5xl lg:mt-6 xl:text-5xl">
-                  <span className="block">
-                    Create, exchange and collaborate on
-                  </span>
-                  <span className="block text-yellow-500">data</span>
+                <h1 className="text-5xl tracing-tight font-extrabold text-white sm:text-5xl md:text-6xl">
+                  Glenstack
+                </h1>
+                <h1 className="mt-4 text-3xl tracking-tight font-semibold text-white sm:mt-5 sm:text-5xl lg:mt-6 xl:text-4xl">
+                  Create, exchange, and collaborate on{" "}
+                  <span className="text-yellow-500">data</span>
                 </h1>
 
                 <div className="mt-10 sm:mt-20">

@@ -1,9 +1,9 @@
 name = "api-dev"
 type = "javascript"
 account_id = "41d154df19739a540756d193a9715370"
-zone_id = "b871929efc74ff6123beaff3a5f55841"
+zone_id = "1a50aad2a97cd8ee713df553f2214779"
 workers_dev = true
-vars = { ENVIRONMENT = "development", FAUNA_ADMIN_KEY = "", SENTRY_DSN = "" }
+vars = { ENVIRONMENT = "development", FAUNA_ADMIN_KEY = "", SENTRY_DSN = "", IUBENDA_ID = "15821943" }
 
 [build]
 command = "npm install && npm run build"
@@ -11,5 +11,5 @@ upload.format = "service-worker"
 
 [env.production]
 name = "api"
-route = "https://glenstack.dev/graphql*"
-vars = { ENVIRONMENT = "production" }
+route = "https://api.glenstack.com/*"
+vars = { ENVIRONMENT = "production", IUBENDA_ID = "15821943" }
