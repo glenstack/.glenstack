@@ -69,14 +69,14 @@ export const RightGhost: FC = () => {
           stroke="#454545"
         />
       </g>
-      <circle cx="39" cy="37" r="5" fill="white" fill-opacity="0.3" />
+      <circle cx="39" cy="37" r="5" fill="white" fillOpacity="0.3" />
       <path
         d="M167 67.5C167 71.6421 163.642 75 159.5 75C155.358 75 152 71.6421 152 67.5C152 63.3579 155.358 60 159.5 60C163.642 60 167 63.3579 167 67.5Z"
         fill="white"
-        fill-opacity="0.3"
+        fillOpacity="0.3"
       />
-      <circle cx="179" cy="383" r="5" fill="white" fill-opacity="0.3" />
-      <circle cx="28" cy="606" r="10" fill="white" fill-opacity="0.3" />
+      <circle cx="179" cy="383" r="5" fill="white" fillOpacity="0.3" />
+      <circle cx="28" cy="606" r="10" fill="white" fillOpacity="0.3" />
       <defs>
         <filter
           id="filter0_d"
@@ -85,9 +85,9 @@ export const RightGhost: FC = () => {
           width="173.466"
           height="153.417"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -117,9 +117,9 @@ export const RightGhost: FC = () => {
           width="114.511"
           height="108.064"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -150,9 +150,9 @@ export const RightGhost: FC = () => {
           width="59.7523"
           height="65.0163"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -183,9 +183,9 @@ export const RightGhost: FC = () => {
           width="20.6095"
           height="41.4754"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -283,10 +283,10 @@ export const LeftGhost: FC = () => {
           stroke="#454545"
         />
       </g>
-      <circle cx="177" cy="526" r="10" fill="white" fill-opacity="0.3" />
-      <circle cx="126.5" cy="142.5" r="2.5" fill="white" fill-opacity="0.3" />
-      <circle cx="157" cy="256" r="5" fill="white" fill-opacity="0.3" />
-      <circle cx="101.5" cy="614.5" r="2.5" fill="white" fill-opacity="0.3" />
+      <circle cx="177" cy="526" r="10" fill="white" fillOpacity="0.3" />
+      <circle cx="126.5" cy="142.5" r="2.5" fill="white" fillOpacity="0.3" />
+      <circle cx="157" cy="256" r="5" fill="white" fillOpacity="0.3" />
+      <circle cx="101.5" cy="614.5" r="2.5" fill="white" fillOpacity="0.3" />
       <defs>
         <filter
           id="filter0_d"
@@ -295,9 +295,9 @@ export const LeftGhost: FC = () => {
           width="130.176"
           height="179.238"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -327,9 +327,9 @@ export const LeftGhost: FC = () => {
           width="85.5519"
           height="116.916"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -360,9 +360,9 @@ export const LeftGhost: FC = () => {
           width="68.4895"
           height="57.0337"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -393,9 +393,9 @@ export const LeftGhost: FC = () => {
           width="36.8979"
           height="31.7081"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
