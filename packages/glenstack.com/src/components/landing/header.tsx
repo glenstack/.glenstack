@@ -5,15 +5,15 @@ import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { MagicLink } from "../magicLink";
 
 const links = [
-  { name: "About", to: "/about" },
-  { name: "Sign In", to: "/login" },
+  { name: "About", href: "/about" },
+  { name: "Sign In", href: "/login" },
 ];
 
 export const Header: FC = ({ children }) => {
   return (
     <div>
       <div className="relative overflow-hidden">
-        <div className="bg-indigo-900 h-screen">
+        <div className={`bg-indigo-900 ${children ? "h-screen" : "pb-6"}`}>
           <Popover as="header" className="relative">
             {({ open }) => (
               <>
@@ -47,7 +47,7 @@ export const Header: FC = ({ children }) => {
                         {links.map((link) => (
                           <MagicLink
                             key={link.name}
-                            href={link.to}
+                            href={link.href}
                             className="text-base text-white hover:text-gray-300"
                           >
                             {link.name}
@@ -99,7 +99,7 @@ export const Header: FC = ({ children }) => {
                           {links.map((link) => (
                             <MagicLink
                               key={link.name}
-                              href={link.to}
+                              href={link.href}
                               className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
                             >
                               {link.name}
