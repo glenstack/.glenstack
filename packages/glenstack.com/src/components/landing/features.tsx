@@ -11,7 +11,7 @@ import {
   ViewGridAddIcon,
 } from "@heroicons/react/outline";
 import { FC } from "react";
-import Constellation from "./assets/constellation"
+import { Constellation } from "./constellation";
 
 const features = [
   {
@@ -68,18 +68,18 @@ export const Features: FC = () => {
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 sm:pt-20 sm:pb-24 lg:max-w-7xl lg:pt-24 lg:px-8">
         <h2 className="text-3xl font-extrabold text-white tracking-tight">
           The Platform for Data
-        </h2>  
-        <div class="flex">
-          <div className="flex-initial ...">
+        </h2>
+        <div className="flex">
+          <div className="flex-initial">
             <p className="mt-4 max-w-3xl text-lg text-indigo-200">
-              Glenstack is a production-ready, modern data platform. And as such, we
-              are embracing the latest and greatest technologies as we deliver our
-              application quickly, securely, and with the features our customers
-              demand.
+              Glenstack is a production-ready, modern data platform. And as
+              such, we are embracing the latest and greatest technologies as we
+              deliver our application quickly, securely, and with the features
+              our customers demand.
             </p>
           </div>
           <div className="flex-initial hidden lg:block ml-16 -mt-16">
-            <Constellation/>
+            <Constellation />
           </div>
         </div>
         <div className="mt-12 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">

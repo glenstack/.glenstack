@@ -1,6 +1,6 @@
-import * as React from "react";
+import { FC, SVGProps } from "react";
 
-function Icon(props: React.SVGProps<SVGSVGElement>) {
+export const Constellation: FC<SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
       width={442}
@@ -205,6 +205,4 @@ function Icon(props: React.SVGProps<SVGSVGElement>) {
       </defs>
     </svg>
   );
-}
-
-export default Icon;
+};
