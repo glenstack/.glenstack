@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/no-webpack-loader-syntax
-import HowWereBuildingGlenstack from "!xdm/webpack.cjs!./how-were-building-glenstack/index.mdx";
+// import HowWereBuildingGlenstack from "./how-we-re-building-glenstack/index.mdx";
 import { FC } from "react";
 import { Route, Switch, useRouteMatch } from "react-router";
 
@@ -7,10 +6,15 @@ export const Blog: FC = () => {
   const match = useRouteMatch();
 
   return (
-    <Switch>
-      <Route path={`${match.path}/how-were-building-glenstack`}>
-        <HowWereBuildingGlenstack />
-      </Route>
-    </Switch>
+    <div className="prose xl:prose-xl">
+      <Switch>
+        <Route path={`${match.path}/how-we-re-building-glenstack`}>
+          {/* <HowWereBuildingGlenstack /> */}
+        </Route>
+        <Route path="/" exact>
+          BLOG
+        </Route>
+      </Switch>
+    </div>
   );
 };
