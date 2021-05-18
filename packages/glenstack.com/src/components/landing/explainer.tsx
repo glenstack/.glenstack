@@ -11,7 +11,7 @@ import {
 // import { AnnotationIcon, GlobeAltIcon, LightningBoltIcon, MailIcon, ScaleIcon } from '@heroicons/react/outline'
 export const Explainer: FC = () => {
   return (
-    <div className="py-16 overflow-hidden lg:py-24">
+    <div id="explainer" className="py-16 overflow-hidden lg:py-24">
       <div className="relative max-w-xl mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl">
         <div className="relative">
           <h2 className="text-center text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
@@ -40,7 +40,7 @@ export const Explainer: FC = () => {
           </div>
 
           <div className="mt-10 -mx-4 relative lg:mt-0" aria-hidden="true">
-            <CreateIllustration className="relative mx-auto h-108" />
+            <CreateIllustration className="relative mx-auto w-128 px-6 lg:px-0" />
           </div>
         </div>
 
@@ -63,7 +63,7 @@ export const Explainer: FC = () => {
             </div>
 
             <div className="mt-10 -mx-4 relative lg:mt-0 lg:col-start-1">
-              <CollaborateIllustration className="relative mx-auto h-108" />
+              <CollaborateIllustration className="relative mx-auto w-128 px-6 lg:px-0" />
             </div>
           </div>
         </div>
@@ -88,7 +88,7 @@ export const Explainer: FC = () => {
           </div>
 
           <div className="mt-10 -mx-4 relative lg:mt-0" aria-hidden="true">
-            <ExchangeIllustration className="relative mx-auto h-108" />
+            <ExchangeIllustration className="relative mx-auto w-128 px-6 lg:px-0" />
           </div>
         </div>
       </div>
