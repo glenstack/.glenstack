@@ -3,7 +3,6 @@
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.3.18",
-    "@fontsource/inter": "4.3.0",
     "@fontsource/jost": "4.3.0",
     "@headlessui/react": "1.1.1",
     "@heroicons/react": "1.0.1",
@@ -14,9 +13,12 @@
     "web-vitals": "1.1.2"
   },
   "scripts": {
+    "prebuild": "npm run codegen",
     "build": "REACT_APP_GIT_SHA=$(git rev-parse HEAD) craco build",
     "lint": "eslint --ignore-path .gitignore --max-warnings=0 'src/**/*.ts?(x)'",
-    "check-types": "graphql-let --config .graphql-let.production.yml --require dotenv/config && tsc",
+    "codegen": "graphql-let --config .graphql-let.production.yml --require dotenv/config",
+    "precheck-types": "npm run codegen",
+    "check-types": "tsc",
     "prettier": "prettier --config ../../.prettierrc --ignore-path .gitignore '**/*.(js|ts|json|md)'",
     "format": "npm run prettier -- --write",
     "check-format": "npm run prettier -- --list-different",
@@ -75,7 +77,6 @@
     "react-scripts": "4.0.3",
     "remark-frontmatter": "3.0.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@2.1.2",
-    "typescript": "4.2.4",
-    "xdm": "1.11.0"
+    "typescript": "4.2.4"
   }
 }

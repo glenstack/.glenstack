@@ -38,9 +38,7 @@ export abstract class External {
   }
 
   abstract redirect(): Response;
-  protected abstract _callback(
-    request: Request
-  ): Promise<{
+  protected abstract _callback(request: Request): Promise<{
     externalID: string;
     userHints?: Partial<Omit<User, "id" | "externals">>;
   }>;
