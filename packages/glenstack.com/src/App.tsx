@@ -11,6 +11,7 @@ import { MethodNotAllowed } from "./pages/landing/methodNotAllowed";
 import { InternalError } from "./pages/landing/internalError";
 import { NotFound } from "./pages/landing/notFound";
 import { Blog } from "./pages/blog";
+import { Contact } from "./pages/landing/contact";
 
 export const App: FC = () => {
   return (
@@ -30,6 +31,9 @@ export const App: FC = () => {
         </Route>
         <Route path="/about" exact>
           <About />
+        </Route>
+        <Route path="/contact" exact>
+          <Contact />
         </Route>
         <Route path="/blog">
           <Blog />
