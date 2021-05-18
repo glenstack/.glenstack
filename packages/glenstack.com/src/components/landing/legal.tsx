@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { gql } from "graphql-let/macro";
+import { MagicLink } from "../magicLink";
 
 interface LegalType {
   name: string;
@@ -18,9 +19,9 @@ export const legalTypes: Record<string, LegalType> = {
 };
 
 export const Fallback: FC<LegalType> = ({ name, href }) => (
-  <a href={href} rel="noreferrer" target="_blank">
+  <MagicLink href={href} rel="noreferrer" target="_blank">
     {name}
-  </a>
+  </MagicLink>
 );
 
 export const Content: FC<{ html: string }> = ({ html }) => (
