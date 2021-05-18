@@ -10,6 +10,7 @@ import {
   faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FooterCTA } from "./footerCTA";
 
 const navigation = {
   support: [
@@ -85,6 +86,7 @@ const navigation = {
 export const Footer: FC = () => {
   return (
     <footer className="bg-white" aria-labelledby="footerHeading">
+      <FooterCTA />
       <h2 id="footerHeading" className="sr-only">
         Footer
       </h2>
