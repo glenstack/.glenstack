@@ -10,6 +10,7 @@ import {
   faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FooterCTA } from "./footerCTA";
 
 const navigation = {
   support: [
@@ -85,12 +86,13 @@ const navigation = {
 export const Footer: FC = () => {
   return (
     <footer className="bg-white" aria-labelledby="footerHeading">
+      <FooterCTA />
       <h2 id="footerHeading" className="sr-only">
         Footer
       </h2>
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          <div className="space-y-8 xl:col-span-1">
+          <div className="space-y-12 xl:col-span-1">
             <MagicLink
               to="/"
               className="flex items-center text-gray-400 hover:text-gray-500"
