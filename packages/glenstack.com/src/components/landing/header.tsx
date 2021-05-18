@@ -1,5 +1,4 @@
 import { FC, Fragment } from "react";
-import { Link } from "react-router-dom";
 import { Logo } from "../logo";
 import { Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
