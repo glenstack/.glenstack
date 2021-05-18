@@ -3,12 +3,8 @@ import {
   CreateIllustration,
   CollaborateIllustration,
   ExchangeIllustration,
-} from "../illustrations";
-// import collaborateImage from "./assets/collaborate.png";
-// import exchangeImage from "./assets/exchange.png";
+} from "./illustrations";
 
-/* This example requires Tailwind CSS v2.0+ */
-// import { AnnotationIcon, GlobeAltIcon, LightningBoltIcon, MailIcon, ScaleIcon } from '@heroicons/react/outline'
 export const Explainer: FC = () => {
   return (
     <div id="explainer" className="py-16 overflow-hidden lg:py-24">

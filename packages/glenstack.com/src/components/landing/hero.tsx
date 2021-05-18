@@ -1,17 +1,21 @@
 import { ChevronDoubleDownIcon } from "@heroicons/react/outline";
 import { FC } from "react";
 import { MagicLink } from "../magicLink";
+import { LeftGhost, RightGhost } from "./ghosts";
 
 export const Hero: FC = () => {
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 flex justify-center items-center">
+      <div className="mx-auto flex-1 flex justify-center items-center">
+        <div className="hidden lg:block mr-16">
+          <LeftGhost />
+        </div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
             <h1 className="text-5xl tracing-tight font-extrabold text-white sm:text-5xl md:text-6xl">
               Glenstack
             </h1>
-            <h1 className="mt-4 text-3xl tracking-tight font-semibold text-white sm:mt-5 sm:text-5xl lg:mt-6 xl:text-4xl">
+            <h1 className="mt-4 text-3xl tracking-tight font-semibold text-white sm:mt-5 lg:mt-6 md:text-4xl">
               Create, exchange, and collaborate on{" "}
               <span className="text-yellow-500">data</span>
             </h1>
@@ -29,6 +33,9 @@ export const Hero: FC = () => {
               </form>
             </div>
           </div>
+        </div>
+        <div className="hidden lg:block ml-16">
+          <RightGhost />
         </div>
       </div>
       <MagicLink

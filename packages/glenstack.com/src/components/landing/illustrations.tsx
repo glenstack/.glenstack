@@ -1,7 +1,7 @@
 import { ComponentProps, FC } from "react";
-import createImage from "./landing/assets/create.png";
-import collaborateImage from "./landing/assets/collaborate.png";
-import exchangeImage from "./landing/assets/exchange.png";
+import createImage from "./assets/create.png";
+import collaborateImage from "./assets/collaborate.png";
+import exchangeImage from "./assets/exchange.png";
 
 export const CreateIllustration: FC<ComponentProps<"img">> = (props) => (
   <img {...props} src={createImage} alt="" />
