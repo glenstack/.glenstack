@@ -1,5 +1,12 @@
 import { FC } from "react";
+import { Header } from "../../components/landing/header";
+import { SEO } from "../../components/landing/seo";
 
 export const Login: FC = () => {
-  return <div>Login</div>;
+  return (
+    <>
+      <SEO title="Sign In" description="Sign in to Glenstack" />
+      <Header />
+    </>
+  );
 };
