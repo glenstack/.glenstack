@@ -187,8 +187,6 @@ export const generateFaunaQuery = (
           "arguments:" + JSON.stringify(getArgumentValues(field, node))
         );
 
-        console.log("parse" + JSON.stringify(parseFieldNode(node)));
-
         if (isMutation && isRoot) {
           const bookType = type;
           let data = {};
@@ -255,8 +253,13 @@ export const generateFaunaQuery = (
   };
 
   try {
-    const res = visit(operation, visitWithTypeInfo(typeInfo, visitor));
-    console.log("fqlend" + JSON.stringify(res.selectionSet.rootFQL.raw));
+    // Filter operation in order to only consider the current field and not all neighbours.
+    let filtered_operation = JSON.parse(JSON.stringify(operation));
+    filtered_operation.selectionSet.selections = filtered_operation.selectionSet.selections.filter(
+      (x) => x.name.value === resolveInfo.fieldName
+    );
+    const res = visit(filtered_operation, visitWithTypeInfo(typeInfo, visitor));
+
     return res.selectionSet.rootFQL;
   } catch (err) {
     console.error(err);
