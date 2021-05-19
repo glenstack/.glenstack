@@ -83,10 +83,10 @@ const navigation = {
   ],
 };
 
-export const Footer: FC = () => {
+export const Footer: FC<{ noCTA?: boolean }> = ({ noCTA = false }) => {
   return (
     <footer className="bg-white" aria-labelledby="footerHeading">
-      <FooterCTA />
+      {!noCTA && <FooterCTA />}
       <h2 id="footerHeading" className="sr-only">
         Footer
       </h2>
