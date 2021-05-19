@@ -245,6 +245,26 @@ export const HowWereBuildingGlenstack: FC = () => {
               close to the individual, which has the added benefit of decreasing
               their latency!
             </p>
+            <p>
+              With compliance sorted, you can focus on the stuff that matters:
+              your data. Glenstack offers a suite of tools to help make you
+              productive:
+            </p>
+            <ul>
+              <li>an easy-to-use no-code editor,</li>
+              <li>
+                collaborative workflows for both internal and external use,
+              </li>
+              <li>version control,</li>
+              <li>
+                and most importantly, an incredibly scalable, low latency,
+                automatic GraphQL API.
+              </li>
+            </ul>
+            <p>
+              Read more about our feautres on{" "}
+              <a href="/#features">our landing page</a>.
+            </p>
             <hr />
             <h2>The Specifics of our System Design</h2>
             <p>
