@@ -21,7 +21,7 @@ export const Hero: FC = () => {
             </h1>
 
             <div className="mt-10 sm:mt-20">
-              <form action="#" className="sm:max-w-xl sm:mx-auto">
+              <div className="sm:max-w-xl sm:mx-auto">
                 <div className="flex justify-center">
                   <MagicLink
                     href="/waitlist"
@@ -30,7 +30,7 @@ export const Hero: FC = () => {
                     Join Waitlist
                   </MagicLink>
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>
