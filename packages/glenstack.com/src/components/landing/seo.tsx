@@ -104,6 +104,7 @@ export const SEO: FC<SEOProps> = ({
   image,
 }) => {
   const { pathname } = useLocation();
+  const url = `https://glenstack.com${pathname}`;
 
   const author = authorName ? authors[authorName] : undefined;
 
@@ -124,7 +125,7 @@ export const SEO: FC<SEOProps> = ({
         description,
         headline: title,
         isPartOf: webSite,
-        url: `https://glenstack.com${pathname}`,
+        url,
       }
     : webSite;
 
@@ -132,6 +133,14 @@ export const SEO: FC<SEOProps> = ({
     <Helmet defaultTitle="Glenstack" titleTemplate="Glenstack | %s">
       {title && <title>{title}</title>}
       {description && <meta name="description" content={description} />}
+      <meta property="og:title" content={title || "Glenstack"} />
+      <meta property="og:url" content={url} />
+      <meta property="og:image" content="https://glenstack.com/tile.png" />
+      <meta property="og:type" content="website" />
+      <meta
+        property="og:description"
+        content={description || "Create, exchange, and collaborate on data"}
+      />
       <script type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
