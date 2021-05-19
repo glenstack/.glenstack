@@ -1,12 +1,12 @@
 import { FC } from "react";
-import { Header } from "../../components/landing/header";
+import { Redirect } from "react-router";
 import { SEO } from "../../components/landing/seo";
 
 export const Login: FC = () => {
   return (
     <>
       <SEO title="Sign In" description="Sign in to Glenstack" />
-      <Header />
+      <Redirect to="/waitlist" />
     </>
   );
 };

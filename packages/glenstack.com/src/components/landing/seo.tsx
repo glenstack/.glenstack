@@ -144,9 +144,14 @@ export const SEO: FC<SEOProps> = ({
         property="og:description"
         content={description || "Create, exchange, and collaborate on data"}
       />
-      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@glenstack" />
       <meta name="twitter:creator" content="@glenstack" />
+      <meta
+        name="twitter:description"
+        content={description || "Create, exchange, and collaborate on data"}
+      />
+      <meta name="twitter:image" content="https://glenstack.com/tile.png" />
       <script type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
