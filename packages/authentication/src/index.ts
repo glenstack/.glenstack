@@ -1,3 +1,4 @@
+import { waitlist } from "./waitlist";
 import Toucan from "toucan-js";
 import pkg from "../package.json";
 import { gitHub } from "./external/gitHub";
@@ -32,6 +33,8 @@ const handleEvent = async (
       return await gitHub.callback(request, sentry);
     } else if (pathname === "/signup" && method === "POST") {
       return await signUp(request, sentry);
+    } else if (pathname === "/waitlist" && method === "POST") {
+      return await waitlist(request, sentry);
     } else {
       return new Response(null, {
         status: 302,
