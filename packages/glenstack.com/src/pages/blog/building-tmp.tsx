@@ -127,14 +127,31 @@ export const HowWereBuildingGlenstack: FC = () => {
             <span className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               How We're Building Glenstack
             </span>
-          </div>
-          <article className="mt-6 prose prose-indigo lg:prose-lg xl:proxe-xl text-gray-500 mx-auto">
-            <p>
+            <p className="mt-8 text-xl text-gray-500 leading-8">
               Glenstack is a production-ready, modern data platform. And as
               such, we are embracing the latest and greatest technologies as we
               deliver our application quickly, securely, and with the features
               our customers demand.
             </p>
+            <p className="mt-6 prose prose-indigo prose-lg xl:prose-xl text-gray-500 mx-auto">
+              <figure>
+                <img
+                  className="w-full rounded-lg"
+                  src={banner}
+                  alt=""
+                  width="1310"
+                  height="873"
+                />
+                <figcaption className="text-right">
+                  Photo by{" "}
+                  <MagicLink href="https://unsplash.com/@nasa">NASA</MagicLink>{" "}
+                  on{" "}
+                  <MagicLink href="https://unsplash.com/">Unsplash</MagicLink>.
+                </figcaption>
+              </figure>
+            </p>
+          </div>
+          <article className="mt-6 prose prose-indigo lg:prose-lg xl:proxe-xl text-gray-500 mx-auto">
             <h2>Motivations</h2>
             <h3>Speed</h3>
             <p>
