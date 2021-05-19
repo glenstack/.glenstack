@@ -12,7 +12,7 @@ const links = [
 export const Header: FC = ({ children }) => {
   return (
     <div>
-      <div className="relative overflow-hidden">
+      <div className="relative">
         <div className={`bg-indigo-900 ${children ? "h-screen" : "pb-6"}`}>
           <Popover as="header" className="relative">
             {({ open }) => (
@@ -77,7 +77,7 @@ export const Header: FC = ({ children }) => {
                   <Popover.Panel
                     focus
                     static
-                    className="absolute top-0 inset-x-0 p-2 transition transform origin-top md:hidden"
+                    className="absolute top-0 inset-x-0 p-2 transition transform origin-top md:hidden z-50"
                   >
                     <div className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5 overflow-hidden">
                       <div className="px-5 pt-4 flex items-center justify-between">

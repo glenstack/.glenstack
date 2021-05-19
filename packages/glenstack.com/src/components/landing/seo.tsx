@@ -1,11 +1,7 @@
-import { Organization, Person, WebSite } from "schema-dts";
+import { Organization, Person, WebPage, WebSite } from "schema-dts";
 import { Helmet } from "react-helmet";
 import { FC } from "react";
-
-interface SEOProps {
-  title?: string;
-  description?: string;
-}
+import { useLocation } from "react-router";
 
 const gregBrimble: Person = {
   "@type": "Person",
@@ -40,7 +36,22 @@ const jamesODonnell: Person = {
   url: "https://www.james-odonnell.com/",
 };
 
-const glenstackOrganization: Organization = {
+const authors = {
+  "Greg Brimble": gregBrimble,
+  "Ragnor Comerford": ragnorComerford,
+  "James O'Donnell": jamesODonnell,
+};
+
+interface SEOProps {
+  title?: string;
+  description?: string;
+  authorName?: keyof typeof authors;
+  date?: string;
+  year?: number;
+  image?: string;
+}
+
+const glenstack: Organization = {
   "@type": "Organization",
   "@id": "https://glenstack.com/#GlenstackOrganization",
   name: "Glenstack",
@@ -66,11 +77,11 @@ const glenstackOrganization: Organization = {
   url: "https://glenstack.com/",
 };
 
-const glenstackWebSite: WebSite = {
+const webSite: WebSite = {
   "@id": "https://glenstack.com/#GlenstackWebSite",
   "@type": "WebSite",
   name: "glenstack.com",
-  about: glenstackOrganization,
+  about: glenstack,
   alternativeHeadline: "Create, exchange, and collaborate on data",
   copyrightYear: 2021,
   dateCreated: "2021-05-19",
@@ -85,7 +96,38 @@ const glenstackWebSite: WebSite = {
   url: "https://glenstack.com/",
 };
 
-export const SEO: FC<SEOProps> = ({ title, description }) => {
+export const SEO: FC<SEOProps> = ({
+  title,
+  description,
+  authorName,
+  date,
+  image,
+}) => {
+  const { pathname } = useLocation();
+
+  const author = authorName ? authors[authorName] : undefined;
+
+  const schemaOrgObject: WebPage | WebSite = title
+    ? {
+        "@id": `https://glenstack.com/#${pathname}`,
+        "@type": "WebPage",
+        name: title,
+        abstract: description,
+        alternativeHeadline: description,
+        author,
+        copyrightYear: 2021,
+        copyrightHolder: glenstack,
+        creator: author,
+        dateCreated: date,
+        dateModified: date,
+        datePublished: date,
+        description,
+        headline: title,
+        isPartOf: webSite,
+        url: `https://glenstack.com${pathname}`,
+      }
+    : webSite;
+
   return (
     <Helmet defaultTitle="Glenstack" titleTemplate="Glenstack | %s">
       {title && <title>{title}</title>}
@@ -93,7 +135,7 @@ export const SEO: FC<SEOProps> = ({ title, description }) => {
       <script type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
-          ...glenstackWebSite,
+          ...schemaOrgObject,
         })}
       </script>
     </Helmet>

@@ -78,7 +78,7 @@ export const Latency: FC = () => {
           {" "}
           (
           <button onClick={testLatency}>
-            <strong className="underline">test again</strong>
+            <strong className="underline !text-indigo-600">test again</strong>
           </button>
           )
         </>
