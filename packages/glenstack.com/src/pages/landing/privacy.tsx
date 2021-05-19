@@ -2,10 +2,12 @@ import { FC } from "react";
 import { Footer } from "../../components/landing/footer";
 import { Header } from "../../components/landing/header";
 import { LegalContent } from "../../components/landing/legal";
+import { SEO } from "../../components/landing/seo";
 
 export const Privacy: FC = () => {
   return (
     <>
+      <SEO title="Privacy" description="Privacy Policy" />
       <Header />
       <div className="relative py-16 bg-white overflow-hidden">
         <div className="hidden lg:block lg:absolute lg:inset-y-0 lg:h-full lg:w-full">
