@@ -132,7 +132,10 @@ export const SEO: FC<SEOProps> = ({
   return (
     <Helmet defaultTitle="Glenstack" titleTemplate="Glenstack | %s">
       {title && <title>{title}</title>}
-      {description && <meta name="description" content={description} />}
+      <meta
+        name="description"
+        content={description || "Create, exchange, and collaborate on data"}
+      />
       <meta property="og:title" content={title || "Glenstack"} />
       <meta property="og:url" content={url} />
       <meta property="og:image" content="https://glenstack.com/tile.png" />
