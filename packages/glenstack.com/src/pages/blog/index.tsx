@@ -1,6 +1,6 @@
 // import HowWereBuildingGlenstack from "./how-we-re-building-glenstack/index.mdx";
 import { FC } from "react";
-import { Route, Switch, useRouteMatch } from "react-router";
+import { Route, Switch, useRouteMatch } from "react-router-dom";
 
 export const Blog: FC = () => {
   const match = useRouteMatch();
