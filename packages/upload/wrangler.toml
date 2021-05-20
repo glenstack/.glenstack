@@ -1,0 +1,15 @@
+name = "upload-dev"
+type = "javascript"
+account_id = "41d154df19739a540756d193a9715370"
+zone_id = "1a50aad2a97cd8ee713df553f2214779"
+workers_dev = true
+vars = { ENVIRONMENT = "development", SENTRY_DSN = "" }
+
+[build]
+command = "npm install && npm run build"
+upload.format = "service-worker"
+
+[env.production]
+name = "upload"
+route = "https://upload.glenstack.com/*"
+vars = { ENVIRONMENT = "production" }
