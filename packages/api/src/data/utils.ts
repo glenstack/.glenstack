@@ -6,6 +6,7 @@ import {
   visit,
   visitWithTypeInfo,
   isLeafType,
+  getNullableType,
   GraphQLList,
   GraphQLResolveInfo,
   defaultFieldResolver,
@@ -94,7 +95,12 @@ const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
   };
 };
 
-const generateSelector = (name: string, parentType: any, isLeaf = true) => {
+const generateSelector = (
+  faunaSchema: any,
+  name: string,
+  parentType: any,
+  isLeaf = true
+) => {
   console.log("FQL" + JSON.stringify(parentType.fql));
   // if (c?.fields?.[name]) return [name, parentType.fql?.fields?.[name](CURRENT_DOC_VAR, q)]
   // if (name === "authors") return [name,q.Select(["data"], CURRENT_DOC_VAR)]
@@ -106,7 +112,10 @@ const generateSelector = (name: string, parentType: any, isLeaf = true) => {
   }
   return [
     name,
-    q.Select(["data", parentType.metaSchema[name].fieldId], CURRENT_DOC_VAR),
+    q.Select(
+      ["data", faunaSchema[parentType.name].fields[name].fieldId],
+      CURRENT_DOC_VAR
+    ),
   ];
 };
 
@@ -120,6 +129,7 @@ const defaultEmbedQuery = (fieldName, isList) => {
 };
 
 export const generateFaunaQuery = (
+  faunaSchema: any,
   resolveInfo: GraphQLResolveInfo,
   query?: Expr
 ) => {
@@ -175,9 +185,10 @@ export const generateFaunaQuery = (
 
         let nextQuery;
 
-        if (isRoot && !isFaunaObjectType)
-          throw new Error("Invalid root type. Must be a FaunaGraphQL type.");
-        if (isLeaf) return generateSelector(returnName, parentType);
+        // if (isRoot && !isFaunaObjectType)
+        //   throw new Error("Invalid root type. Must be a FaunaGraphQL type.");
+        if (isLeaf)
+          return generateSelector(faunaSchema, returnName, parentType);
 
         // if (selectionSet && !isRoot) {
         //       return generateSelector(returnName, parentType)
@@ -230,15 +241,20 @@ export const generateFaunaQuery = (
           nextQuery = query;
         }
         if (!nextQuery) {
-          if (parentType.metaSchema[name].type !== "relation") {
+          if (faunaSchema[parentType.name].fields[name].type !== "relation") {
             throw new Error("Current node should be a relation.");
           }
           nextQuery = q.Map(
             q.Paginate(
-              q.Match(q.Index("relations" + parentType.metaSchema[name].from), [
-                parentType.metaSchema[name].relationshipRef,
-                q.Select(["ref"], CURRENT_DOC_VAR),
-              ])
+              q.Match(
+                q.Index(
+                  "relations" + faunaSchema[parentType.name].fields[name].from
+                ),
+                [
+                  faunaSchema[parentType.name].fields[name].relationshipRef,
+                  q.Select(["ref"], CURRENT_DOC_VAR),
+                ]
+              )
             ),
             q.Lambda("ref", q.Get(q.Var("ref")))
           );
@@ -253,6 +269,7 @@ export const generateFaunaQuery = (
   };
 
   try {
+    console.log(JSON.stringify(operation));
     // Filter operation in order to only consider the current field and not all neighbours.
     let filtered_operation = JSON.parse(JSON.stringify(operation));
     filtered_operation.selectionSet.selections = filtered_operation.selectionSet.selections.filter(
