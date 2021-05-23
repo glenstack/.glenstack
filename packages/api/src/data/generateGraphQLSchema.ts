@@ -48,31 +48,23 @@ export const generateGraphQLSchema = (projectData: any) => {
 
   const builder = new SchemaBuilder<{
     DefaultFieldNullability: true;
-    Objects: {
-      Book: { title: string; authors: ["Author"] };
-      Author: { name: string };
-    };
-  }>({ plugins: [giraphFaunaPlugin] });
+  }>({ plugins: [] });
 
-  builder.objectType("Book", {
-    faunaCollectionName: "294845138632442369",
-    fields: (t) => ({
-      title: t.exposeString("title", {}),
-      authors: t.expose("authors", { type: ["Author"] }),
-    }),
-  });
-  builder.objectType("Author", {
-    faunaCollectionName: "294845159814726145",
-    fields: (t) => ({
-      name: t.exposeString("name", {}),
-    }),
-  });
+  builder.queryType({});
 
-  builder.queryType({
-    fields: (t) => ({
-      books: t.field({
-        type: ["Book"],
+  for (let table of tables) {
+    builder.objectType(table.typeName, {});
 
+    for (let field of table.fields) {
+      if (field.type !== "relation") {
+        builder.objectField(table.typeName, field.name, (t) =>
+          t.expose(field.name, { type: field.type })
+        );
+      }
+    }
+    builder.queryField(table.name, (t) =>
+      t.field({
+        type: [table.typeName],
         resolve: (root: any, args, context: any, info: any) => {
           return resolve(
             root,
@@ -80,60 +72,98 @@ export const generateGraphQLSchema = (projectData: any) => {
             context,
             info,
             q.Map(
-              q.Paginate(q.Documents(q.Collection("294845138632442369")), {}),
+              q.Paginate(q.Documents(q.Collection(table.collectionName)), {}),
               q.Lambda("ref", q.Get(q.Var("ref")))
             )
           );
         },
-      }),
-      authors: t.field({
-        type: ["Author"],
+      })
+    );
+  }
 
-        resolve: (root: any, args, context: any, info: any) => {
-          return resolve(
-            root,
-            args,
-            context,
-            info,
-            q.Map(
-              q.Paginate(q.Documents(q.Collection("294845159814726145")), {}),
-              q.Lambda("ref", q.Get(q.Var("ref")))
-            )
-          );
-        },
-      }),
-    }),
-  });
-  const RelatedAuthorInput = builder.inputType("RelatedAuthorInput", {
-    fields: (t) => ({
-      connect: t.field({ type: ["ID"], required: true }),
-    }),
-  });
-  const BookInput = builder.inputType("BookInput", {
-    fields: (t) => ({
-      title: t.field({ type: "String", required: true }),
-      authors: t.field({ type: "RelatedAuthorInput", required: false }),
-    }),
-  });
-  const AuthorInput = builder.inputType("AuthorInput", {
-    fields: (t) => ({
-      name: t.field({ type: "String", required: true }),
-    }),
-  });
-
-  builder.mutationType({
-    fields: (t) => ({
-      createBook: t.field({
-        type: "Book",
-        args: {
-          input: t.arg({ type: BookInput, required: true }),
-        },
-        resolve: (root: any, args, context: any, info: any) => {
-          return resolve(root, args, context, info);
-        },
-      }),
-    }),
-  });
+  // builder.objectType("Book", {
+  //   faunaCollectionName: "294845138632442369",
+  //   fields: (t) => ({
+  //     title: t.exposeString("title", {}),
+  //   }),
+  // });
+  // builder.objectType("Author", {
+  //   faunaCollectionName: "294845159814726145",
+  //   fields: (t) => ({
+  //     name: t.exposeString("name", {}),
+  //   }),
+  // });
+  //
+  // builder.objectField("Book", "authors", (t) =>
+  //   t.expose("authors", { type: ["Author"] })
+  // );
+  //
+  // builder.queryType({
+  //   fields: (t) => ({
+  //     books: t.field({
+  //       type: ["Book"],
+  //
+  //       resolve: (root: any, args, context: any, info: any) => {
+  //         return resolve(
+  //           root,
+  //           args,
+  //           context,
+  //           info,
+  //           q.Map(
+  //             q.Paginate(q.Documents(q.Collection("294845138632442369")), {}),
+  //             q.Lambda("ref", q.Get(q.Var("ref")))
+  //           )
+  //         );
+  //       },
+  //     }),
+  //     authors: t.field({
+  //       type: ["Author"],
+  //
+  //       resolve: (root: any, args, context: any, info: any) => {
+  //         return resolve(
+  //           root,
+  //           args,
+  //           context,
+  //           info,
+  //           q.Map(
+  //             q.Paginate(q.Documents(q.Collection("294845159814726145")), {}),
+  //             q.Lambda("ref", q.Get(q.Var("ref")))
+  //           )
+  //         );
+  //       },
+  //     }),
+  //   }),
+  // });
+  // const RelatedAuthorInput = builder.inputType("RelatedAuthorInput", {
+  //   fields: (t) => ({
+  //     connect: t.field({ type: ["ID"], required: true }),
+  //   }),
+  // });
+  // const BookInput = builder.inputType("BookInput", {
+  //   fields: (t) => ({
+  //     title: t.field({ type: "String", required: true }),
+  //     authors: t.field({ type: "RelatedAuthorInput", required: false }),
+  //   }),
+  // });
+  // const AuthorInput = builder.inputType("AuthorInput", {
+  //   fields: (t) => ({
+  //     name: t.field({ type: "String", required: true }),
+  //   }),
+  // });
+  //
+  // builder.mutationType({
+  //   fields: (t) => ({
+  //     createBook: t.field({
+  //       type: "Book",
+  //       args: {
+  //         input: t.arg({ type: BookInput, required: true }),
+  //       },
+  //       resolve: (root: any, args, context: any, info: any) => {
+  //         return resolve(root, args, context, info);
+  //       },
+  //     }),
+  //   }),
+  // });
 
   return builder.toSchema({});
 };
