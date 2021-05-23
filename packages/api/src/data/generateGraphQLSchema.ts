@@ -63,16 +63,24 @@ export const generateGraphQLSchema = (projectData: any) => {
 
   builder.queryType({});
 
+  let relationshipFields = {};
+
   for (let table of tables) {
     builder.objectType(table.apiName, {});
 
     for (let field of table.fields) {
-      if (field.type !== "relation") {
+      if (field.type === "relation") {
+        relationshipFields[[field.from, field.relationshipRef]] = {
+          ...field,
+          parentApiName: table.apiName,
+        };
+      } else {
         builder.objectField(table.apiName, field.apiName, (t) =>
           t.expose(field.apiName, { type: field.type })
         );
       }
     }
+
     builder.queryField(table.name, (t) =>
       t.field({
         type: [table.apiName],
@@ -90,6 +98,21 @@ export const generateGraphQLSchema = (projectData: any) => {
           );
         },
       })
+    );
+  }
+
+  for (let relationshipField of Object.values(relationshipFields)) {
+    const {
+      apiName: fieldApiName,
+      parentApiName: tableApiName,
+      to,
+      relationshipRef,
+    } = relationshipField;
+
+    const relatedTableApiName =
+      relationshipFields[[to, relationshipRef]].parentApiName;
+    builder.objectField(tableApiName, fieldApiName, (t) =>
+      t.expose(fieldApiName, { type: [relatedTableApiName] })
     );
   }
 
