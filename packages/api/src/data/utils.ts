@@ -14,6 +14,7 @@ import {
   GraphQLString,
   GraphQLObjectType,
   GraphQLID,
+  GraphQLNonNull,
 } from "graphql";
 
 import { getArgumentValues } from "graphql/execution/values";
@@ -60,8 +61,8 @@ const nestedQuery = (
 
 const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
   const name = node.name.value;
-  const type = typeInfo.getType();
-  const parentType = typeInfo.getParentType();
+  const type = getNullableType(typeInfo.getType());
+  const parentType = getNullableType(typeInfo.getParentType());
   const field = typeInfo.getFieldDef();
   if (!type && !field) {
     throw new Error(`No field ${name}`);
@@ -204,25 +205,30 @@ export const generateFaunaQuery = (
           let relationQueries;
           const args = getArgumentValues(field, node);
           for (let [key, value] of Object.entries(args.input)) {
-            if (bookType.metaSchema[key].type === "relation") {
-              console.log("side:" + bookType.metaSchema[key].from);
+            let faunaField = faunaSchema[bookType.name].fields[key];
+            if (faunaField.type === "relation") {
               let relatedType = bookType.getFields()[key].type;
-              if (relatedType instanceof GraphQLList) {
-                relatedType = relatedType.ofType;
+              let nullableRelatedType = getNullableType(relatedType);
+              if (nullableRelatedType instanceof GraphQLList) {
+                nullableRelatedType = getNullableType(
+                  nullableRelatedType.ofType
+                );
               }
-              console.log(relatedType.collectionName);
+
               relationQueries = q.Create(q.Collection("relations"), {
                 data: {
-                  relationshipRef: bookType.metaSchema[key].relationshipRef,
-                  [bookType.metaSchema[key].from]: q.Var("docRef"),
-                  [bookType.metaSchema[key].to]: q.Ref(
-                    q.Collection(relatedType.collectionName),
+                  relationshipRef: faunaField.relationshipRef,
+                  [faunaField.from]: q.Var("docRef"),
+                  [faunaField.to]: q.Ref(
+                    q.Collection(
+                      faunaSchema[nullableRelatedType.name].collectionName
+                    ),
                     value.connect[0] //TODO: Allow multiple connects
                   ),
                 },
               });
             } else {
-              data[bookType.metaSchema[key].fieldId] = value;
+              data[faunaField.fieldId] = value;
             }
           }
           nextQuery = q.Select(
@@ -231,7 +237,10 @@ export const generateFaunaQuery = (
               {
                 docRef: q.Select(
                   ["ref"],
-                  q.Create(q.Collection(bookType.collectionName), { data })
+                  q.Create(
+                    q.Collection(faunaSchema[bookType.name].collectionName),
+                    { data }
+                  )
                 ),
               },
               { doc: q.Get(q.Var("docRef")), relationQueries }
