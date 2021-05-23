@@ -162,7 +162,7 @@ temp/
 !.vscode/tasks.json
 !.vscode/launch.json
 *.code-workspace
-
+.idea/*
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
