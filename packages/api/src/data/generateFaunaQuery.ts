@@ -18,27 +18,8 @@ import {
 } from "graphql";
 
 import { getArgumentValues } from "graphql/execution/values";
-export class GraphQLFaunaObjectType extends GraphQLObjectType {
-  collectionName: string;
-  metaSchema: object;
-  constructor({
-    name,
-    fields,
-    collectionName,
-    interfaces = undefined,
-    isTypeOf = undefined,
-    fqlTypeCheck = undefined,
-    metaSchema = {},
-  }) {
-    // if (interfaces?.length) validateInterfaces(interfaces)
-    super({ name, fields, interfaces, isTypeOf });
-    this.collectionName = collectionName;
-    this.metaSchema = metaSchema;
-  }
-  static isFaunaGraphQLType: true;
-}
 
-const isFaunaObjectType = (obj) => obj instanceof GraphQLFaunaObjectType;
+const isFaunaObjectType = (obj) => false;
 
 const CURRENT_DOC = "__CD__";
 const CURRENT_DOC_VAR = q.Var(CURRENT_DOC);

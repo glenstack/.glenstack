@@ -4,7 +4,7 @@ import SchemaBuilder from "@giraphql/core";
 import giraphFaunaPlugin from "./giraph-fauna-plugin";
 import { Expr, query as q } from "faunadb";
 import { client } from "./fauna/client";
-import { generateFaunaQuery } from "./utils";
+import { generateFaunaQuery } from "./generateFaunaQuery";
 
 export const generateGraphQLSchema = (projectData: any) => {
   const { tables } = projectData;
