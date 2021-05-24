@@ -205,7 +205,7 @@ export const HowWereBuildingGlenstack: FC = () => {
               <MagicLink href="https://en.wikipedia.org/wiki/CAP_theorem">
                 CAP theorem
               </MagicLink>
-              ) in order to support the full set of
+              ) in order to support the full set of{" "}
               <MagicLink href="https://en.wikipedia.org/wiki/ACID">
                 ACID
               </MagicLink>{" "}
@@ -262,7 +262,7 @@ export const HowWereBuildingGlenstack: FC = () => {
               </li>
             </ul>
             <p>
-              Read more about our feautres on{" "}
+              Read more about our features on{" "}
               <a href="/#features">our landing page</a>.
             </p>
             <hr />

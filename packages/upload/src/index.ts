@@ -1,5 +1,6 @@
 import Toucan from "toucan-js";
 import pkg from "../package.json";
+import { uploadFile } from "./uploadFile";
 
 addEventListener("fetch", (event) => {
   const sentry = new Toucan({
@@ -19,7 +20,7 @@ const handleEvent = async (
   sentry: Toucan
 ): Promise<Response> => {
   try {
-    return new Response("Hello, world!");
+    return await uploadFile(event.request);
   } catch (error) {
     sentry.captureException(error);
     // TODO: Nice error page
