@@ -35,6 +35,36 @@ jobs:
         with:
           environment: production
           sourcemaps: "./packages/api/dist"
+  deploy-upload:
+    runs-on: ubuntu-latest
+    name: Deploy Upload
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: nvm
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "${{ steps.nvm.outputs.NVMRC }}"
+      - name: Install
+        run: npm ci
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@1.3.0
+        with:
+          environment: production
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          workingDirectory: "./packages/upload"
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1.1.5
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: glenstack
+          SENTRY_PROJECT: upload
+        with:
+          environment: production
+          sourcemaps: "./packages/upload/dist"
   deploy-authentication:
     runs-on: ubuntu-latest
     name: Deploy Authentication Service

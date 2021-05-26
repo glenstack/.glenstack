@@ -1,6 +1,6 @@
-# API
+# Upload
 
-The API that powers Glenstack. It lives at https://api.glenstack.com/.
+The upload service of Glenstack. It lives at https://upload.glenstack.com/.
 
 ## Scripts
 
