@@ -62,11 +62,17 @@ export const generateGraphQLSchema = (projectData: any) => {
   }>({ plugins: [] });
 
   builder.queryType({});
+  builder.mutationType({});
 
   let relationshipFields = {};
-
+  let inputFields = {};
   for (let table of tables) {
-    builder.objectType(table.apiName, {});
+    builder.objectType(table.apiName, {
+      fields: (t) => ({
+        id: t.exposeID("id", {}),
+      }),
+    });
+    inputFields[table.apiName] = {};
 
     for (let field of table.fields) {
       if (field.type === "relation") {
@@ -78,6 +84,10 @@ export const generateGraphQLSchema = (projectData: any) => {
         builder.objectField(table.apiName, field.apiName, (t) =>
           t.expose(field.apiName, { type: field.type })
         );
+        inputFields[table.apiName][field.apiName] = {
+          type: field.type,
+          required: false,
+        };
       }
     }
 
@@ -90,12 +100,23 @@ export const generateGraphQLSchema = (projectData: any) => {
             args,
             context,
             info,
+            faunaSchema,
             q.Map(
               q.Paginate(q.Documents(q.Collection(table.collectionName)), {}),
               q.Lambda("ref", q.Get(q.Var("ref")))
-            ),
-            faunaSchema
+            )
           );
+        },
+      })
+    );
+    builder.mutationField("create" + table.apiName + "One", (t) =>
+      t.field({
+        type: table.apiName,
+        args: {
+          input: t.arg({ type: table.apiName + "Input", required: true }),
+        },
+        resolve: (root: any, args, context: any, info: any) => {
+          return resolve(root, args, context, info, faunaSchema);
         },
       })
     );
@@ -114,6 +135,36 @@ export const generateGraphQLSchema = (projectData: any) => {
     builder.objectField(tableApiName, fieldApiName, (t) =>
       t.expose(fieldApiName, { type: [relatedTableApiName] })
     );
+    inputFields[tableApiName][fieldApiName] = {
+      type: relatedTableApiName + "RelationInput",
+      required: false,
+    };
+    if (
+      !builder.configStore.typeConfigs.has(
+        relatedTableApiName + "RelationInput"
+      )
+    ) {
+      builder.inputType(relatedTableApiName + "RelationInput", {
+        fields: (t) => ({
+          connect: t.field({ type: ["ID"], required: true }),
+        }),
+      });
+    }
+  }
+
+  for (const [tableApiName, tableInputFields] of Object.entries(inputFields)) {
+    if (!builder.configStore.typeConfigs.has(tableApiName + "Input")) {
+      builder.inputType(tableApiName + "Input", {
+        fields: (t) =>
+          Object.keys(tableInputFields).reduce(
+            (attrs, key) => ({
+              ...attrs,
+              [key]: t.field(tableInputFields[key]),
+            }),
+            {}
+          ),
+      });
+    }
   }
 
   // builder.objectType("Book", {
@@ -208,8 +259,8 @@ const resolve = async (
   args,
   context: any,
   info: any,
-  query?: Expr,
-  faunaSchema: any
+  faunaSchema: any,
+  query?: Expr
 ) => {
   console.log(faunaSchema);
   let result = await client.query(generateFaunaQuery(faunaSchema, info, query));
