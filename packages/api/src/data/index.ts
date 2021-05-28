@@ -1,241 +1,93 @@
-/* eslint-disable */
-// @ts-nocheck
-import { makeExecutableSchema } from "@graphql-tools/schema";
-import { Expr, query as q } from "faunadb";
-import { GraphQLFaunaObjectType, generateFaunaQuery } from "./utils";
-import _ from "lodash";
+import { query as q } from "faunadb";
+
 import { client } from "./fauna/client";
-import Debug from "debug";
-const debug = Debug("GraphQL");
+import { generateGraphQLSchema } from "./generateGraphQLSchema";
+import { GraphQLSchema } from "graphql";
 
-import {
-  TypeInfo,
-  visit,
-  visitWithTypeInfo,
-  isLeafType,
-  GraphQLList,
-  GraphQLResolveInfo,
-  defaultFieldResolver,
-  GraphQLSchema,
-  GraphQLString,
-  GraphQLObjectType,
-  GraphQLID,
-  GraphQLInputObjectType,
-  GraphQLNonNull,
-} from "graphql";
+export const getSchema = async (): Promise<GraphQLSchema> => {
+  const data = await client.query<{
+    organizations: Array<{ projects: Array<unknown> }>;
+  }>({
+    organizations: q.Select(
+      "data",
+      q.Map(
+        q.Paginate(q.Documents(q.Collection("organizations"))),
+        q.Lambda(
+          "organizationRef",
+          q.Merge(
+            q.Select("data", q.Get(q.Var("organizationRef"))),
 
-const bookType = new GraphQLFaunaObjectType({
-  name: "Book",
-  collectionName: "294845138632442369",
-  fields: () => ({
-    id: { type: GraphQLID },
-    title: { type: GraphQLString },
-    authors: {
-      type: GraphQLList(authorType),
-    },
-  }),
-  metaSchema: {
-    title: { fieldId: "294845251673129473", type: "string" },
-    authors: {
-      fieldId: "294845329476420097",
-      relationshipRef: q.Ref(
-        q.Collection("relationships"),
-        "296152190589862405"
-      ),
-      type: "relation",
-      // relation: "A",
-      from: "A",
-      to: "B",
-    },
-  },
-});
-
-class GraphQLFaunaInputObjectType extends GraphQLInputObjectType {
-  collectionName: string;
-  constructor(args: any) {
-    super(args);
-    this.collectionName = args.collectionName;
-  }
-}
-class GraphQLFaunaRelatedInputObjectType extends GraphQLInputObjectType {
-  relatedType: GraphQLFaunaInputObjectType;
-  constructor(args: any) {
-    super(args);
-    this.relatedType = args.relatedType;
-  }
-}
-const bookInputType = new GraphQLFaunaInputObjectType({
-  name: "bookInput",
-  fields: () => ({
-    title: { type: new GraphQLNonNull(GraphQLString) },
-    authors: { type: relatedAuthorsInputType },
-  }),
-});
-const authorInputType = new GraphQLFaunaInputObjectType({
-  name: "authorInput",
-  fields: () => ({
-    title: { type: new GraphQLNonNull(GraphQLString) },
-    books: { type: relatedBooksInputType },
-  }),
-});
-
-const relatedAuthorsInputType = new GraphQLFaunaRelatedInputObjectType({
-  name: "relatedAuthorsInput",
-  relatedType: authorInputType,
-  fields: () => ({
-    connect: { type: new GraphQLList(GraphQLID) },
-  }),
-});
-const relatedBooksInputType = new GraphQLFaunaRelatedInputObjectType({
-  name: "relatedBooksInput",
-  relatedType: bookInputType,
-  fields: () => ({
-    connect: { type: new GraphQLList(GraphQLID) },
-  }),
-});
-
-// const relatedInputType = new GraphQLInputObjectType({
-//   name: 'relatedInput',
-//   fields: () => ({
-
-//     ids
-
-//   })})
-
-const authorType = new GraphQLFaunaObjectType({
-  name: "Author",
-  collectionName: "294845159814726145",
-  fields: () => ({
-    id: { type: GraphQLID },
-    name: { type: GraphQLString },
-    books: { type: GraphQLList(bookType) },
-  }),
-  metaSchema: {
-    name: { fieldId: "294845354656924161", type: "string" },
-    books: {
-      fieldId: "294845383336526337",
-      relationshipRef: q.Ref(
-        q.Collection("relationships"),
-        "296152190589862405"
-      ),
-      type: "relation",
-      // relation: "B",
-      from: "B",
-      to: "A",
-    },
-  },
-});
-
-const queryType = new GraphQLObjectType({
-  name: "Query",
-  fields: {
-    books: {
-      type: GraphQLList(bookType),
-
-      resolve: async (obj: any, { size }, context: any, info: any) => {
-        let result = await client.query(
-          generateFaunaQuery(
-            info,
-            q.Map(
-              q.Paginate(q.Documents(q.Collection(bookType.collectionName)), {
-                size,
-              }),
-              q.Lambda("ref", q.Get(q.Var("ref")))
-            )
+            {
+              projects: q.Select(
+                "data",
+                q.Map(
+                  q.Paginate(
+                    q.Match(
+                      q.Index("projects_by_organization"),
+                      q.Var("organizationRef")
+                    )
+                  ),
+                  q.Lambda(
+                    "projectRef",
+                    q.Merge(q.Select("data", q.Get(q.Var("projectRef"))), {
+                      tables: q.Select(
+                        "data",
+                        q.Map(
+                          q.Paginate(
+                            q.Match(
+                              q.Index("tables_by_project"),
+                              q.Var("projectRef")
+                            )
+                          ),
+                          q.Lambda(
+                            "tableRef",
+                            q.Merge(
+                              q.Select("data", q.Get(q.Var("tableRef"))),
+                              {
+                                collectionName: q.Select(
+                                  ["ref", "id"],
+                                  q.Get(q.Var("tableRef"))
+                                ),
+                                fields: q.Select(
+                                  "data",
+                                  q.Map(
+                                    q.Paginate(
+                                      q.Match(
+                                        q.Index("fields_by_table"),
+                                        q.Var("tableRef")
+                                      )
+                                    ),
+                                    q.Lambda(
+                                      "fieldRef",
+                                      q.Merge(
+                                        q.Select(
+                                          "data",
+                                          q.Get(q.Var("fieldRef"))
+                                        ),
+                                        {
+                                          fieldId: q.Select(
+                                            ["ref", "id"],
+                                            q.Get(q.Var("fieldRef"))
+                                          ),
+                                        }
+                                      )
+                                    )
+                                  )
+                                ),
+                              }
+                            )
+                          )
+                        )
+                      ),
+                    })
+                  )
+                )
+              ),
+            }
           )
-        );
-        console.log("res" + JSON.stringify(result));
-
-        return result;
-      },
-    },
-    authors: {
-      type: GraphQLList(authorType),
-
-      resolve: async (obj: any, { size }, context: any, info: any) => {
-        let result = await client.query(
-          generateFaunaQuery(
-            info,
-            q.Map(
-              q.Paginate(q.Documents(q.Collection(authorType.collectionName)), {
-                size,
-              }),
-              q.Lambda("ref", q.Get(q.Var("ref")))
-            )
-          )
-        );
-        console.log("res" + JSON.stringify(result));
-
-        return result;
-      },
-    },
-  },
-});
-
-const mutationType = new GraphQLObjectType({
-  name: "Mutation",
-  fields: {
-    createBook: {
-      type: bookType,
-      args: {
-        input: { type: bookInputType },
-      },
-      resolve: async (obj: any, args, context: any, info: any) => {
-        // debug(args);
-        // console.log(JSON.stringify("start"));
-        // console.log(JSON.stringify(args));
-        // console.log(JSON.stringify(info));
-        // console.log(info.fieldNodes[0]);
-        // let data = {};
-        // let relationQueries;
-
-        // for (let [key, value] of Object.entries(args.input)) {
-        //   if (bookType.metaSchema[key].type === "relation") {
-        //     console.log("side:" + bookType.metaSchema[key].from);
-        //     let relatedType = bookType.getFields()[key].type;
-        //     if (relatedType instanceof GraphQLList) {
-        //       relatedType = relatedType.ofType;
-        //     }
-        //     console.log(relatedType.collectionName);
-        //     relationQueries = q.Create(q.Collection("relations"), {
-        //       data: {
-        //         relationshipRef: bookType.metaSchema[key].relationshipRef,
-        //         [bookType.metaSchema[key].from]: q.Var("docRef"),
-        //         [bookType.metaSchema[key].to]: q.Ref(
-        //           q.Collection(relatedType.collectionName),
-        //           value.connect[0] //TODO: Allow multiple connects
-        //         ),
-        //       },
-        //     });
-        //   } else {
-        //     data[bookType.metaSchema[key].fieldId] = value;
-        //   }
-        // }
-
-        // // let data = {data: Object.fromEntries(Object.entries(args.input).filter(([key, value]) => bookType.metaSchema[key].type !== "relation").map( ([key, value]) => [bookType.metaSchema[key].fieldId, value] ))}
-        // let creationResult = await client.query(
-        //   q.Let(
-        //     {
-        //       docRef: q.Select(
-        //         ["ref"],
-        //         q.Create(q.Collection(bookType.collectionName), { data })
-        //       ),
-        //     },
-        //     { ref: q.Var("docRef"), relationQueries }
-        //   )
-        // );
-        let result = await client.query(generateFaunaQuery(info));
-
-        // console.log(JSON.stringify(data));
-        console.log("info" + JSON.stringify(result));
-        // console.log("res" + JSON.stringify(creationResult.ref));
-        return result;
-      },
-    },
-  },
-});
-
-export const schema = new GraphQLSchema({
-  query: queryType,
-  mutation: mutationType,
-});
+        )
+      )
+    ),
+  });
+  return generateGraphQLSchema(data.organizations[0].projects[0]);
+};

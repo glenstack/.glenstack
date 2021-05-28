@@ -1,8 +1,13 @@
 import { ApolloServer } from "apollo-server";
 
-import { schema } from "./index";
+import { getSchema } from "./index";
+import { GraphQLSchema } from "graphql";
 
-const server = new ApolloServer({ schema });
-server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
+getSchema().then((schema: GraphQLSchema) => {
+  const server = new ApolloServer({
+    schema,
+  });
+  server.listen().then(({ url }) => {
+    console.log(`🚀  Server ready at ${url}`);
+  });
 });

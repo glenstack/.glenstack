@@ -1,13 +1,15 @@
+import { getSchema } from "./../data/index";
 import { makeGraphQLHandler } from "@glenstack/cf-workers-graphql";
 import type Toucan from "toucan-js";
-import { schema } from "./schema";
+// import { schema } from "./schema";
 import { makeContextValue } from "./context";
 
-export const handleRequest = (
+export const handleRequest = async (
   request: Request,
   sentry: Toucan
-): Promise<Response> =>
-  makeGraphQLHandler(schema, {
+): Promise<Response> => {
+  const schema = await getSchema();
+  return makeGraphQLHandler(schema, {
     makeContextValue: async (request) => makeContextValue(request, sentry),
     makeErrorResponse: async (request, error) => {
       sentry.captureException(error);
@@ -15,3 +17,4 @@ export const handleRequest = (
       return new Response("Internal error", { status: 500 });
     },
   })(request);
+};

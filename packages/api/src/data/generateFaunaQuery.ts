@@ -6,6 +6,7 @@ import {
   visit,
   visitWithTypeInfo,
   isLeafType,
+  getNullableType,
   GraphQLList,
   GraphQLResolveInfo,
   defaultFieldResolver,
@@ -13,30 +14,12 @@ import {
   GraphQLString,
   GraphQLObjectType,
   GraphQLID,
+  GraphQLNonNull,
 } from "graphql";
 
 import { getArgumentValues } from "graphql/execution/values";
-export class GraphQLFaunaObjectType extends GraphQLObjectType {
-  collectionName: string;
-  metaSchema: object;
-  constructor({
-    name,
-    fields,
-    collectionName,
-    interfaces = undefined,
-    isTypeOf = undefined,
-    fqlTypeCheck = undefined,
-    metaSchema = {},
-  }) {
-    // if (interfaces?.length) validateInterfaces(interfaces)
-    super({ name, fields, interfaces, isTypeOf });
-    this.collectionName = collectionName;
-    this.metaSchema = metaSchema;
-  }
-  static isFaunaGraphQLType: true;
-}
 
-const isFaunaObjectType = (obj) => obj instanceof GraphQLFaunaObjectType;
+const isFaunaObjectType = (obj) => false;
 
 const CURRENT_DOC = "__CD__";
 const CURRENT_DOC_VAR = q.Var(CURRENT_DOC);
@@ -59,8 +42,8 @@ const nestedQuery = (
 
 const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
   const name = node.name.value;
-  const type = typeInfo.getType();
-  const parentType = typeInfo.getParentType();
+  const type = getNullableType(typeInfo.getType());
+  const parentType = getNullableType(typeInfo.getParentType());
   const field = typeInfo.getFieldDef();
   if (!type && !field) {
     throw new Error(`No field ${name}`);
@@ -94,7 +77,12 @@ const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
   };
 };
 
-const generateSelector = (name: string, parentType: any, isLeaf = true) => {
+const generateSelector = (
+  faunaSchema: any,
+  name: string,
+  parentType: any,
+  isLeaf = true
+) => {
   console.log("FQL" + JSON.stringify(parentType.fql));
   // if (c?.fields?.[name]) return [name, parentType.fql?.fields?.[name](CURRENT_DOC_VAR, q)]
   // if (name === "authors") return [name,q.Select(["data"], CURRENT_DOC_VAR)]
@@ -106,7 +94,10 @@ const generateSelector = (name: string, parentType: any, isLeaf = true) => {
   }
   return [
     name,
-    q.Select(["data", parentType.metaSchema[name].fieldId], CURRENT_DOC_VAR),
+    q.Select(
+      ["data", faunaSchema[parentType.name].fields[name].fieldId],
+      CURRENT_DOC_VAR
+    ),
   ];
 };
 
@@ -120,6 +111,7 @@ const defaultEmbedQuery = (fieldName, isList) => {
 };
 
 export const generateFaunaQuery = (
+  faunaSchema: any,
   resolveInfo: GraphQLResolveInfo,
   query?: Expr
 ) => {
@@ -175,85 +167,84 @@ export const generateFaunaQuery = (
 
         let nextQuery;
 
-        if (isRoot && !isFaunaObjectType)
-          throw new Error("Invalid root type. Must be a FaunaGraphQL type.");
-        if (isLeaf) return generateSelector(returnName, parentType);
+        // if (isRoot && !isFaunaObjectType)
+        //   throw new Error("Invalid root type. Must be a FaunaGraphQL type.");
+        if (isLeaf)
+          return generateSelector(faunaSchema, returnName, parentType);
 
         // if (selectionSet && !isRoot) {
         //       return generateSelector(returnName, parentType)
         //   }
 
-        console.log("neww" + JSON.stringify(getArgumentValues(field, node)));
-        console.log("node" + type.collectionName);
-        console.log("parse" + JSON.stringify(parseFieldNode(node)));
+        console.log(
+          "arguments:" + JSON.stringify(getArgumentValues(field, node))
+        );
 
-        // if (isQuery && isRoot) nextQuery = query;
         if (isMutation && isRoot) {
           const bookType = type;
           let data = {};
           let relationQueries;
           const args = getArgumentValues(field, node);
           for (let [key, value] of Object.entries(args.input)) {
-            if (bookType.metaSchema[key].type === "relation") {
-              console.log("side:" + bookType.metaSchema[key].from);
+            let faunaField = faunaSchema[bookType.name].fields[key];
+            if (faunaField.isRelation) {
               let relatedType = bookType.getFields()[key].type;
-              if (relatedType instanceof GraphQLList) {
-                relatedType = relatedType.ofType;
+              let nullableRelatedType = getNullableType(relatedType);
+              if (nullableRelatedType instanceof GraphQLList) {
+                nullableRelatedType = getNullableType(
+                  nullableRelatedType.ofType
+                );
               }
-              console.log(relatedType.collectionName);
+
               relationQueries = q.Create(q.Collection("relations"), {
                 data: {
-                  relationshipRef: bookType.metaSchema[key].relationshipRef,
-                  [bookType.metaSchema[key].from]: q.Var("docRef"),
-                  [bookType.metaSchema[key].to]: q.Ref(
-                    q.Collection(relatedType.collectionName),
+                  relationshipRef: faunaField.relationshipRef,
+                  [faunaField.from]: q.Var("docRef"),
+                  [faunaField.to]: q.Ref(
+                    q.Collection(
+                      faunaSchema[nullableRelatedType.name].collectionName
+                    ),
                     value.connect[0] //TODO: Allow multiple connects
                   ),
                 },
               });
             } else {
-              data[bookType.metaSchema[key].fieldId] = value;
+              data[faunaField.fieldId] = value;
             }
           }
-          // let creationResult = await client.query(
-          //   q.Let(
-          //     {
-          //       docRef: q.Select(
-          //         ["ref"],
-          //         q.Create(q.Collection(bookType.collectionName), { data })
-          //       ),
-          //     },
-          //     { ref: q.Var("docRef"), relationQueries }
-          //   )
-          // );
           nextQuery = q.Select(
             ["doc"],
             q.Let(
               {
                 docRef: q.Select(
                   ["ref"],
-                  q.Create(q.Collection(bookType.collectionName), { data })
+                  q.Create(
+                    q.Collection(faunaSchema[bookType.name].collectionName),
+                    { data }
+                  )
                 ),
               },
               { doc: q.Get(q.Var("docRef")), relationQueries }
             )
           );
-
-          console.log("is mutation" + JSON.stringify(parseFieldNode(node)));
-          // nextQuery = q.Get(creationResult.ref);
         } else if (isRoot) {
           nextQuery = query;
         }
         if (!nextQuery) {
-          if (parentType.metaSchema[name].type !== "relation") {
+          if (!faunaSchema[parentType.name].fields[name].isRelation) {
             throw new Error("Current node should be a relation.");
           }
           nextQuery = q.Map(
             q.Paginate(
-              q.Match(q.Index("relations" + parentType.metaSchema[name].from), [
-                parentType.metaSchema[name].relationshipRef,
-                q.Select(["ref"], CURRENT_DOC_VAR),
-              ])
+              q.Match(
+                q.Index(
+                  "relations" + faunaSchema[parentType.name].fields[name].from
+                ),
+                [
+                  faunaSchema[parentType.name].fields[name].relationshipRef,
+                  q.Select(["ref"], CURRENT_DOC_VAR),
+                ]
+              )
             ),
             q.Lambda("ref", q.Get(q.Var("ref")))
           );
@@ -263,19 +254,23 @@ export const generateFaunaQuery = (
           returnName,
           nestedQuery(nextQuery, field, selectionSet, isList),
         ];
-
-        return {};
       },
     },
   };
 
   try {
-    const res = visit(operation, visitWithTypeInfo(typeInfo, visitor));
-    console.log("fqlend" + JSON.stringify(res.selectionSet.rootFQL.raw));
+    console.log(JSON.stringify(operation));
+    // Filter operation in order to only consider the current field and not all neighbours.
+    let filtered_operation = JSON.parse(JSON.stringify(operation));
+    filtered_operation.selectionSet.selections =
+      filtered_operation.selectionSet.selections.filter(
+        (x) => x.name.value === resolveInfo.fieldName
+      );
+    const res = visit(filtered_operation, visitWithTypeInfo(typeInfo, visitor));
+
     return res.selectionSet.rootFQL;
   } catch (err) {
     console.error(err);
     throw err;
   }
-  return q.ToDate("2020-03-12");
 };
