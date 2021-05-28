@@ -1,12 +1,11 @@
 /* eslint-disable */
-import SchemaBuilder, { Resolver } from "@giraphql/core";
+import SchemaBuilder from "@giraphql/core";
 
 import { Expr, query as q, values } from "faunadb";
 import { client } from "./fauna/client";
 import { generateFaunaQuery } from "./generateFaunaQuery";
-import { FaunaSchema, Field, RelationshipField, Table } from "./types";
-import { GraphQLResolveInfo } from "graphql";
-import Ref = values.Ref;
+import { FaunaSchema, Field, Table } from "./types";
+import { GraphQLResolveInfo, GraphQLSchema } from "graphql";
 
 const definitions = (table: Table) => ({
   queries: {
@@ -31,7 +30,7 @@ const definitions = (table: Table) => ({
 //   return type;
 // };
 
-export const generateGraphQLSchema = (projectData: any) => {
+export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
   // const faunaSchema = {
   //   Book: {
   //     collectionName: "294845138632442369",

@@ -1,12 +1,13 @@
-import { ApolloServer } from "apollo-server";
-
 import { query as q } from "faunadb";
 
 import { client } from "./fauna/client";
 import { generateGraphQLSchema } from "./generateGraphQLSchema";
+import { GraphQLSchema } from "graphql";
 
-export const getSchema = async () => {
-  const data: any = await client.query({
+export const getSchema = async (): Promise<GraphQLSchema> => {
+  const data = await client.query<{
+    organizations: Array<{ projects: Array<unknown> }>;
+  }>({
     organizations: q.Select(
       "data",
       q.Map(
