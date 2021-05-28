@@ -1,0 +1,6 @@
+schema: ${REACT_APP_GRAPHQL_PRODUCTION_ENDPOINT}
+documents: "**/*.tsx"
+plugins:
+  - typescript-operations
+  - typescript-react-apollo
+cacheDir: src/__generated__

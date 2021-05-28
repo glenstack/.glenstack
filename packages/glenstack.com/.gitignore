@@ -174,3 +174,9 @@ temp/
 
 build/
 !.env
+
+### graphql-let
+
+/src/__generated__
+*.graphql.d.ts
+*.graphqls.d.ts

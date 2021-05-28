@@ -1,0 +1,82 @@
+---
+title: "How We're Building Glenstack"
+date: "2021-05-19"
+author: "Greg Brimble"
+description: "Glenstack is a production-ready, modern data platform. And as such, we are embracing the latest and greatest technologies as we deliver our application quickly, securely, and with the features our customers demand."
+bannerAttribution: "Photo by [NASA](https://unsplash.com/@nasa) on [Unsplash](https://unsplash.com/)."
+---
+
+import { Latency } from "./latency";
+
+# How We're Building Glenstack
+
+Glenstack is a production-ready, modern data platform. And as such, we are embracing the latest and greatest technologies as we deliver our application quickly, securely, and with the features our customers demand.
+
+## Motivations
+
+### Speed
+
+We want Glenstack to be performant for users, regardless of where they are located. To us, this means we must be distributed. We can't have a single server in `us-east-1` because every single user would have to wait for a round-trip request to Virginia which is a significant delay for most of the world. Instead, we have multiple points-of-presence (PoPs) around the world which are each capable of serving Glenstack, more often than not, from the same country as the user.
+
+No distributed provider has more PoPs and faster performance than [Cloudflare Workers](https://workers.cloudflare.com/), which lets us be in 200 locations around the world, and within 100 milliseconds of 99% of internet users.
+
+<Latency />
+
+This serverless architecture lets us compete with (and often outperform) the performance of many traditional database providers, all while also eliminating the single point of failure that a single cluster presents. We are entirely convinced that it is the future of not just application hosting but data handling as well, and that serverless environments will continue to see increased usage throughout the technology industry.
+
+### Security
+
+We make every effort to ensure that Glenstack is secure. And we like to start with the worst-case scenario, disaster-recovery: what happens if our infrastructure fails.
+
+As already stated, the Glenstack application is serverless and distributed. So if one PoP is unreachable, your traffic is automatically re-routed to the next available data center. If all 200 PoPs fail, we're in trouble, and this would constitute a truly global, internet-level event. Thankfully however, Cloudflare offer a 100% uptime SLA, and we're able to do the same for Glenstack customers. Please [contact us](https://glenstack.com/contact) if you are interested in enterprise contracts.
+
+Data hosted on Glenstack is also guaranteed. We provide (C)onsistent and (P)artition-tolerant storage (of the [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem)) in order to support the full set of [ACID](https://en.wikipedia.org/wiki/ACID) properties for transactions.
+
+We have multiple layers of redundancy in place to ensure that even if a single data node is unreachable, we are able to failover to another location, with the same data available. We also take routine off-site backups for even more peace-of-mind.
+
+We're exploring end-to-end (E2E) encryption and would also love to [hear from you](https://glenstack.com/contact) if you have a compelling use-case. In the meantime however, all data is encrypted in transit, at rest, and when backed up. Again, please [reach out](https://glenstack.com/contact) if there's a particular certification your business needs.
+
+### Functionality
+
+Glenstack sees data compliance as one of the most interesting and rapidly evolving challenges for the technology industry. The General Data Protection Regulation (EU GDPR) is frankly old news, but it remains a difficult problem for thousands of organizations inside and outside of the European Union. Complex legislation is continually being drafted by governments around the world, and it's only going to get harder for businesses to stay compliant.
+
+Fortunately, Glenstack has data compliance built-in. There's no need to set up a specialized EU cluster and manage the overhead of synchronizing migrations. With Glenstack, you simply tag a data instance as belonging to a particular jurisdiction, and we guarantee that we'll never store or process that instance outside of that border. Personally identifiable information (PII) stays close to the individual, which has the added benefit of decreasing their latency!
+
+With compliance sorted, you can focus on the stuff that matters: your data. Glenstack offers a suite of tools to help make you productive:
+
+- an easy-to-use no-code editor,
+- collaborative workflows for both internal and external use,
+- version control,
+- and most importantly, an incredibly scalable, low latency, automatic GraphQL API.
+
+Read more about our features on [our landing page](https://glenstack.com/#features).
+
+---
+
+## The Specifics of our System Design
+
+For those wanting more detail, this section delves into some specifics about the technologies we're using to build Glenstack. If we don't cover something here, or if you have any other questions, please [send us a message](https://glenstack.com/contact), and we'd seriously love to chat to you more.
+
+### Data
+
+We use a combination of Cloudflare's [Workers KV](https://www.cloudflare.com/en-gb/products/workers-kv/) and [Durable Objects](https://blog.cloudflare.com/introducing-workers-durable-objects/), as well as [Fauna](https://fauna.com/), for hosting various Glenstack data. We support the full set of ACID properties and a complete transaction environment enabling you to build pretty much anything on top of Glenstack.
+
+### Payments
+
+Leaving it to the industry-trusted experts, we use [Stripe](https://stripe.com/en-gb) to handle payment transactions. They securely hold all sensitive information such as credit card numbers and bank details. In fact, we never even see this information—it goes straight to Stripe.
+
+### Authorization
+
+With custom needs, we built our own authorization service which issues [JSON Web Tokens (JWTs)](https://datatracker.ietf.org/doc/html/rfc7519) as [OAuth2](https://datatracker.ietf.org/doc/html/rfc6749) Access Tokens. We act as both a consumer (for social login) and provider (for providing developers access to our [API](#API)).
+
+### API
+
+With support for massive datasets, Glenstack has to be able to efficiently respond to API requests. We use [GraphQL](https://spec.graphql.org/June2018/) to allow users to specify exactly the data they require, and also navigate the complex relationships that can appear when working with embedded data.
+
+### Front-end
+
+Finally, the Glenstack front-end is just a simple [React](https://reactjs.org/) application. We use [Tailwind CSS](https://tailwindcss.com/) and some [Tailwind UI](https://tailwindui.com/) components to rapidly build out our UI, and we consume our [API](#API) like any other developer using Glenstack. This ['dog-fooding'](https://en.wikipedia.org/wiki/Eating_your_own_dog_food) helps us to better understand what developers need from Glenstack in order to build their apps.
+
+---
+
+Glenstack will be launching later this summer, 2021. Please consider [joining our waitlist](https://glenstack.com/waitlist) or [getting in touch](https://glenstack.com/contact) if you have any questions. We're so excited for you to see what we've been building, and we hope Glenstack can help you to create, exchange and collaborate on data soon!

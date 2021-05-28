@@ -8,7 +8,7 @@ export const handleRequest = (
   sentry: Toucan
 ): Promise<Response> =>
   makeGraphQLHandler(schema, {
-    makeContextValue,
+    makeContextValue: async (request) => makeContextValue(request, sentry),
     makeErrorResponse: async (request, error) => {
       sentry.captureException(error);
       // TODO: Nice error page

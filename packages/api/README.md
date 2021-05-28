@@ -1,6 +1,6 @@
 # API
 
-The API that powers Glenstack. It lives at https://glenstack.dev/graphql.
+The API that powers Glenstack. It lives at https://api.glenstack.com/.
 
 ## Scripts
 

@@ -5,6 +5,8 @@
     "mrmlnc.vscode-json5",
     "esbenp.prettier-vscode",
     "tamasfe.even-better-toml",
-    "bradlc.vscode-tailwindcss"
+    "bradlc.vscode-tailwindcss",
+    "silvenon.mdx",
+    "xyc.vscode-mdx-preview"
   ]
 }
