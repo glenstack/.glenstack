@@ -3,6 +3,13 @@ import { query as q } from "faunadb";
 import { client } from "./fauna/client";
 import { generateGraphQLSchema } from "./generateGraphQLSchema";
 import { GraphQLSchema } from "graphql";
+import {
+  FaunaResponse,
+  OrganizationInput,
+  ProjectInput,
+  ScalarField,
+  TableInput,
+} from "./types";
 
 export const getSchema = async (): Promise<GraphQLSchema> => {
   const data = await client.query<{
@@ -90,4 +97,95 @@ export const getSchema = async (): Promise<GraphQLSchema> => {
     ),
   });
   return generateGraphQLSchema(data.organizations[0].projects[0]);
+};
+
+export const createOrganization = async ({
+  name,
+}: {
+  name: string;
+}): Promise<unknown> => {
+  const organizationPayload: OrganizationInput = { name, apiName: name };
+
+  const {
+    data,
+    ref: { id },
+  } = await client.query<FaunaResponse>(
+    q.Create(q.Collection("organizations"), {
+      data: {
+        ...organizationPayload,
+      },
+    })
+  );
+  return { id, ...data };
+};
+export const createProject = async ({
+  organizationId,
+  name,
+}: {
+  organizationId: string;
+  name: string;
+}): Promise<unknown> => {
+  const projectInput: ProjectInput = {
+    name,
+    apiName: name,
+    organizationRef: q.Ref(q.Collection("organizations"), organizationId),
+  };
+  const {
+    data,
+    ref: { id },
+  } = await client.query<FaunaResponse>(
+    q.Create(q.Collection("projects"), {
+      data: { ...projectInput },
+    })
+  );
+  return { id, ...data };
+};
+
+export const createTable = async ({
+  projectId,
+  name,
+}: {
+  projectId: string;
+  name: string;
+}): Promise<unknown> => {
+  const tableInput: TableInput = {
+    name,
+    apiName: name,
+    projectRef: q.Ref(q.Collection("projects"), projectId),
+  };
+  const {
+    data,
+    ref: { id },
+  } = await client.query<FaunaResponse>(
+    q.Create(q.Collection("tables"), {
+      data: { ...tableInput },
+    })
+  );
+  return { id, ...data };
+};
+
+export const createField = async ({
+  tableId,
+  name,
+  type,
+}: {
+  tableId: string;
+  name: string;
+  type: ScalarField["type"];
+}): Promise<unknown> => {
+  const fieldInput: ScalarField = {
+    name,
+    type,
+    apiName: name,
+    tableRef: q.Ref(q.Collection("tables"), tableId),
+  };
+  const {
+    data,
+    ref: { id },
+  } = await client.query<FaunaResponse>(
+    q.Create(q.Collection("fields"), {
+      data: { ...fieldInput },
+    })
+  );
+  return { id, ...data };
 };
