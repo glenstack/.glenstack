@@ -262,9 +262,10 @@ export const generateFaunaQuery = (
     console.log(JSON.stringify(operation));
     // Filter operation in order to only consider the current field and not all neighbours.
     let filtered_operation = JSON.parse(JSON.stringify(operation));
-    filtered_operation.selectionSet.selections = filtered_operation.selectionSet.selections.filter(
-      (x) => x.name.value === resolveInfo.fieldName
-    );
+    filtered_operation.selectionSet.selections =
+      filtered_operation.selectionSet.selections.filter(
+        (x) => x.name.value === resolveInfo.fieldName
+      );
     const res = visit(filtered_operation, visitWithTypeInfo(typeInfo, visitor));
 
     return res.selectionSet.rootFQL;

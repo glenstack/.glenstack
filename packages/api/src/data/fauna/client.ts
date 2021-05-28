@@ -1,8 +1,9 @@
+import "cross-fetch/polyfill";
 import faunadb from "faunadb";
 
 export const client = new faunadb.Client({
   secret: "fnAEI3aezIACAcwwrsWsIDvyHVRNnSFOSg1Yjz8T",
-  fetch: (requestInfo, requestInit) => {
+  fetch: (requestInfo: RequestInfo, requestInit?: RequestInit) => {
     const signal = requestInit?.signal;
     delete requestInit?.signal;
     const abortPromise = new Promise<Response>((resolve, reject) => {
