@@ -187,7 +187,7 @@ export const generateFaunaQuery = (
           const args = getArgumentValues(field, node);
           for (let [key, value] of Object.entries(args.input)) {
             let faunaField = faunaSchema[bookType.name].fields[key];
-            if (faunaField.type === "relation") {
+            if (faunaField.isRelation) {
               let relatedType = bookType.getFields()[key].type;
               let nullableRelatedType = getNullableType(relatedType);
               if (nullableRelatedType instanceof GraphQLList) {
@@ -231,7 +231,7 @@ export const generateFaunaQuery = (
           nextQuery = query;
         }
         if (!nextQuery) {
-          if (faunaSchema[parentType.name].fields[name].type !== "relation") {
+          if (!faunaSchema[parentType.name].fields[name].isRelation) {
             throw new Error("Current node should be a relation.");
           }
           nextQuery = q.Map(

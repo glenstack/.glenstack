@@ -1,12 +1,14 @@
 /* eslint-disable */
-// @ts-nocheck
-import SchemaBuilder from "@giraphql/core";
+import SchemaBuilder, { Resolver } from "@giraphql/core";
 
-import { Expr, query as q } from "faunadb";
+import { Expr, query as q, values } from "faunadb";
 import { client } from "./fauna/client";
 import { generateFaunaQuery } from "./generateFaunaQuery";
+import { FaunaSchema, Field, RelationshipField, Table } from "./types";
+import { GraphQLResolveInfo } from "graphql";
+import Ref = values.Ref;
 
-const definitions = (table: any) => ({
+const definitions = (table: Table) => ({
   queries: {
     findMany: {
       name: () => table.apiName + "GetMany",
@@ -23,9 +25,13 @@ const definitions = (table: any) => ({
   },
 });
 
-export const generateGraphQLSchema = (projectData: any) => {
-  const { tables } = projectData;
+// const getGiraphType = (
+//   type: string
+// ): GiraphQLSchemaTypes.FieldOptions["type"] => {
+//   return type;
+// };
 
+export const generateGraphQLSchema = (projectData: any) => {
   // const faunaSchema = {
   //   Book: {
   //     collectionName: "294845138632442369",
@@ -63,27 +69,46 @@ export const generateGraphQLSchema = (projectData: any) => {
   //   },
   // };
 
-  const faunaSchema = tables.reduce(function (tableObj, table) {
+  const faunaSchema: FaunaSchema = projectData.tables.reduce(function (
+    tableObj: FaunaSchema,
+    table: {
+      apiName: string;
+      name: string;
+      collectionName: string;
+      fields: Array<Field>;
+    }
+  ) {
     tableObj[table.apiName] = {
       ...table,
-      fields: table.fields.reduce(function (fieldObj, field) {
+      fields: table.fields.reduce(function (
+        fieldObj: Table["fields"],
+        field: Field
+      ) {
         fieldObj[field.apiName] = field;
         return fieldObj;
-      }, {}),
+      },
+      {}),
     };
     return tableObj;
   }, {});
 
   const builder = new SchemaBuilder<{
     DefaultFieldNullability: true;
-  }>({ plugins: [] });
+  }>({
+    defaultFieldNullability: true,
+  });
 
   builder.queryType({});
   builder.mutationType({});
 
-  let relationshipFields = {};
-  let inputFields = {};
-  for (let table of tables) {
+  let relationshipFields: { [key: string]: any } = {};
+  let inputFields: {
+    [tableApiName: string]: {
+      [fieldApiName: string]: GiraphQLSchemaTypes.InputFieldOptions;
+    };
+  } = {};
+  for (let table of Object.values(faunaSchema)) {
+    // @ts-ignore
     builder.objectType(table.apiName, {
       fields: (t) => ({
         id: t.exposeID("id", {}),
@@ -91,14 +116,17 @@ export const generateGraphQLSchema = (projectData: any) => {
     });
     inputFields[table.apiName] = {};
 
-    for (let field of table.fields) {
-      if (field.type === "relation") {
-        relationshipFields[[field.from, field.relationshipRef]] = {
+    for (let field of Object.values(table.fields)) {
+      if (field.isRelation) {
+        relationshipFields[field.from + field.relationshipRef.id] = {
           ...field,
           parentApiName: table.apiName,
         };
       } else {
+        // @ts-ignore
+
         builder.objectField(table.apiName, field.apiName, (t) =>
+          // @ts-ignore
           t.expose(field.apiName, { type: field.type })
         );
         inputFields[table.apiName][field.apiName] = {
@@ -110,6 +138,7 @@ export const generateGraphQLSchema = (projectData: any) => {
 
     builder.queryField(definitions(table).queries.findMany.name(), (t) =>
       t.field({
+        // @ts-ignore
         type: [table.apiName],
         resolve: (...args) =>
           resolve(
@@ -119,10 +148,13 @@ export const generateGraphQLSchema = (projectData: any) => {
           ),
       })
     );
+
     builder.mutationField(definitions(table).queries.createOne.name(), (t) =>
       t.field({
+        // @ts-ignore
         type: table.apiName,
         args: {
+          // @ts-ignore
           input: t.arg({ type: table.apiName + "Input", required: true }),
         },
         resolve: (...args) => resolve(...args, faunaSchema),
@@ -139,11 +171,13 @@ export const generateGraphQLSchema = (projectData: any) => {
     } = relationshipField;
 
     const relatedTableApiName =
-      relationshipFields[[to, relationshipRef]].parentApiName;
+      relationshipFields[to + relationshipRef.id].parentApiName;
     builder.objectField(tableApiName, fieldApiName, (t) =>
       t.expose(fieldApiName, { type: [relatedTableApiName] })
     );
+    // @ts-ignore
     inputFields[tableApiName][fieldApiName] = {
+      // @ts-ignore
       type: relatedTableApiName + "RelationInput",
       required: false,
     };
@@ -180,15 +214,16 @@ export const generateGraphQLSchema = (projectData: any) => {
 
 const resolve = async (
   root: any,
-  args,
+  args: any,
   context: any,
-  info: any,
+  info: GraphQLResolveInfo,
   faunaSchema: any,
-  query: Expr
-) => {
+  query?: Expr
+): Promise<any> => {
   console.log(faunaSchema);
   let result = await client.query(generateFaunaQuery(faunaSchema, info, query));
   console.log("res" + JSON.stringify(result));
 
+  // @ts-ignore
   return result;
 };
