@@ -45,17 +45,26 @@ const definitions = (table: Table) => ({
           for (let [key, value] of Object.entries(args.input)) {
             let faunaField = faunaSchema[table.apiName].fields[key];
             if (faunaField.type === "Relation") {
-              relationQueries = q.Create(q.Collection("relations"), {
-                data: {
-                  relationshipRef: faunaField.relationshipRef,
-                  [faunaField.relationKey]: q.Var("docRef"),
-                  [faunaField.relationKey === "A" ? "B" : "A"]: q.Ref(
-                    q.Collection(faunaField.to.id),
-                    // @ts-ignore
-                    value.connect[0] //TODO: Allow multiple connects
-                  ),
-                },
-              });
+              relationQueries = q.Do(
+                // @ts-ignore
+                value.connect.map((idToConnect: string) =>
+                  q.Create(q.Collection("relations"), {
+                    data: {
+                      // @ts-ignore
+                      relationshipRef: faunaField.relationshipRef,
+                      // @ts-ignore
+                      [faunaField.relationKey]: q.Var("docRef"),
+                      // @ts-ignore
+                      [faunaField.relationKey === "A" ? "B" : "A"]: q.Ref(
+                        // @ts-ignore
+                        q.Collection(faunaField.to.id),
+                        // @ts-ignore
+                        idToConnect
+                      ),
+                    },
+                  })
+                )
+              );
             } else {
               data[faunaField.id] = value;
             }
@@ -251,6 +260,5 @@ const resolve = async (
   let result = await client.query(generateFaunaQuery(faunaSchema, info, query));
   console.log("res" + JSON.stringify(result));
 
-  // @ts-ignore
   return result;
 };
