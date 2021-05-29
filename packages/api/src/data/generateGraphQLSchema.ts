@@ -10,16 +10,26 @@ import { generateFaunaQuery } from "./generateFaunaQuery";
 import { FaunaSchema, Field, Table } from "./types";
 import { GraphQLResolveInfo, GraphQLSchema } from "graphql";
 
-// @ts-ignore
 const definitions = (table: Table) => ({
   queries: {
     findMany: {
       name: () => table.apiName + "GetMany",
-      query: () =>
-        q.Map(
-          q.Paginate(q.Documents(q.Collection(table.id)), {}),
+      // @ts-ignore
+      query: (args) => {
+        let options: { size: number; after?: Expr; before?: Expr } = {
+          size: args.first,
+        };
+        if (args.after) {
+          options.after = q.Ref(q.Collection(table.id), args.after);
+        }
+        if (args.before) {
+          options.before = q.Ref(q.Collection(table.id), args.before);
+        }
+        return q.Map(
+          q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
           q.Lambda("ref", q.Get(q.Var("ref")))
-        ),
+        );
+      },
     },
     createOne: {
       name: () => table.apiName + "CreateOne",
@@ -179,11 +189,16 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
       t.field({
         // @ts-ignore
         type: [table.apiName],
+        args: {
+          first: t.arg({ type: "Int", required: false, defaultValue: 100 }),
+          after: t.arg({ type: "String", required: false }),
+          before: t.arg({ type: "String", required: false }),
+        },
         resolve: (...args) =>
           resolve(
             ...args,
             faunaSchema,
-            definitions(table).queries.findMany.query()
+            definitions(table).queries.findMany.query(args[1])
           ),
       })
     );
