@@ -161,6 +161,7 @@ export const createTable = async ({
       data: { ...tableInput },
     })
   );
+  await client.query(q.CreateCollection({ name: id }));
   return { id, ...data };
 };
 
