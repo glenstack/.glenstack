@@ -179,52 +179,7 @@ export const generateFaunaQuery = (
         console.log(
           "arguments:" + JSON.stringify(getArgumentValues(field, node))
         );
-
-        if (isMutation && isRoot) {
-          const bookType = type;
-          let data = {};
-          let relationQueries;
-          const args = getArgumentValues(field, node);
-          for (let [key, value] of Object.entries(args.input)) {
-            let faunaField = faunaSchema[bookType.name].fields[key];
-            if (faunaField.type === "Relation") {
-              let relatedType = bookType.getFields()[key].type;
-              let nullableRelatedType = getNullableType(relatedType);
-              if (nullableRelatedType instanceof GraphQLList) {
-                nullableRelatedType = getNullableType(
-                  nullableRelatedType.ofType
-                );
-              }
-
-              relationQueries = q.Create(q.Collection("relations"), {
-                data: {
-                  relationshipRef: faunaField.relationshipRef,
-                  [faunaField.relationKey]: q.Var("docRef"),
-                  [faunaField.relationKey === "A" ? "B" : "A"]: q.Ref(
-                    q.Collection(faunaSchema[nullableRelatedType.name].id),
-                    value.connect[0] //TODO: Allow multiple connects
-                  ),
-                },
-              });
-            } else {
-              data[faunaField.id] = value;
-            }
-          }
-          nextQuery = q.Select(
-            ["doc"],
-            q.Let(
-              {
-                docRef: q.Select(
-                  ["ref"],
-                  q.Create(q.Collection(faunaSchema[bookType.name].id), {
-                    data,
-                  })
-                ),
-              },
-              { doc: q.Get(q.Var("docRef")), relationQueries }
-            )
-          );
-        } else if (isRoot) {
+        if (isRoot) {
           nextQuery = query;
         }
         if (!nextQuery) {

@@ -1,12 +1,23 @@
 /* eslint-disable */
-import SchemaBuilder from "@giraphql/core";
+import SchemaBuilder, {
+  InputFieldRef,
+  InputShapeFromFields,
+} from "@giraphql/core";
 
 import { Expr, query as q } from "faunadb";
 import { client } from "./fauna/client";
 import { generateFaunaQuery } from "./generateFaunaQuery";
 import { FaunaSchema, Field, Table } from "./types";
-import { GraphQLResolveInfo, GraphQLSchema } from "graphql";
+import {
+  getNullableType,
+  GraphQLArgs,
+  GraphQLList,
+  GraphQLResolveInfo,
+  GraphQLSchema,
+} from "graphql";
+import { getArgumentValues } from "graphql/execution/values";
 
+// @ts-ignore
 const definitions = (table: Table) => ({
   queries: {
     findMany: {
@@ -19,7 +30,49 @@ const definitions = (table: Table) => ({
     },
     createOne: {
       name: () => table.apiName + "CreateOne",
-      query: () => null,
+      query: (
+        // @ts-ignore
+        args,
+        faunaSchema: FaunaSchema
+      ) => {
+        {
+          let data: Record<string, unknown> = {};
+          let relationQueries;
+          // const args = getArgumentValues(field, node);
+          for (let [key, value] of Object.entries(args.input)) {
+            let faunaField = faunaSchema[table.apiName].fields[key];
+            if (faunaField.type === "Relation") {
+              relationQueries = q.Create(q.Collection("relations"), {
+                data: {
+                  relationshipRef: faunaField.relationshipRef,
+                  [faunaField.relationKey]: q.Var("docRef"),
+                  [faunaField.relationKey === "A" ? "B" : "A"]: q.Ref(
+                    q.Collection(faunaField.to.id),
+                    // @ts-ignore
+                    value.connect[0] //TODO: Allow multiple connects
+                  ),
+                },
+              });
+            } else {
+              data[faunaField.id] = value;
+            }
+          }
+          return q.Select(
+            ["doc"],
+            q.Let(
+              {
+                docRef: q.Select(
+                  ["ref"],
+                  q.Create(q.Collection(faunaSchema[table.apiName].id), {
+                    data,
+                  })
+                ),
+              },
+              { doc: q.Get(q.Var("docRef")), relationQueries }
+            )
+          );
+        }
+      },
     },
   },
 });
@@ -180,7 +233,12 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
           // @ts-ignore
           input: t.arg({ type: table.apiName + "Input", required: true }),
         },
-        resolve: (...args) => resolve(...args, faunaSchema),
+        resolve: (...args) =>
+          resolve(
+            ...args,
+            faunaSchema,
+            definitions(table).queries.createOne.query(args[1], faunaSchema)
+          ),
       })
     );
   }
