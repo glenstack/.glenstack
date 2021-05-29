@@ -8,6 +8,7 @@ import {
   OrganizationInput,
   ProjectInput,
   ScalarField,
+  ScalarFieldInput,
   TableInput,
 } from "./types";
 
@@ -73,7 +74,7 @@ export const getSchema = async (): Promise<GraphQLSchema> => {
                                         ),
                                         [
                                           {
-                                            fieldId: q.Select(
+                                            id: q.Select(
                                               ["ref", "id"],
                                               q.Get(q.Var("fieldRef"))
                                             ),
@@ -194,7 +195,7 @@ export const createField = async ({
   name: string;
   type: ScalarField["type"];
 }): Promise<unknown> => {
-  const fieldInput: ScalarField = {
+  const fieldInput: ScalarFieldInput = {
     name,
     type,
     apiName: name,

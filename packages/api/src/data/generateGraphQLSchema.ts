@@ -93,7 +93,7 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
             // @ts-ignore
             fieldObj[field.apiName].relationKey = "B";
           } else {
-            //Todo: Error
+            throw new Error('Table does not match "A" or "B" in relationship.');
           }
         }
 

@@ -95,7 +95,7 @@ const generateSelector = (
   return [
     name,
     q.Select(
-      ["data", faunaSchema[parentType.name].fields[name].fieldId],
+      ["data", faunaSchema[parentType.name].fields[name].id],
       CURRENT_DOC_VAR
     ),
   ];
@@ -207,7 +207,7 @@ export const generateFaunaQuery = (
                 },
               });
             } else {
-              data[faunaField.fieldId] = value;
+              data[faunaField.id] = value;
             }
           }
           nextQuery = q.Select(

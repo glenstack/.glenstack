@@ -9,12 +9,9 @@ export interface OrganizationInput {
   name: string;
   apiName: string;
 }
-export interface Project {
+export type ProjectInput = {
   name: string;
   apiName: string;
-  organizationRef: Ref;
-}
-export type ProjectInput = Omit<Project, "organizationRef"> & {
   organizationRef: Expr;
 };
 
@@ -22,6 +19,22 @@ export interface TableInput {
   name: string;
   apiName: string;
   projectRef: Expr;
+}
+export type FieldInput = ScalarFieldInput | RelationshipFieldInput;
+
+export interface ScalarFieldInput {
+  name: string;
+  apiName: string;
+  type: "String" | "Boolean";
+  tableRef: Expr;
+}
+
+export interface RelationshipFieldInput {
+  name: string;
+  apiName: string;
+  relationshipRef: Ref;
+  type: "Relation";
+  to: Expr;
 }
 
 export interface FaunaResponse {
@@ -37,17 +50,24 @@ export interface Table {
   };
   id: string;
 }
+export interface Project {
+  name: string;
+  apiName: string;
+  organizationRef: Ref;
+}
 
 export type Field = ScalarField | RelationshipField;
 
 export interface ScalarField {
+  id: string;
   name: string;
   apiName: string;
   type: "String" | "Boolean";
-  tableRef: Expr;
+  tableRef: Ref;
 }
 
 export interface RelationshipField {
+  id: string;
   name: string;
   apiName: string;
   relationshipRef: Ref;
