@@ -187,7 +187,7 @@ export const generateFaunaQuery = (
           const args = getArgumentValues(field, node);
           for (let [key, value] of Object.entries(args.input)) {
             let faunaField = faunaSchema[bookType.name].fields[key];
-            if (faunaField.isRelation) {
+            if (faunaField.type === "Relation") {
               let relatedType = bookType.getFields()[key].type;
               let nullableRelatedType = getNullableType(relatedType);
               if (nullableRelatedType instanceof GraphQLList) {
@@ -199,11 +199,9 @@ export const generateFaunaQuery = (
               relationQueries = q.Create(q.Collection("relations"), {
                 data: {
                   relationshipRef: faunaField.relationshipRef,
-                  [faunaField.from]: q.Var("docRef"),
-                  [faunaField.to]: q.Ref(
-                    q.Collection(
-                      faunaSchema[nullableRelatedType.name].collectionName
-                    ),
+                  [faunaField.relationKey]: q.Var("docRef"),
+                  [faunaField.relationKey === "A" ? "B" : "A"]: q.Ref(
+                    q.Collection(faunaSchema[nullableRelatedType.name].id),
                     value.connect[0] //TODO: Allow multiple connects
                   ),
                 },
@@ -218,10 +216,9 @@ export const generateFaunaQuery = (
               {
                 docRef: q.Select(
                   ["ref"],
-                  q.Create(
-                    q.Collection(faunaSchema[bookType.name].collectionName),
-                    { data }
-                  )
+                  q.Create(q.Collection(faunaSchema[bookType.name].id), {
+                    data,
+                  })
                 ),
               },
               { doc: q.Get(q.Var("docRef")), relationQueries }
@@ -231,14 +228,15 @@ export const generateFaunaQuery = (
           nextQuery = query;
         }
         if (!nextQuery) {
-          if (!faunaSchema[parentType.name].fields[name].isRelation) {
+          if (!faunaSchema[parentType.name].fields[name].type === "Relation") {
             throw new Error("Current node should be a relation.");
           }
           nextQuery = q.Map(
             q.Paginate(
               q.Match(
                 q.Index(
-                  "relations" + faunaSchema[parentType.name].fields[name].from
+                  "relations" +
+                    faunaSchema[parentType.name].fields[name].relationKey
                 ),
                 [
                   faunaSchema[parentType.name].fields[name].relationshipRef,

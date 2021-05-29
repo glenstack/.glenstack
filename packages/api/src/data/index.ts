@@ -51,7 +51,7 @@ export const getSchema = async (): Promise<GraphQLSchema> => {
                             q.Merge(
                               q.Select("data", q.Get(q.Var("tableRef"))),
                               {
-                                collectionName: q.Select(
+                                id: q.Select(
                                   ["ref", "id"],
                                   q.Get(q.Var("tableRef"))
                                 ),
@@ -71,12 +71,32 @@ export const getSchema = async (): Promise<GraphQLSchema> => {
                                           "data",
                                           q.Get(q.Var("fieldRef"))
                                         ),
-                                        {
-                                          fieldId: q.Select(
-                                            ["ref", "id"],
-                                            q.Get(q.Var("fieldRef"))
+                                        [
+                                          {
+                                            fieldId: q.Select(
+                                              ["ref", "id"],
+                                              q.Get(q.Var("fieldRef"))
+                                            ),
+                                          },
+                                          q.If(
+                                            q.ContainsPath(
+                                              ["data", "relationshipRef"],
+                                              q.Get(q.Var("fieldRef"))
+                                            ),
+                                            {
+                                              relationship: q.Select(
+                                                ["data"],
+                                                q.Get(
+                                                  q.Select(
+                                                    ["data", "relationshipRef"],
+                                                    q.Get(q.Var("fieldRef"))
+                                                  )
+                                                )
+                                              ),
+                                            },
+                                            {}
                                           ),
-                                        }
+                                        ]
                                       )
                                     )
                                   )

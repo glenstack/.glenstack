@@ -33,9 +33,9 @@ export interface Table {
   name: string;
   apiName: string;
   fields: {
-    [fieldName: string]: Field | RelationshipField;
+    [fieldName: string]: Field;
   };
-  collectionName: string;
+  id: string;
 }
 
 export type Field = ScalarField | RelationshipField;
@@ -45,14 +45,14 @@ export interface ScalarField {
   apiName: string;
   type: "String" | "Boolean";
   tableRef: Expr;
-  isRelation?: false;
 }
 
 export interface RelationshipField {
   name: string;
   apiName: string;
   relationshipRef: Ref;
-  isRelation: true;
-  from: "A" | "B";
-  to: "A" | "B";
+  type: "Relation";
+  relationship: { A: Ref; B: Ref };
+  relationKey: "A" | "B";
+  to: Ref;
 }

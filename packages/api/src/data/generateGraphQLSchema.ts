@@ -1,7 +1,7 @@
 /* eslint-disable */
 import SchemaBuilder from "@giraphql/core";
 
-import { Expr, query as q, values } from "faunadb";
+import { Expr, query as q } from "faunadb";
 import { client } from "./fauna/client";
 import { generateFaunaQuery } from "./generateFaunaQuery";
 import { FaunaSchema, Field, Table } from "./types";
@@ -13,7 +13,7 @@ const definitions = (table: Table) => ({
       name: () => table.apiName + "GetMany",
       query: () =>
         q.Map(
-          q.Paginate(q.Documents(q.Collection(table.collectionName)), {}),
+          q.Paginate(q.Documents(q.Collection(table.id)), {}),
           q.Lambda("ref", q.Get(q.Var("ref")))
         ),
     },
@@ -67,16 +67,17 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
   //     },
   //   },
   // };
-
+  let tableIdToApiName: Record<string, string> = {};
   const faunaSchema: FaunaSchema = projectData.tables.reduce(function (
     tableObj: FaunaSchema,
     table: {
       apiName: string;
       name: string;
-      collectionName: string;
+      id: string;
       fields: Array<Field>;
     }
   ) {
+    tableIdToApiName[table.id] = table.apiName;
     tableObj[table.apiName] = {
       ...table,
       fields: table.fields.reduce(function (
@@ -84,6 +85,18 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
         field: Field
       ) {
         fieldObj[field.apiName] = field;
+        if (field.type === "Relation") {
+          if (field.relationship.A.id === table.id) {
+            // @ts-ignore
+            fieldObj[field.apiName].relationKey = "A";
+          } else if (field.relationship.B.id === table.id) {
+            // @ts-ignore
+            fieldObj[field.apiName].relationKey = "B";
+          } else {
+            //Todo: Error
+          }
+        }
+
         return fieldObj;
       },
       {}),
@@ -100,7 +113,7 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
   builder.queryType({});
   builder.mutationType({});
 
-  let relationshipFields: { [key: string]: any } = {};
+  // let relationshipFields: { [key: string]: any } = {};
   let inputFields: {
     [tableApiName: string]: {
       [fieldApiName: string]: GiraphQLSchemaTypes.InputFieldOptions;
@@ -116,23 +129,34 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
     inputFields[table.apiName] = {};
 
     for (let field of Object.values(table.fields)) {
-      if (field.isRelation) {
-        relationshipFields[field.from + field.relationshipRef.id] = {
-          ...field,
-          parentApiName: table.apiName,
-        };
-      } else {
-        // @ts-ignore
-
-        builder.objectField(table.apiName, field.apiName, (t) =>
-          // @ts-ignore
-          t.expose(field.apiName, { type: field.type })
-        );
-        inputFields[table.apiName][field.apiName] = {
-          type: field.type,
-          required: false,
-        };
+      if (field.type === "Relation") {
+        builder.inputType(tableIdToApiName[field.to.id] + "RelationInput", {
+          fields: (t) => ({
+            connect: t.field({ type: ["ID"], required: true }),
+          }),
+        });
       }
+
+      // @ts-ignore
+      builder.objectField(table.apiName, field.apiName, (t) =>
+        // @ts-ignore
+        t.expose(field.apiName, {
+          // @ts-ignore
+          type:
+            field.type === "Relation"
+              ? [tableIdToApiName[field.to.id]]
+              : field.type,
+        })
+      );
+
+      inputFields[table.apiName][field.apiName] = {
+        // @ts-ignore
+        type:
+          field.type === "Relation"
+            ? tableIdToApiName[field.to.id] + "RelationInput"
+            : field.type,
+        required: false,
+      };
     }
 
     builder.queryField(definitions(table).queries.findMany.name(), (t) =>
@@ -159,38 +183,6 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
         resolve: (...args) => resolve(...args, faunaSchema),
       })
     );
-  }
-
-  for (let relationshipField of Object.values(relationshipFields)) {
-    const {
-      apiName: fieldApiName,
-      parentApiName: tableApiName,
-      to,
-      relationshipRef,
-    } = relationshipField;
-
-    const relatedTableApiName =
-      relationshipFields[to + relationshipRef.id].parentApiName;
-    builder.objectField(tableApiName, fieldApiName, (t) =>
-      t.expose(fieldApiName, { type: [relatedTableApiName] })
-    );
-    // @ts-ignore
-    inputFields[tableApiName][fieldApiName] = {
-      // @ts-ignore
-      type: relatedTableApiName + "RelationInput",
-      required: false,
-    };
-    if (
-      !builder.configStore.typeConfigs.has(
-        relatedTableApiName + "RelationInput"
-      )
-    ) {
-      builder.inputType(relatedTableApiName + "RelationInput", {
-        fields: (t) => ({
-          connect: t.field({ type: ["ID"], required: true }),
-        }),
-      });
-    }
   }
 
   for (const [tableApiName, tableInputFields] of Object.entries(inputFields)) {
