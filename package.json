@@ -10,5 +10,8 @@
     "postinstall": "lerna bootstrap && husky install",
     "coverage": "lerna run coverage",
     "validate": "lerna run validate"
+  },
+  "dependencies": {
+    "await-to-js": "3.0.0"
   }
 }
