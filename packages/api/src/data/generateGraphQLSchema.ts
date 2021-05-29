@@ -8,14 +8,7 @@ import { Expr, query as q } from "faunadb";
 import { client } from "./fauna/client";
 import { generateFaunaQuery } from "./generateFaunaQuery";
 import { FaunaSchema, Field, Table } from "./types";
-import {
-  getNullableType,
-  GraphQLArgs,
-  GraphQLList,
-  GraphQLResolveInfo,
-  GraphQLSchema,
-} from "graphql";
-import { getArgumentValues } from "graphql/execution/values";
+import { GraphQLResolveInfo, GraphQLSchema } from "graphql";
 
 // @ts-ignore
 const definitions = (table: Table) => ({
@@ -84,42 +77,6 @@ const definitions = (table: Table) => ({
 // };
 
 export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
-  // const faunaSchema = {
-  //   Book: {
-  //     collectionName: "294845138632442369",
-  //     fields: {
-  //       title: { fieldId: "294845251673129473", type: "string" },
-  //       authors: {
-  //         fieldId: "294845329476420097",
-  //         relationshipRef: q.Ref(
-  //           q.Collection("relationships"),
-  //           "296152190589862405"
-  //         ),
-  //         type: "relation",
-  //         // relation: "A",
-  //         from: "A",
-  //         to: "B",
-  //       },
-  //     },
-  //   },
-  //   Author: {
-  //     collectionName: "294845159814726145",
-  //     fields: {
-  //       name: { fieldId: "294845354656924161", type: "string" },
-  //       books: {
-  //         fieldId: "294845383336526337",
-  //         relationshipRef: q.Ref(
-  //           q.Collection("relationships"),
-  //           "296152190589862405"
-  //         ),
-  //         type: "relation",
-  //         // relation: "B",
-  //         from: "B",
-  //         to: "A",
-  //       },
-  //     },
-  //   },
-  // };
   let tableIdToApiName: Record<string, string> = {};
   const faunaSchema: FaunaSchema = projectData.tables.reduce(function (
     tableObj: FaunaSchema,
@@ -130,6 +87,9 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
       fields: Array<Field>;
     }
   ) {
+    if (table.apiName in tableObj) {
+      throw new Error("Encountered duplicate table name (table.apiName).");
+    }
     tableIdToApiName[table.id] = table.apiName;
     tableObj[table.apiName] = {
       ...table,
@@ -137,6 +97,9 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
         fieldObj: Table["fields"],
         field: Field
       ) {
+        if (field.apiName in fieldObj) {
+          throw new Error("Encountered duplicate field name (field.apiName).");
+        }
         fieldObj[field.apiName] = field;
         if (field.type === "Relation") {
           if (field.relationship.A.id === table.id) {
