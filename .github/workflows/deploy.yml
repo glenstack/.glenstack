@@ -85,16 +85,16 @@ jobs:
         with:
           environment: production
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          workingDirectory: "./packages/statis"
+          workingDirectory: "./packages/status"
       - name: Create Sentry release
         uses: getsentry/action-release@v1.1.5
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: glenstack
-          SENTRY_PROJECT: statis
+          SENTRY_PROJECT: status
         with:
           environment: production
-          sourcemaps: "./packages/statis/dist"
+          sourcemaps: "./packages/status/dist"
   deploy-authentication:
     runs-on: ubuntu-latest
     name: Deploy Authentication Service
