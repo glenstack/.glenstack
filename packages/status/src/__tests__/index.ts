@@ -1,0 +1,3 @@
+test("server", () => {
+  expect(2 + 2).toBe(4);
+});
