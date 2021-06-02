@@ -60,7 +60,7 @@ export default (client: Client) => ({
   }: {
     projectId: string;
     name: string;
-  }): Promise<unknown> => {
+  }): Promise<{ [p: string]: unknown; id: string }> => {
     const tableInput: TableInput = {
       name,
       apiName: name,
@@ -78,7 +78,9 @@ export default (client: Client) => ({
     return { id, ...data };
   },
   createScalarField: async (
-    fieldObj: Omit<ScalarFieldInput, "apiName | tableRef"> & { tableId: string }
+    fieldObj: Omit<ScalarFieldInput, "apiName" | "tableRef"> & {
+      tableId: string;
+    }
   ): Promise<unknown> => {
     const fieldPayload: FieldInput = {
       ...fieldObj,
@@ -99,11 +101,12 @@ export default (client: Client) => ({
   createRelationshipField: async (
     fieldObj: Omit<
       RelationshipFieldInput,
-      "apiName | tableRef | relationshipRef"
+      "apiName" | "tableRef" | "relationshipRef" | "type"
     > & { tableId: string; to: string }
-  ): Promise<unknown> => {
-    const fieldPayload: RelationshipFieldInput = {
+  ): Promise<{ [p: string]: unknown; id: string }> => {
+    const fieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
       ...fieldObj,
+      type: "Relation",
       apiName: fieldObj.name,
       tableRef: q.Ref(q.Collection("tables"), fieldObj.tableId),
     };
@@ -112,9 +115,22 @@ export default (client: Client) => ({
       data,
       ref: { id },
     } = await client.query<FaunaResponse>(
-      q.Create(q.Collection("fields"), {
-        data: { ...fieldPayload },
-      })
+      q.Let(
+        {
+          relationship: q.Create(q.Collection("relationships"), {
+            data: {
+              A: q.Ref(q.Collection("tables"), fieldObj.tableId),
+              B: q.Ref(q.Collection("tables"), fieldObj.to),
+            },
+          }),
+        },
+        q.Create(q.Collection("fields"), {
+          data: {
+            ...fieldPayload,
+            relationshipRef: q.Select("ref", q.Var("relationship")),
+          },
+        })
+      )
     );
     return { id, ...data };
   },

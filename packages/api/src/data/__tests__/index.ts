@@ -28,8 +28,12 @@ test("data" + "", async () => {
   const test_client = new Client({
     secret,
   });
-  const { createOrganization, createProject, createTable, createField } =
-    admin(test_client);
+  const {
+    createOrganization,
+    createProject,
+    createTable,
+    createRelationshipField,
+  } = admin(test_client);
   await scaffold(test_client);
   const { id: organizationId } = await createOrganization({
     name: "LibraryOrg",
@@ -43,9 +47,19 @@ test("data" + "", async () => {
     name: "Books",
     projectId,
   });
+  const { id: authorsId } = await createTable({
+    name: "Authors",
+    projectId,
+  });
+  const { id: fieldId } = await createRelationshipField({
+    name: "relational",
+    to: authorsId,
+    tableId,
+  });
 
-  const tables =
-    // await client.query(q.Delete(q.Database(test_db_name)));
+  // const tables =
 
-    expect(2 + 2).toBe(4);
+  // await client.query(q.Delete(q.Database(test_db_name)));
+
+  expect(2 + 2).toBe(4);
 });
