@@ -34,6 +34,7 @@ export interface RelationshipFieldInput {
   apiName: string;
   relationshipRef: Ref;
   type: "Relation";
+  tableRef: Expr;
   to: Expr;
 }
 
