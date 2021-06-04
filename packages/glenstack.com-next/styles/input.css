@@ -1,0 +1,5 @@
+@import "@fontsource/jost/variable.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

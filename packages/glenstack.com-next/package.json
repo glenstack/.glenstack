@@ -1,0 +1,46 @@
+{
+  "name": "glenstack.com-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "postcss": "postcss styles/input.css -o styles/output.css",
+    "start:styles": "npm run postcss",
+    "start:next": "next dev",
+    "start": "concurrently 'npm:start:styles' 'npm:start:next'",
+    "build:styles": "NODE_ENV=production npm run postcss",
+    "prebuild": "npm run build:styles",
+    "build": "next build && next export"
+  },
+  "dependencies": {
+    "@fontsource/jost": "4.4.1",
+    "@fortawesome/fontawesome-svg-core": "1.2.35",
+    "@fortawesome/free-brands-svg-icons": "5.15.3",
+    "@fortawesome/free-regular-svg-icons": "5.15.3",
+    "@fortawesome/free-solid-svg-icons": "5.15.3",
+    "@headlessui/react": "1.2.0",
+    "@heroicons/react": "1.0.1",
+    "@sentry/browser": "6.4.1",
+    "next": "10.2.3",
+    "next-images": "1.7.0",
+    "react": "17.0.2",
+    "react-amphtml": "4.0.2",
+    "react-dom": "17.0.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "0.3.2",
+    "@tailwindcss/typography": "0.4.1",
+    "@types/node": "15.6.1",
+    "@types/react": "17.0.8",
+    "autoprefixer": "10.2.6",
+    "concurrently": "6.2.0",
+    "copy-webpack-plugin": "9.0.0",
+    "cssnano": "5.0.5",
+    "git-revision-webpack-plugin": "5.0.0",
+    "postcss": "8.3.0",
+    "postcss-cli": "8.3.1",
+    "postcss-import": "14.0.2",
+    "raw-loader": "4.0.2",
+    "tailwindcss": "2.1.2",
+    "typescript": "4.3.2"
+  }
+}
