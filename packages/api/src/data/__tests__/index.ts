@@ -5,15 +5,22 @@ import { GraphQLSchema } from "graphql";
 import scaffold from "../fauna/scaffold";
 import admin from "../fauna/admin";
 import { definitions } from "../definitions";
+import { Table } from "../types";
 
-test("data" + "", async () => {
-  jest.setTimeout(30000);
+jest.setTimeout(30000);
 
-  const test_db_name = "cnewtest_" + Date.now();
+const test_db_name = "cnewtest_" + Date.now();
 
-  const client = new Client({
-    secret: "fnAEKpUbg1ACBTYHxtqayKNrCnnmgHLyWoSSlyvX",
-  });
+const client = new Client({
+  secret: "fnAEKpUbg1ACBTYHxtqayKNrCnnmgHLyWoSSlyvX",
+});
+let test_client: Client;
+
+let server: ApolloServer;
+
+let tables: Record<string, Omit<Table, "fields">>;
+
+beforeAll(async () => {
   await client.query(q.CreateDatabase({ name: test_db_name }));
 
   const { secret }: { secret: string } = await client.query(
@@ -22,7 +29,7 @@ test("data" + "", async () => {
       role: "server",
     })
   );
-  const test_client = new Client({
+  test_client = new Client({
     secret,
   });
   const {
@@ -41,54 +48,58 @@ test("data" + "", async () => {
     organizationId,
   });
 
-  const bookTable = await createTable({
+  tables["Books"] = await createTable({
     name: "Books",
     projectId,
   });
-  const authorTable = await createTable({
+  tables["Authors"] = await createTable({
     name: "Authors",
     projectId,
   });
 
   await createScalarField({
     name: "title",
-    tableId: bookTable.id,
+    tableId: tables["Books"].id,
     type: "String",
   });
   await createScalarField({
     name: "name",
-    tableId: authorTable.id,
+    tableId: tables["Authors"].id,
     type: "String",
   });
 
   await createRelationshipField({
     name: "authors",
     backName: "books",
-    to: authorTable.id,
-    tableId: bookTable.id,
+    to: tables["Authors"].id,
+    tableId: tables["Books"].id,
   });
 
   const schema: GraphQLSchema = await getSchema(test_client);
-  const server = new ApolloServer({
+  server = new ApolloServer({
     schema,
   });
-  console.log(`query { ${definitions(bookTable).queries.findMany.name()} {
-    title
-    authors {
-      name
-    }
-  }}`);
+});
+
+test("Initial query should be empty", async () => {
+  console.log(`query { ${definitions(tables["Books"]).queries.findMany.name()} {
+      title
+      authors {
+        name
+      }
+    }}`);
   // const tables =
   const result = await server.executeOperation({
-    query: `query { ${definitions(bookTable).queries.findMany.name()} {
-      title
-      
-    }}`,
+    query: `query { ${definitions(tables["Books"]).queries.findMany.name()} {
+        title
+        
+      }}`,
     variables: {},
   });
-  console.log(JSON.stringify(result.errors));
-  console.log(await client.query(q.Collection(bookTable.id)));
-  // await client.query(q.Delete(q.Database(test_db_name)));
   expect(result.errors).toBeUndefined();
+  expect(result.data).toBe([]);
+  console.log(await client.query(q.Collection(tables["Books"].id)));
+  // await client.query(q.Delete(q.Database(test_db_name)));
+
   expect(2 + 2).toBe(4);
 });
