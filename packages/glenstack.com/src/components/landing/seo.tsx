@@ -102,6 +102,7 @@ export const SEO: FC<SEOProps> = ({
   authorName,
   date,
   image,
+  children,
 }) => {
   const { pathname } = useLocation();
   const url = `https://glenstack.com${pathname}`;
@@ -158,6 +159,7 @@ export const SEO: FC<SEOProps> = ({
           ...schemaOrgObject,
         })}
       </script>
+      {children}
     </Helmet>
   );
 };

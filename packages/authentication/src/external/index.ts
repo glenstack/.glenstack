@@ -1,12 +1,13 @@
 import { serialize as cookieSerialize } from "cookie";
 import type Toucan from "toucan-js";
-import { createSignUpJWT } from "../jwt";
-import { signIn } from "../signIn";
+import { createRegisterJWT } from "../jwt";
+import { login } from "../login";
 import { User } from "../user";
 import {
   redirectWithFlash,
   uuidStringToBuffer,
   uuidBufferToString,
+  ONE_HOUR,
 } from "../utils";
 import { gitHub } from "./gitHub";
 
@@ -37,7 +38,7 @@ export abstract class External {
     this.name = name;
   }
 
-  abstract redirect(): Response;
+  abstract redirect(): Promise<Response>;
   protected abstract _callback(request: Request): Promise<{
     externalID: string;
     userHints?: Partial<Omit<User, "id" | "externals">>;
@@ -48,7 +49,7 @@ export abstract class External {
       const { externalID, userHints } = await this._callback(request);
       const user = await this.findUser({ externalID: externalID.toString() });
       if (user) {
-        return await signIn(user);
+        return await user.login();
       } else {
         return new Response(null, {
           status: 302,
@@ -56,10 +57,11 @@ export abstract class External {
             Location: "https://glenstack.com/signup",
             "Set-Cookie": cookieSerialize(
               "glenstack_signup",
-              createSignUpJWT({ externalID, external: this, userHints }),
+              createRegisterJWT({ externalID, external: this, userHints }),
               {
                 secure: true,
-                maxAge: 60 * 60,
+                maxAge: ONE_HOUR,
+                sameSite: "strict",
                 domain: "glenstack.com",
                 path: "/",
               }

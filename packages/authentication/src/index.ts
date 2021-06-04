@@ -1,9 +1,10 @@
-import { waitlist } from "./waitlist";
 import Toucan from "toucan-js";
 import pkg from "../package.json";
+import { waitlist } from "./waitlist";
 import { gitHub } from "./external/gitHub";
 import { redirectWithFlash } from "./utils";
-import { signUp } from "./signUp";
+import { login } from "./login";
+import { register } from "./register";
 
 addEventListener("fetch", (event) => {
   const sentry = new Toucan({
@@ -28,11 +29,13 @@ const handleEvent = async (
     const { pathname } = new URL(request.url);
 
     if (pathname === "/login/github" && method === "GET") {
-      return gitHub.redirect();
+      return await gitHub.redirect();
     } else if (pathname === "/login/github/callback" && method === "GET") {
       return await gitHub.callback(request, sentry);
-    } else if (pathname === "/signup" && method === "POST") {
-      return await signUp(request, sentry);
+    } else if (pathname === "/login" && method === "POST") {
+      return await login(request, sentry);
+    } else if (pathname === "/register" && method === "POST") {
+      return await register(request);
     } else if (pathname === "/waitlist" && method === "POST") {
       return await waitlist(request, sentry);
     } else {

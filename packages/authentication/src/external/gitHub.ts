@@ -5,7 +5,7 @@ class GitHub extends External {
     super({ id: "0c02a840-37f0-4b07-a846-482a0ab619a7", name: "GitHub" });
   }
 
-  redirect() {
+  async redirect() {
     // TODO: Should provide and validate with a `state` parameter to prevent CSRF
     return new Response(null, {
       status: 302,

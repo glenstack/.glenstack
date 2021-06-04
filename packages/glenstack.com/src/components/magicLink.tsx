@@ -26,8 +26,15 @@ export const MagicLink: FC<AnchorLinkProps | ComponentProps<Link>> = (
 
   let additionalProps: AnchorLinkProps = {};
 
-  if (props?.href?.startsWith("http")) {
-    additionalProps = { rel: "noopener", target: "_blank" };
+  const href = props.href || "";
+  if (href.startsWith("http")) {
+    const url = new URL(href);
+    if (
+      !["glenstack.com", "auth.glenstack.com", "upload.glenstack.com"].includes(
+        url.host
+      )
+    )
+      additionalProps = { rel: "noopener", target: "_blank" };
   }
 
   // eslint-disable-next-line jsx-a11y/anchor-has-content

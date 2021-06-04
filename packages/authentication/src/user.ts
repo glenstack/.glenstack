@@ -1,22 +1,23 @@
 import { v4 as uuidv4 } from "uuid";
+import { serialize as cookieSerialize } from "cookie";
 
 interface UserOptions {
   id: string;
   name: string;
   email: string;
-  externals: Record<string, string>;
+  externals?: Record<string, string>;
 }
 export class User {
   id: string;
   name: string;
   email: string;
-  externals: Record<string, string> = {};
+  externals: Record<string, string>;
 
   private constructor({
     id,
     name,
     email,
-    externals,
+    externals = {},
   }: { id: string } & UserOptions) {
     this.id = id;
     this.name = name;
@@ -34,6 +35,34 @@ export class User {
   static async load({ id }: { id: string }): Promise<User | undefined> {
     // TODO: Load
     return users.find((user) => user.id === id);
+  }
+
+  static async find({ email }: { email: string }): Promise<User | undefined> {
+    // TODO: Find
+    return users.find((user) => user.email === email);
+  }
+
+  async login(): Promise<Response> {
+    const headers = new Headers();
+    headers.set("Location", "https://glenstack.com/");
+
+    // TODO
+    // "Set-Cookie": cookieSerialize("glenstack_accessToken", ),
+    headers.append(
+      "Set-Cookie",
+      cookieSerialize("glenstack_signup", "", {
+        secure: true,
+        expires: new Date(0),
+        sameSite: "strict",
+        domain: "glenstack.com",
+        path: "/",
+      })
+    );
+
+    return new Response(null, {
+      status: 302,
+      headers,
+    });
   }
 }
 

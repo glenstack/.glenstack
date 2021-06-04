@@ -2,6 +2,7 @@ import { FC } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { ScrollToTop } from "./components/scrollToTop";
 import { Login } from "./pages/authentication/login";
+import { Register } from "./pages/authentication/register";
 import { WaitList } from "./pages/authentication/waitlist";
 import { Homepage } from "./pages/landing";
 import { Terms } from "./pages/landing/terms";
@@ -21,6 +22,9 @@ export const App: FC = () => {
         <Switch>
           <Route path="/login" exact>
             <Login />
+          </Route>
+          <Route path="/register" exact>
+            <Register />
           </Route>
           <Route path="/waitlist" exact>
             <WaitList />

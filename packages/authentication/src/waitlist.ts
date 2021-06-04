@@ -1,30 +1,22 @@
 import Toucan from "toucan-js";
 import { z, ZodError } from "zod";
+import { parseFormBody, redirect } from "./utils";
 
 const waitlistBodySchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
 });
-
-const redirect = (location: string) =>
-  new Response(null, {
-    status: 302,
-    headers: { Location: location },
-  });
 
 export const waitlist = async (
   request: Request,
   sentry: Toucan
 ): Promise<Response> => {
   try {
-    const data = Object.fromEntries(
-      new URLSearchParams(await request.text()).entries()
-    );
-    const validatedData = waitlistBodySchema.parse(data);
+    const data = waitlistBodySchema.parse(await parseFormBody(request));
     const date = new Date().toISOString();
 
     await AUTHENTICATION_DATASTORE.put(
-      `waitlist:${validatedData.email}`,
-      JSON.stringify({ ...validatedData, createdAt: date }),
+      `waitlist:${data.email}`,
+      JSON.stringify({ ...data, createdAt: date }),
       {
         metadata: {
           createdAt: date,

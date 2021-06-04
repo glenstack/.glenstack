@@ -4,14 +4,14 @@ import { User } from "./user";
 
 const sign = ({
   sub,
-  aud = "https://glenstack.com/",
+  aud = ["https://glenstack.com/"],
   exp,
   data = {},
 }: {
   sub?: string;
-  aud?: string;
+  aud?: string[];
   exp: string;
-  data?: Record<string, string>;
+  data?: Record<string, string | undefined>;
 }) => {
   const now = KJUR.jws.IntDate.getNow();
 
@@ -34,9 +34,9 @@ const sign = ({
   return KJUR.jws.JWS.sign("RS512", header, payload, RS512_PRIVATE_PEM);
 };
 
-export interface SignUpJWT {
+export interface RegisterJWT {
   iss: "https://auth.glenstack.com/";
-  aud: "https://glenstack.com/signup";
+  aud: ["https://auth.glenstack.com/", "https://glenstack.com/register"];
   exp: number;
   nbf: number;
   iat: number;
@@ -45,31 +45,31 @@ export interface SignUpJWT {
   "https://glenstack.com/#userHints"?: string;
 }
 
-export const verifySignUpJWT = (jwt: string): SignUpJWT | undefined => {
+export const verifyRegisterJWT = (jwt: string): RegisterJWT | undefined => {
   const isValid = KJUR.jws.JWS.verifyJWT(jwt, RS512_PUBLIC_PEM, {
     alg: ["RS512"],
     iss: ["https://auth.glenstack.com/"],
-    aud: ["https://glenstack.com/signup"],
+    aud: ["https://auth.glenstack.com/", "https://glenstack.com/register"],
   });
   if (isValid) {
-    return KJUR.jws.JWS.parse(jwt).payloadObj as SignUpJWT;
+    return KJUR.jws.JWS.parse(jwt).payloadObj as RegisterJWT;
   }
 };
 
-export const createSignUpJWT = ({
+export const createRegisterJWT = ({
   externalID,
   external,
   userHints,
 }: {
-  externalID: string;
-  external: External;
+  externalID?: string;
+  external?: External;
   userHints?: Partial<Omit<User, "id">>;
 }): ReturnType<typeof sign> =>
   sign({
-    aud: "https://glenstack.com/signup",
+    aud: ["https://auth.glenstack.com/", "https://glenstack.com/register"],
     exp: "now + 1hour",
     data: {
-      external: external.id,
+      external: external?.id,
       externalID,
       userHints: JSON.stringify(userHints),
     },
