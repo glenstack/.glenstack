@@ -1,6 +1,6 @@
 import { Client, query as q } from "faunadb";
 
-export default async (client: Client) => {
+export default async (client: Client): Promise<void> => {
   await client.query(q.CreateCollection({ name: "organizations" }));
   await client.query(q.CreateCollection({ name: "projects" }));
   await client.query(q.CreateCollection({ name: "tables" }));
