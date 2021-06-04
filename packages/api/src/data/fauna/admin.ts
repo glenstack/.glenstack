@@ -1,17 +1,18 @@
 import {
   FaunaResponse,
-  Field,
   FieldInput,
   OrganizationInput,
   ProjectInput,
   RelationshipFieldInput,
-  ScalarField,
   ScalarFieldInput,
   TableInput,
 } from "../types";
-import { Client, Expr, query as q } from "faunadb";
+import { Client, query as q } from "faunadb";
 
-export default (client: Client) => ({
+//TODO: Genereate apiNames automatically by camelcasing string
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default (client: Client): Record<string, any> => ({
   createOrganization: async ({
     name,
   }: {
@@ -77,15 +78,19 @@ export default (client: Client) => ({
     await client.query(q.CreateCollection({ name: id }));
     return { id, ...data };
   },
-  createScalarField: async (
-    fieldObj: Omit<ScalarFieldInput, "apiName" | "tableRef"> & {
-      tableId: string;
-    }
-  ): Promise<unknown> => {
+  createScalarField: async ({
+    tableId,
+    ...fieldObj
+  }: Omit<ScalarFieldInput, "apiName" | "tableRef"> & {
+    tableId: string;
+  }): Promise<{
+    [p: string]: unknown;
+    id: string;
+  }> => {
     const fieldPayload: FieldInput = {
       ...fieldObj,
       apiName: fieldObj.name,
-      tableRef: q.Ref(q.Collection("tables"), fieldObj.tableId),
+      tableRef: q.Ref(q.Collection("tables"), tableId),
     };
 
     const {
@@ -98,17 +103,30 @@ export default (client: Client) => ({
     );
     return { id, ...data };
   },
-  createRelationshipField: async (
-    fieldObj: Omit<
-      RelationshipFieldInput,
-      "apiName" | "tableRef" | "relationshipRef" | "type"
-    > & { tableId: string; to: string }
-  ): Promise<{ [p: string]: unknown; id: string }> => {
+  createRelationshipField: async ({
+    tableId,
+    backName, // Name of the field that references back to the created relational field
+    ...fieldObj
+  }: Omit<
+    RelationshipFieldInput,
+    "apiName" | "tableRef" | "relationshipRef" | "type"
+  > & { tableId: string; to: string; backName: string }): Promise<{
+    [p: string]: unknown;
+    id: string;
+  }> => {
     const fieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
       ...fieldObj,
+      to: q.Ref(q.Collection("tables"), fieldObj.to),
       type: "Relation",
       apiName: fieldObj.name,
-      tableRef: q.Ref(q.Collection("tables"), fieldObj.tableId),
+      tableRef: q.Ref(q.Collection("tables"), tableId),
+    };
+    const backFieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
+      type: "Relation",
+      name: backName,
+      apiName: backName,
+      to: q.Ref(q.Collection("tables"), tableId),
+      tableRef: q.Ref(q.Collection("tables"), fieldObj.to),
     };
 
     const {
@@ -119,17 +137,25 @@ export default (client: Client) => ({
         {
           relationship: q.Create(q.Collection("relationships"), {
             data: {
-              A: q.Ref(q.Collection("tables"), fieldObj.tableId),
+              A: q.Ref(q.Collection("tables"), tableId),
               B: q.Ref(q.Collection("tables"), fieldObj.to),
             },
           }),
         },
-        q.Create(q.Collection("fields"), {
-          data: {
-            ...fieldPayload,
-            relationshipRef: q.Select("ref", q.Var("relationship")),
-          },
-        })
+        q.Do(
+          q.Create(q.Collection("fields"), {
+            data: {
+              ...fieldPayload,
+              relationshipRef: q.Select("ref", q.Var("relationship")),
+            },
+          }),
+          q.Create(q.Collection("fields"), {
+            data: {
+              ...backFieldPayload,
+              relationshipRef: q.Select("ref", q.Var("relationship")),
+            },
+          })
+        )
       )
     );
     return { id, ...data };

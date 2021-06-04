@@ -8,7 +8,7 @@ import admin from "../fauna/admin";
 test("data" + "", async () => {
   jest.setTimeout(30000);
 
-  const test_db_name = "anewtest_" + Date.now();
+  const test_db_name = "bnewtest_" + Date.now();
 
   const client = new Client({
     secret: "fnAEKpUbg1ACBTYHxtqayKNrCnnmgHLyWoSSlyvX",
@@ -32,6 +32,7 @@ test("data" + "", async () => {
     createOrganization,
     createProject,
     createTable,
+    createScalarField,
     createRelationshipField,
   } = admin(test_client);
   await scaffold(test_client);
@@ -43,18 +44,31 @@ test("data" + "", async () => {
     organizationId,
   });
 
-  const { id: tableId } = await createTable({
+  const { id: bookTableId } = await createTable({
     name: "Books",
     projectId,
   });
-  const { id: authorsId } = await createTable({
+  const { id: authorTableId } = await createTable({
     name: "Authors",
     projectId,
   });
-  const { id: fieldId } = await createRelationshipField({
-    name: "relational",
-    to: authorsId,
-    tableId,
+
+  await createScalarField({
+    name: "title",
+    tableId: bookTableId,
+    type: "String",
+  });
+  await createScalarField({
+    name: "name",
+    tableId: authorTableId,
+    type: "String",
+  });
+
+  await createRelationshipField({
+    name: "authors",
+    backName: "books",
+    to: authorTableId,
+    tableId: bookTableId,
   });
 
   // const tables =
