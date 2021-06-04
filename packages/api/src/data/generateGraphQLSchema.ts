@@ -4,90 +4,11 @@ import SchemaBuilder, {
   InputShapeFromFields,
 } from "@giraphql/core";
 
-import { Expr, query as q } from "faunadb";
-import { client } from "./fauna/client";
+import { Expr, query as q, Client } from "faunadb";
 import { generateFaunaQuery } from "./generateFaunaQuery";
 import { FaunaSchema, Field, Table } from "./types";
 import { GraphQLResolveInfo, GraphQLSchema } from "graphql";
-
-const definitions = (table: Table) => ({
-  queries: {
-    findMany: {
-      name: () => table.apiName + "GetMany",
-      // @ts-ignore
-      query: (args) => {
-        let options: { size: number; after?: Expr; before?: Expr } = {
-          size: args.first,
-        };
-        if (args.after) {
-          options.after = q.Ref(q.Collection(table.id), args.after);
-        }
-        if (args.before) {
-          options.before = q.Ref(q.Collection(table.id), args.before);
-        }
-        return q.Map(
-          q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
-          q.Lambda("ref", q.Get(q.Var("ref")))
-        );
-      },
-    },
-    createOne: {
-      name: () => table.apiName + "CreateOne",
-      query: (
-        // @ts-ignore
-        args,
-        faunaSchema: FaunaSchema
-      ) => {
-        {
-          let data: Record<string, unknown> = {};
-          let relationQueries;
-          // const args = getArgumentValues(field, node);
-          for (let [key, value] of Object.entries(args.input)) {
-            let faunaField = faunaSchema[table.apiName].fields[key];
-            if (faunaField.type === "Relation") {
-              relationQueries = q.Do(
-                // @ts-ignore
-                value.connect.map((idToConnect: string) =>
-                  q.Create(q.Collection("relations"), {
-                    data: {
-                      // @ts-ignore
-                      relationshipRef: faunaField.relationshipRef,
-                      // @ts-ignore
-                      [faunaField.relationKey]: q.Var("docRef"),
-                      // @ts-ignore
-                      [faunaField.relationKey === "A" ? "B" : "A"]: q.Ref(
-                        // @ts-ignore
-                        q.Collection(faunaField.to.id),
-                        // @ts-ignore
-                        idToConnect
-                      ),
-                    },
-                  })
-                )
-              );
-            } else {
-              data[faunaField.id] = value;
-            }
-          }
-          return q.Select(
-            ["doc"],
-            q.Let(
-              {
-                docRef: q.Select(
-                  ["ref"],
-                  q.Create(q.Collection(faunaSchema[table.apiName].id), {
-                    data,
-                  })
-                ),
-              },
-              { doc: q.Get(q.Var("docRef")), relationQueries }
-            )
-          );
-        }
-      },
-    },
-  },
-});
+import { definitions } from "./definitions";
 
 // const getGiraphType = (
 //   type: string
@@ -95,7 +16,24 @@ const definitions = (table: Table) => ({
 //   return type;
 // };
 
-export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
+export default (projectData: any, client: Client): GraphQLSchema => {
+  const resolve = async (
+    root: any,
+    args: any,
+    context: any,
+    info: GraphQLResolveInfo,
+    faunaSchema: any,
+    query?: Expr
+  ): Promise<any> => {
+    console.log(faunaSchema);
+    let result = await client.query(
+      generateFaunaQuery(faunaSchema, info, query)
+    );
+    console.log("res" + JSON.stringify(result));
+
+    return result;
+  };
+
   let tableIdToApiName: Record<string, string> = {};
   const faunaSchema: FaunaSchema = projectData.tables.reduce(function (
     tableObj: FaunaSchema,
@@ -246,19 +184,4 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
   }
 
   return builder.toSchema({});
-};
-
-const resolve = async (
-  root: any,
-  args: any,
-  context: any,
-  info: GraphQLResolveInfo,
-  faunaSchema: any,
-  query?: Expr
-): Promise<any> => {
-  console.log(faunaSchema);
-  let result = await client.query(generateFaunaQuery(faunaSchema, info, query));
-  console.log("res" + JSON.stringify(result));
-
-  return result;
 };

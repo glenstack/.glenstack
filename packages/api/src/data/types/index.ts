@@ -38,10 +38,10 @@ export interface RelationshipFieldInput {
   to: Expr;
 }
 
-export interface FaunaResponse {
+export interface FaunaResponse<Type = Record<string, unknown>> {
   ref: Ref;
   ts: number;
-  data: Record<string, unknown>;
+  data: Type;
 }
 export interface Table {
   name: string;

@@ -1,7 +1,6 @@
-import { query as q } from "faunadb";
+import { query as q, Client } from "faunadb";
 
-import { client } from "./fauna/client";
-import { generateGraphQLSchema } from "./generateGraphQLSchema";
+import generateGraphQLSchema from "./generateGraphQLSchema";
 import { GraphQLSchema } from "graphql";
 import {
   FaunaResponse,
@@ -13,7 +12,7 @@ import {
 } from "./types";
 import to from "await-to-js";
 
-export const getSchema = async (): Promise<GraphQLSchema> => {
+export const getSchema = async (client: Client): Promise<GraphQLSchema> => {
   const [err, data] = await to(
     client.query<{
       organizations: Array<{ projects: Array<unknown> }>;
@@ -124,5 +123,5 @@ export const getSchema = async (): Promise<GraphQLSchema> => {
     })
   );
   if (!data) throw new Error("Failed to fetch schema from Fauna: " + err);
-  return generateGraphQLSchema(data.organizations[0].projects[0]);
+  return generateGraphQLSchema(data.organizations[0].projects[0], client);
 };

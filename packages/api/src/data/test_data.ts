@@ -2,8 +2,8 @@ import { ApolloServer } from "apollo-server";
 
 import { getSchema } from "./index";
 import { GraphQLSchema } from "graphql";
-
-getSchema().then((schema: GraphQLSchema) => {
+import { client } from "./fauna/client";
+getSchema(client).then((schema: GraphQLSchema) => {
   const server = new ApolloServer({
     schema,
   });

@@ -5,9 +5,11 @@ import {
   ProjectInput,
   RelationshipFieldInput,
   ScalarFieldInput,
+  Table,
   TableInput,
 } from "../types";
 import { Client, query as q } from "faunadb";
+import { createCollectionAndWait } from "./utils";
 
 //TODO: Genereate apiNames automatically by camelcasing string
 
@@ -61,21 +63,22 @@ export default (client: Client): Record<string, any> => ({
   }: {
     projectId: string;
     name: string;
-  }): Promise<{ [p: string]: unknown; id: string }> => {
+  }): Promise<Omit<Table, "fields">> => {
     const tableInput: TableInput = {
       name,
       apiName: name,
       projectRef: q.Ref(q.Collection("projects"), projectId),
     };
-    const {
-      data,
-      ref: { id },
-    } = await client.query<FaunaResponse>(
-      q.Create(q.Collection("tables"), {
+    const id: string = await client.query(q.NewId());
+    await createCollectionAndWait(client, id);
+    const { data } = await client.query<
+      FaunaResponse<Omit<Table, "fields" | "id">>
+    >(
+      q.Create(q.Ref(q.Collection("tables"), id), {
         data: { ...tableInput },
       })
     );
-    await client.query(q.CreateCollection({ name: id }));
+
     return { id, ...data };
   },
   createScalarField: async ({
