@@ -2,14 +2,6 @@ import { query as q, Client } from "faunadb";
 
 import generateGraphQLSchema from "./generateGraphQLSchema";
 import { GraphQLSchema } from "graphql";
-import {
-  FaunaResponse,
-  OrganizationInput,
-  ProjectInput,
-  ScalarField,
-  ScalarFieldInput,
-  TableInput,
-} from "./types";
 import to from "await-to-js";
 
 export const getSchema = async (client: Client): Promise<GraphQLSchema> => {
