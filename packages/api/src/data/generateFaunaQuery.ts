@@ -95,7 +95,7 @@ const generateSelector = (
   return [
     name,
     q.Select(
-      ["data", faunaSchema[parentType.name].fields[name].fieldId],
+      ["data", faunaSchema[parentType.name].fields[name].id],
       CURRENT_DOC_VAR
     ),
   ];
@@ -179,66 +179,19 @@ export const generateFaunaQuery = (
         console.log(
           "arguments:" + JSON.stringify(getArgumentValues(field, node))
         );
-
-        if (isMutation && isRoot) {
-          const bookType = type;
-          let data = {};
-          let relationQueries;
-          const args = getArgumentValues(field, node);
-          for (let [key, value] of Object.entries(args.input)) {
-            let faunaField = faunaSchema[bookType.name].fields[key];
-            if (faunaField.isRelation) {
-              let relatedType = bookType.getFields()[key].type;
-              let nullableRelatedType = getNullableType(relatedType);
-              if (nullableRelatedType instanceof GraphQLList) {
-                nullableRelatedType = getNullableType(
-                  nullableRelatedType.ofType
-                );
-              }
-
-              relationQueries = q.Create(q.Collection("relations"), {
-                data: {
-                  relationshipRef: faunaField.relationshipRef,
-                  [faunaField.from]: q.Var("docRef"),
-                  [faunaField.to]: q.Ref(
-                    q.Collection(
-                      faunaSchema[nullableRelatedType.name].collectionName
-                    ),
-                    value.connect[0] //TODO: Allow multiple connects
-                  ),
-                },
-              });
-            } else {
-              data[faunaField.fieldId] = value;
-            }
-          }
-          nextQuery = q.Select(
-            ["doc"],
-            q.Let(
-              {
-                docRef: q.Select(
-                  ["ref"],
-                  q.Create(
-                    q.Collection(faunaSchema[bookType.name].collectionName),
-                    { data }
-                  )
-                ),
-              },
-              { doc: q.Get(q.Var("docRef")), relationQueries }
-            )
-          );
-        } else if (isRoot) {
+        if (isRoot) {
           nextQuery = query;
         }
         if (!nextQuery) {
-          if (!faunaSchema[parentType.name].fields[name].isRelation) {
+          if (!faunaSchema[parentType.name].fields[name].type === "Relation") {
             throw new Error("Current node should be a relation.");
           }
           nextQuery = q.Map(
             q.Paginate(
               q.Match(
                 q.Index(
-                  "relations" + faunaSchema[parentType.name].fields[name].from
+                  "relations" +
+                    faunaSchema[parentType.name].fields[name].relationKey
                 ),
                 [
                   faunaSchema[parentType.name].fields[name].relationshipRef,

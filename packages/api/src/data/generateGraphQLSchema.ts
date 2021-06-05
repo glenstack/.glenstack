@@ -1,28 +1,14 @@
 /* eslint-disable */
-import SchemaBuilder from "@giraphql/core";
+import SchemaBuilder, {
+  InputFieldRef,
+  InputShapeFromFields,
+} from "@giraphql/core";
 
-import { Expr, query as q, values } from "faunadb";
-import { client } from "./fauna/client";
+import { Expr, query as q, Client } from "faunadb";
 import { generateFaunaQuery } from "./generateFaunaQuery";
 import { FaunaSchema, Field, Table } from "./types";
 import { GraphQLResolveInfo, GraphQLSchema } from "graphql";
-
-const definitions = (table: Table) => ({
-  queries: {
-    findMany: {
-      name: () => table.apiName + "GetMany",
-      query: () =>
-        q.Map(
-          q.Paginate(q.Documents(q.Collection(table.collectionName)), {}),
-          q.Lambda("ref", q.Get(q.Var("ref")))
-        ),
-    },
-    createOne: {
-      name: () => table.apiName + "CreateOne",
-      query: () => null,
-    },
-  },
-});
+import { definitions } from "./definitions";
 
 // const getGiraphType = (
 //   type: string
@@ -30,60 +16,60 @@ const definitions = (table: Table) => ({
 //   return type;
 // };
 
-export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
-  // const faunaSchema = {
-  //   Book: {
-  //     collectionName: "294845138632442369",
-  //     fields: {
-  //       title: { fieldId: "294845251673129473", type: "string" },
-  //       authors: {
-  //         fieldId: "294845329476420097",
-  //         relationshipRef: q.Ref(
-  //           q.Collection("relationships"),
-  //           "296152190589862405"
-  //         ),
-  //         type: "relation",
-  //         // relation: "A",
-  //         from: "A",
-  //         to: "B",
-  //       },
-  //     },
-  //   },
-  //   Author: {
-  //     collectionName: "294845159814726145",
-  //     fields: {
-  //       name: { fieldId: "294845354656924161", type: "string" },
-  //       books: {
-  //         fieldId: "294845383336526337",
-  //         relationshipRef: q.Ref(
-  //           q.Collection("relationships"),
-  //           "296152190589862405"
-  //         ),
-  //         type: "relation",
-  //         // relation: "B",
-  //         from: "B",
-  //         to: "A",
-  //       },
-  //     },
-  //   },
-  // };
+export default (projectData: any, client: Client): GraphQLSchema => {
+  const resolve = async (
+    root: any,
+    args: any,
+    context: any,
+    info: GraphQLResolveInfo,
+    faunaSchema: any,
+    query?: Expr
+  ): Promise<any> => {
+    console.log(faunaSchema);
+    let result = await client.query(
+      generateFaunaQuery(faunaSchema, info, query)
+    );
+    console.log("res" + JSON.stringify(result));
 
+    return result;
+  };
+
+  let tableIdToApiName: Record<string, string> = {};
   const faunaSchema: FaunaSchema = projectData.tables.reduce(function (
     tableObj: FaunaSchema,
     table: {
       apiName: string;
       name: string;
-      collectionName: string;
+      id: string;
       fields: Array<Field>;
     }
   ) {
+    if (table.apiName in tableObj) {
+      throw new Error("Encountered duplicate table name (table.apiName).");
+    }
+    tableIdToApiName[table.id] = table.apiName;
     tableObj[table.apiName] = {
       ...table,
       fields: table.fields.reduce(function (
         fieldObj: Table["fields"],
         field: Field
       ) {
+        if (field.apiName in fieldObj) {
+          throw new Error("Encountered duplicate field name (field.apiName).");
+        }
         fieldObj[field.apiName] = field;
+        if (field.type === "Relation") {
+          if (field.relationship.A.id === table.id) {
+            // @ts-ignore
+            fieldObj[field.apiName].relationKey = "A";
+          } else if (field.relationship.B.id === table.id) {
+            // @ts-ignore
+            fieldObj[field.apiName].relationKey = "B";
+          } else {
+            throw new Error('Table does not match "A" or "B" in relationship.');
+          }
+        }
+
         return fieldObj;
       },
       {}),
@@ -100,7 +86,7 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
   builder.queryType({});
   builder.mutationType({});
 
-  let relationshipFields: { [key: string]: any } = {};
+  // let relationshipFields: { [key: string]: any } = {};
   let inputFields: {
     [tableApiName: string]: {
       [fieldApiName: string]: GiraphQLSchemaTypes.InputFieldOptions;
@@ -116,34 +102,50 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
     inputFields[table.apiName] = {};
 
     for (let field of Object.values(table.fields)) {
-      if (field.isRelation) {
-        relationshipFields[field.from + field.relationshipRef.id] = {
-          ...field,
-          parentApiName: table.apiName,
-        };
-      } else {
-        // @ts-ignore
-
-        builder.objectField(table.apiName, field.apiName, (t) =>
-          // @ts-ignore
-          t.expose(field.apiName, { type: field.type })
-        );
-        inputFields[table.apiName][field.apiName] = {
-          type: field.type,
-          required: false,
-        };
+      if (field.type === "Relation") {
+        builder.inputType(tableIdToApiName[field.to.id] + "RelationInput", {
+          fields: (t) => ({
+            connect: t.field({ type: ["ID"], required: true }),
+          }),
+        });
       }
+
+      // @ts-ignore
+      builder.objectField(table.apiName, field.apiName, (t) =>
+        // @ts-ignore
+        t.expose(field.apiName, {
+          // @ts-ignore
+          type:
+            field.type === "Relation"
+              ? [tableIdToApiName[field.to.id]]
+              : field.type,
+        })
+      );
+
+      inputFields[table.apiName][field.apiName] = {
+        // @ts-ignore
+        type:
+          field.type === "Relation"
+            ? tableIdToApiName[field.to.id] + "RelationInput"
+            : field.type,
+        required: false,
+      };
     }
 
     builder.queryField(definitions(table).queries.findMany.name(), (t) =>
       t.field({
         // @ts-ignore
         type: [table.apiName],
+        args: {
+          first: t.arg({ type: "Int", required: false, defaultValue: 100 }),
+          after: t.arg({ type: "String", required: false }),
+          before: t.arg({ type: "String", required: false }),
+        },
         resolve: (...args) =>
           resolve(
             ...args,
             faunaSchema,
-            definitions(table).queries.findMany.query()
+            definitions(table).queries.findMany.query(args[1])
           ),
       })
     );
@@ -156,41 +158,14 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
           // @ts-ignore
           input: t.arg({ type: table.apiName + "Input", required: true }),
         },
-        resolve: (...args) => resolve(...args, faunaSchema),
+        resolve: (...args) =>
+          resolve(
+            ...args,
+            faunaSchema,
+            definitions(table).queries.createOne.query(args[1], faunaSchema)
+          ),
       })
     );
-  }
-
-  for (let relationshipField of Object.values(relationshipFields)) {
-    const {
-      apiName: fieldApiName,
-      parentApiName: tableApiName,
-      to,
-      relationshipRef,
-    } = relationshipField;
-
-    const relatedTableApiName =
-      relationshipFields[to + relationshipRef.id].parentApiName;
-    builder.objectField(tableApiName, fieldApiName, (t) =>
-      t.expose(fieldApiName, { type: [relatedTableApiName] })
-    );
-    // @ts-ignore
-    inputFields[tableApiName][fieldApiName] = {
-      // @ts-ignore
-      type: relatedTableApiName + "RelationInput",
-      required: false,
-    };
-    if (
-      !builder.configStore.typeConfigs.has(
-        relatedTableApiName + "RelationInput"
-      )
-    ) {
-      builder.inputType(relatedTableApiName + "RelationInput", {
-        fields: (t) => ({
-          connect: t.field({ type: ["ID"], required: true }),
-        }),
-      });
-    }
   }
 
   for (const [tableApiName, tableInputFields] of Object.entries(inputFields)) {
@@ -209,20 +184,4 @@ export const generateGraphQLSchema = (projectData: any): GraphQLSchema => {
   }
 
   return builder.toSchema({});
-};
-
-const resolve = async (
-  root: any,
-  args: any,
-  context: any,
-  info: GraphQLResolveInfo,
-  faunaSchema: any,
-  query?: Expr
-): Promise<any> => {
-  console.log(faunaSchema);
-  let result = await client.query(generateFaunaQuery(faunaSchema, info, query));
-  console.log("res" + JSON.stringify(result));
-
-  // @ts-ignore
-  return result;
 };

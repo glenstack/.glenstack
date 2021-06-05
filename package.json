@@ -9,6 +9,9 @@
   "scripts": {
     "postinstall": "lerna bootstrap && husky install",
     "coverage": "lerna run coverage",
-    "validate": "lerna run validate"
+    "validate": "lerna run validate --stream"
+  },
+  "dependencies": {
+    "await-to-js": "3.0.0"
   }
 }
