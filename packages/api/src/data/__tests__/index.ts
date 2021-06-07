@@ -1,108 +1,161 @@
-// import { ApolloServer } from "apollo-server";
-// import { Client, query as q } from "faunadb";
-// import { getSchema } from "../index";
-// import { GraphQLSchema } from "graphql";
-// import scaffold from "../fauna/scaffold";
-// import admin from "../fauna/admin";
-// import { definitions } from "../definitions";
-// import { Table } from "../types";
+import { ApolloServer } from "apollo-server";
+import { Client, query as q } from "faunadb";
+import { getProjectSchema } from "../index";
+import { GraphQLSchema } from "graphql";
+import scaffold from "../fauna/scaffold";
+import {
+  OrganizationRepository,
+  ProjectRepository,
+  TableRespository,
+  ScalarFieldRepository,
+  RelationshipFieldRepository,
+} from "../fauna/repositories";
+import { definitions } from "../definitions";
 
-// jest.setTimeout(30000);
+jest.setTimeout(30000);
+test("Integration Test", async () => {
+  const test_db_name = "altest_" + Date.now();
 
-// const test_db_name = "cnewtest_" + Date.now();
+  const client = new Client({
+    secret: "fnAEKpUbg1ACBTYHxtqayKNrCnnmgHLyWoSSlyvX",
+  });
 
-// const client = new Client({
-//   secret: "fnAEKpUbg1ACBTYHxtqayKNrCnnmgHLyWoSSlyvX",
-// });
-// let test_client: Client;
+  const tables: Record<string, { name: string; apiName: string; id: string }> =
+    {
+      Book: { id: "", name: "Book", apiName: "Book" },
+      Author: { id: "", name: "Author", apiName: "Author" },
+    };
 
-// let server: ApolloServer;
+  await client.query(q.CreateDatabase({ name: test_db_name }));
 
-// let tables: Record<string, Omit<Table, "fields">>;
+  const { secret }: { secret: string } = await client.query(
+    q.CreateKey({
+      database: q.Database(test_db_name),
+      role: "server",
+    })
+  );
+  const test_client = new Client({
+    secret,
+  });
+  const Organization = new OrganizationRepository(test_client);
+  const Project = new ProjectRepository(test_client);
+  const Table = new TableRespository(test_client);
+  const ScalarField = new ScalarFieldRepository(test_client);
+  const RelationshipField = new RelationshipFieldRepository(test_client);
+  await scaffold(test_client);
 
-// beforeAll(async () => {
-//   await client.query(q.CreateDatabase({ name: test_db_name }));
+  const organizationId = await Organization.create({
+    name: "LibraryOrg",
+    apiName: "LibraryOrg",
+  });
+  const projectId = await Project.create({
+    name: "LibraryProj",
+    apiName: "LibraryProj",
+    organizationId,
+  });
 
-//   const { secret }: { secret: string } = await client.query(
-//     q.CreateKey({
-//       database: q.Database(test_db_name),
-//       role: "server",
-//     })
-//   );
-//   test_client = new Client({
-//     secret,
-//   });
-//   const {
-//     createOrganization,
-//     createProject,
-//     createTable,
-//     createScalarField,
-//     createRelationshipField,
-//   } = admin(test_client);
-//   await scaffold(test_client);
-//   const { id: organizationId } = await createOrganization({
-//     name: "LibraryOrg",
-//   });
-//   const { id: projectId } = await createProject({
-//     name: "LibraryProj",
-//     organizationId,
-//   });
+  for (const [key, value] of Object.entries(tables)) {
+    tables[key].id = await Table.create({
+      ...value,
+      projectId,
+    });
+  }
 
-//   tables["Books"] = await createTable({
-//     name: "Books",
-//     projectId,
-//   });
-//   tables["Authors"] = await createTable({
-//     name: "Authors",
-//     projectId,
-//   });
+  await ScalarField.create({
+    name: "title",
+    apiName: "title",
+    tableId: tables["Book"].id,
+    type: "String",
+  });
+  await ScalarField.create({
+    name: "name",
+    apiName: "name",
+    tableId: tables["Author"].id,
+    type: "String",
+  });
 
-//   await createScalarField({
-//     name: "title",
-//     tableId: tables["Books"].id,
-//     type: "String",
-//   });
-//   await createScalarField({
-//     name: "name",
-//     tableId: tables["Authors"].id,
-//     type: "String",
-//   });
+  await RelationshipField.create({
+    name: "authors",
+    apiName: "authors",
+    backName: "books",
+    apiBackName: "books",
+    to: tables["Author"].id,
+    tableId: tables["Book"].id,
+  });
 
-//   await createRelationshipField({
-//     name: "authors",
-//     backName: "books",
-//     to: tables["Authors"].id,
-//     tableId: tables["Books"].id,
-//   });
+  const schema: GraphQLSchema = await getProjectSchema(test_client, projectId);
+  const server = new ApolloServer({
+    schema,
+  });
 
-//   const schema: GraphQLSchema = await getSchema(test_client);
-//   server = new ApolloServer({
-//     schema,
-//   });
-// });
+  /**
+   * First query should return empty array
+   */
 
-// test("Initial query should be empty", async () => {
-//   console.log(`query { ${definitions(tables["Books"]).queries.findMany.name()} {
-//       title
-//       authors {
-//         name
-//       }
-//     }}`);
-//   // const tables =
-//   const result = await server.executeOperation({
-//     query: `query { ${definitions(tables["Books"]).queries.findMany.name()} {
-//         title
+  let queryName = definitions(tables["Book"]).queries.findMany.name();
+  let result = await server.executeOperation({
+    query: `query { ${queryName} {
+        id
+        title
+        authors {
+          name
+        }
 
-//       }}`,
-//     variables: {},
-//   });
-//   expect(result.errors).toBeUndefined();
-//   expect(result.data).toBe([]);
-//   console.log(await client.query(q.Collection(tables["Books"].id)));
-//   // await client.query(q.Delete(q.Database(test_db_name)));
+      }}`,
+    variables: {},
+  });
+  let data = (result.data || {})[queryName];
+  expect(result.errors).toBeUndefined();
+  expect(data).toEqual([]);
 
-//   expect(2 + 2).toBe(4);
-// });
-test("fake", () => {
-  expect(2 + 2).toBe(4);
+  /**
+   * Create single book and expect that book in the response.
+   */
+
+  queryName = definitions(tables["Book"]).queries.createOne.name();
+  result = await server.executeOperation({
+    query: `mutation ($title: String!) { ${queryName} (input: {title: $title}) {
+        id
+        title
+        authors {
+          name
+        }
+
+      }}`,
+    variables: { title: "The Kite Runner" },
+  });
+  data = (result.data || {})[queryName];
+  expect(result.errors).toBeUndefined();
+  expect(typeof data).toEqual("object");
+  expect({ title: data.title, authors: data.authors }).toEqual({
+    title: "The Kite Runner",
+    authors: [],
+  });
+
+  const kiteRunnerId = data.id;
+
+  /**
+   * Create single author of that book and expect that author with the right book in the response.
+   */
+
+  queryName = definitions(tables["Author"]).queries.createOne.name();
+  result = await server.executeOperation({
+    query: `mutation ($name: String!, $connect: [ID!]!) { ${queryName} (input: {name: $name, books: {connect: $connect}}) {
+        id
+        name
+        books {
+          id
+          title
+        }
+
+      }}`,
+    variables: { name: "Khaled", connect: [kiteRunnerId] },
+  });
+  data = (result.data || {})[queryName];
+  expect(result.errors).toBeUndefined();
+  expect(typeof data).toEqual("object");
+  expect(data.books.length).toEqual(1);
+  expect(data.books[0].id).toEqual(kiteRunnerId);
+
+  await client.query(q.Delete(q.Database(test_db_name)));
 });

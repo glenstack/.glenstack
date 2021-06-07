@@ -57,7 +57,7 @@ const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
   const isRoot =
     parentType === gqlSchema.getQueryType() ||
     parentType === gqlSchema.getMutationType(); //TODO: Consider mutation and subscription type
-  console.log("types" + gqlSchema.getQueryType() + parentType);
+
   const returnName = isRoot ? "rootFQL" : name;
 
   return {
@@ -83,10 +83,6 @@ const generateSelector = (
   parentType: any,
   isLeaf = true
 ) => {
-  console.log("FQL" + JSON.stringify(parentType.fql));
-  // if (c?.fields?.[name]) return [name, parentType.fql?.fields?.[name](CURRENT_DOC_VAR, q)]
-  // if (name === "authors") return [name,q.Select(["data"], CURRENT_DOC_VAR)]
-
   if (isLeaf) {
     if (name === "id") return [name, q.Select(["ref", "id"], CURRENT_DOC_VAR)];
     if (name === "ref") return [name, q.Select(["ref"], CURRENT_DOC_VAR)];
@@ -119,7 +115,6 @@ export const generateFaunaQuery = (
   const typeInfo = new TypeInfo(gqlSchema);
 
   const parseFieldNode = generateParseFn(typeInfo, fieldName, gqlSchema);
-  console.log(JSON.stringify("pn" + parseFieldNode));
 
   const visitor = {
     enter: {
@@ -176,9 +171,9 @@ export const generateFaunaQuery = (
         //       return generateSelector(returnName, parentType)
         //   }
 
-        console.log(
-          "arguments:" + JSON.stringify(getArgumentValues(field, node))
-        );
+        // console.log(
+        //   "arguments:" + JSON.stringify(getArgumentValues(field, node))
+        // );
         if (isRoot) {
           nextQuery = query;
         }
@@ -212,7 +207,6 @@ export const generateFaunaQuery = (
   };
 
   try {
-    console.log(JSON.stringify(operation));
     // Filter operation in order to only consider the current field and not all neighbours.
     let filtered_operation = JSON.parse(JSON.stringify(operation));
     filtered_operation.selectionSet.selections =
@@ -223,7 +217,6 @@ export const generateFaunaQuery = (
 
     return res.selectionSet.rootFQL;
   } catch (err) {
-    console.error(err);
     throw err;
   }
 };
