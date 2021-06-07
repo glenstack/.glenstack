@@ -8,8 +8,8 @@ import { definitions } from "../definitions";
 import { Table } from "../types";
 
 jest.setTimeout(30000);
-test("Initial query should be empty", async () => {
-  const test_db_name = "cnewtest_" + Date.now();
+test("Integration Test", async () => {
+  const test_db_name = "test_" + Date.now();
 
   const client = new Client({
     secret: "fnAEKpUbg1ACBTYHxtqayKNrCnnmgHLyWoSSlyvX",
@@ -76,27 +76,74 @@ test("Initial query should be empty", async () => {
     schema,
   });
 
-  console.log(`query { ${definitions(tables["Books"]).queries.findMany.name()} {
-      title
-      authors {
-        name
-      }
-    }}`);
-  const queryName = definitions(tables["Books"]).queries.findMany.name();
-  const result = await server.executeOperation({
+  /**
+   * First query should return empty array
+   */
+
+  let queryName = definitions(tables["Books"]).queries.findMany.name();
+  let result = await server.executeOperation({
     query: `query { ${queryName} {
+        id
         title
+        authors {
+          name
+        }
 
       }}`,
     variables: {},
   });
+  let data = (result.data || {})[queryName];
   expect(result.errors).toBeUndefined();
-  expect((result.data || {})[queryName]).toEqual([]);
-  console.log(await client.query(q.Collection(tables["Books"].id)));
-  await client.query(q.Delete(q.Database(test_db_name)));
+  expect(data).toEqual([]);
 
-  expect(2 + 2).toBe(4);
-});
-test("fake", () => {
-  expect(2 + 2).toBe(4);
+  /**
+   * Create single book and expect that book in the response.
+   */
+
+  queryName = definitions(tables["Books"]).queries.createOne.name();
+  result = await server.executeOperation({
+    query: `mutation ($title: String!) { ${queryName} (input: {title: $title}) {
+        id
+        title
+        authors {
+          name
+        }
+
+      }}`,
+    variables: { title: "The Kite Runner" },
+  });
+  data = (result.data || {})[queryName];
+  expect(result.errors).toBeUndefined();
+  expect(typeof data).toEqual("object");
+  expect({ title: data.title, authors: data.authors }).toEqual({
+    title: "The Kite Runner",
+    authors: [],
+  });
+
+  const kiteRunnerId = data.id;
+
+  /**
+   * Create single author of that book and expect that author with the right book in the response.
+   */
+
+  queryName = definitions(tables["Authors"]).queries.createOne.name();
+  result = await server.executeOperation({
+    query: `mutation ($name: String!, $connect: [ID!]!) { ${queryName} (input: {name: $name, books: {connect: $connect}}) {
+        id
+        name
+        books {
+          id
+          title
+        }
+
+      }}`,
+    variables: { name: "Khaled", connect: [kiteRunnerId] },
+  });
+  data = (result.data || {})[queryName];
+  expect(result.errors).toBeUndefined();
+  expect(typeof data).toEqual("object");
+  expect(data.books.length).toEqual(1);
+  expect(data.books[0].id).toEqual(kiteRunnerId);
+
+  await client.query(q.Delete(q.Database(test_db_name)));
 });
