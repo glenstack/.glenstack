@@ -7,8 +7,7 @@ export default async (client: Client): Promise<void> => {
   await client.query(q.CreateCollection({ name: "fields" }));
   await client.query(q.CreateCollection({ name: "relations" }));
   await client.query(q.CreateCollection({ name: "relationships" }));
-  console.log(await client.query(q.Exists(q.Collection("projects"))));
-
+  console.log(await client.query(q.Exists(q.Collection("relations"))));
   await client.query(
     q.CreateIndex({
       name: "projects_by_organization",
@@ -35,6 +34,7 @@ export default async (client: Client): Promise<void> => {
       ],
     })
   );
+
   await client.query(
     q.CreateIndex({
       name: "tables_by_project",

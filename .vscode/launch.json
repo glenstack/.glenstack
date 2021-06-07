@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Test Data",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "start:data"],
+      "cwd": "${workspaceRoot}/packages/api/"
+    },
+    {
       "name": "Jest API Test",
       "type": "node",
       "request": "launch",

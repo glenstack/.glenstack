@@ -3,19 +3,28 @@ import { Client, query as q } from "faunadb";
 import { getProjectSchema } from "../index";
 import { GraphQLSchema } from "graphql";
 import scaffold from "../fauna/scaffold";
-import admin from "../fauna/admin";
+import {
+  OrganizationRepository,
+  ProjectRepository,
+  TableRespository,
+  ScalarFieldRepository,
+  RelationshipFieldRepository,
+} from "../fauna/repositories";
 import { definitions } from "../definitions";
-import { Table } from "../types";
 
 jest.setTimeout(30000);
 test("Integration Test", async () => {
-  const test_db_name = "test_" + Date.now();
+  const test_db_name = "altest_" + Date.now();
 
   const client = new Client({
     secret: "fnAEKpUbg1ACBTYHxtqayKNrCnnmgHLyWoSSlyvX",
   });
 
-  const tables: Record<string, Omit<Table, "fields">> = {};
+  const tables: Record<string, { name: string; apiName: string; id: string }> =
+    {
+      Book: { id: "", name: "Book", apiName: "Book" },
+      Author: { id: "", name: "Author", apiName: "Author" },
+    };
 
   await client.query(q.CreateDatabase({ name: test_db_name }));
 
@@ -28,47 +37,50 @@ test("Integration Test", async () => {
   const test_client = new Client({
     secret,
   });
-  const {
-    createOrganization,
-    createProject,
-    createTable,
-    createScalarField,
-    createRelationshipField,
-  } = admin(test_client);
+  const Organization = new OrganizationRepository(test_client);
+  const Project = new ProjectRepository(test_client);
+  const Table = new TableRespository(test_client);
+  const ScalarField = new ScalarFieldRepository(test_client);
+  const RelationshipField = new RelationshipFieldRepository(test_client);
   await scaffold(test_client);
-  const { id: organizationId } = await createOrganization({
+
+  const organizationId = await Organization.create({
     name: "LibraryOrg",
+    apiName: "LibraryOrg",
   });
-  const { id: projectId } = await createProject({
+  const projectId = await Project.create({
     name: "LibraryProj",
+    apiName: "LibraryProj",
     organizationId,
   });
 
-  tables["Books"] = await createTable({
-    name: "Books",
-    projectId,
-  });
-  tables["Authors"] = await createTable({
-    name: "Authors",
-    projectId,
-  });
+  for (const [key, value] of Object.entries(tables)) {
+    tables[key].id = await Table.create({
+      ...value,
+      projectId,
+    });
+  }
 
-  await createScalarField({
+  await ScalarField.create({
     name: "title",
-    tableId: tables["Books"].id,
+    apiName: "title",
+    tableId: tables["Book"].id,
     type: "String",
   });
-  await createScalarField({
+  await ScalarField.create({
     name: "name",
-    tableId: tables["Authors"].id,
+    apiName: "name",
+    tableId: tables["Author"].id,
     type: "String",
   });
 
-  await createRelationshipField({
+  await RelationshipField.create({
     name: "authors",
+    apiName: "authors",
     backName: "books",
-    to: tables["Authors"].id,
-    tableId: tables["Books"].id,
+    apiBackName: "books",
+    to: tables["Author"].id,
+    tableId: tables["Book"].id,
   });
 
   const schema: GraphQLSchema = await getProjectSchema(test_client, projectId);
@@ -80,7 +92,7 @@ test("Integration Test", async () => {
    * First query should return empty array
    */
 
-  let queryName = definitions(tables["Books"]).queries.findMany.name();
+  let queryName = definitions(tables["Book"]).queries.findMany.name();
   let result = await server.executeOperation({
     query: `query { ${queryName} {
         id
@@ -100,7 +112,7 @@ test("Integration Test", async () => {
    * Create single book and expect that book in the response.
    */
 
-  queryName = definitions(tables["Books"]).queries.createOne.name();
+  queryName = definitions(tables["Book"]).queries.createOne.name();
   result = await server.executeOperation({
     query: `mutation ($title: String!) { ${queryName} (input: {title: $title}) {
         id
@@ -126,7 +138,7 @@ test("Integration Test", async () => {
    * Create single author of that book and expect that author with the right book in the response.
    */
 
-  queryName = definitions(tables["Authors"]).queries.createOne.name();
+  queryName = definitions(tables["Author"]).queries.createOne.name();
   result = await server.executeOperation({
     query: `mutation ($name: String!, $connect: [ID!]!) { ${queryName} (input: {name: $name, books: {connect: $connect}}) {
         id

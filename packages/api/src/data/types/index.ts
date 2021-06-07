@@ -9,11 +9,21 @@ export interface OrganizationInput {
   name: string;
   apiName: string;
 }
+export interface Organization {
+  id: string;
+  name: string;
+  apiName: string;
+}
 export type ProjectInput = {
   name: string;
   apiName: string;
   organizationRef: Expr;
 };
+export interface Project {
+  name: string;
+  apiName: string;
+  organizationRef: Ref;
+}
 
 export interface TableInput {
   name: string;
@@ -51,11 +61,6 @@ export interface Table {
   };
   id: string;
 }
-export interface Project {
-  name: string;
-  apiName: string;
-  organizationRef: Ref;
-}
 
 export type Field = ScalarField | RelationshipField;
 
@@ -77,3 +82,24 @@ export interface RelationshipField {
   relationKey: "A" | "B";
   to: Ref;
 }
+
+// export interface IWrite<T> {
+//   create(item: T): Promise<boolean>;
+//   update(id: string, item: T): Promise<boolean>;
+//   delete(id: string): Promise<boolean>;
+// }
+
+// export interface IRead<T> {
+//   find(item: T): Promise<T[]>;
+//   findOne(id: string): Promise<T>;
+// }
+
+export interface IRepository<I> {
+  create(item: I): Promise<string>;
+  // update(id: string, item: T): Promise<boolean>;
+  // delete(id: string): Promise<boolean>;
+}
+// export interface EntityBase
+// {
+//    public int Id { get; protected set; }
+// }
