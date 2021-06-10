@@ -34,6 +34,13 @@ export const definitions = (
         );
       },
     },
+    findOne: {
+      name: (): string => "get" + table.apiName,
+      // @ts-ignore
+      query: (args: { id: string }): Expr => {
+        return q.Get(q.Ref(q.Collection(table.id), args.id));
+      },
+    },
     createOne: {
       name: () => table.apiName + "CreateOne",
       // @ts-ignore

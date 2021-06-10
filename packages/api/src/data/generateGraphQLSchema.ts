@@ -149,6 +149,21 @@ export default (projectData: any, client: Client): GraphQLSchema => {
           ),
       })
     );
+    builder.queryField(definitions(table).queries.findOne.name(), (t) =>
+      t.field({
+        // @ts-ignore
+        type: [table.apiName],
+        args: {
+          id: t.arg({ type: "String", required: true }),
+        },
+        resolve: (...args) =>
+          resolve(
+            ...args,
+            faunaSchema,
+            definitions(table).queries.findOne.query(args[1])
+          ),
+      })
+    );
 
     builder.mutationField(definitions(table).queries.createOne.name(), (t) =>
       t.field({
