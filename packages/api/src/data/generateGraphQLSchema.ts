@@ -79,10 +79,26 @@ export default (projectData: any, client: Client): GraphQLSchema => {
 
   const builder = new SchemaBuilder<{
     DefaultFieldNullability: true;
+    Scalars: {
+      Number: {
+        Input: number;
+        Output: number;
+      };
+    };
   }>({
     defaultFieldNullability: true,
   });
 
+  builder.scalarType("Number", {
+    serialize: (n) => n,
+    parseValue: (n) => {
+      if (typeof n === "number") {
+        return n;
+      }
+
+      throw new Error("Value must be a number");
+    },
+  });
   builder.queryType({});
   builder.mutationType({});
 
@@ -152,7 +168,7 @@ export default (projectData: any, client: Client): GraphQLSchema => {
     builder.queryField(definitions(table).queries.findOne.name(), (t) =>
       t.field({
         // @ts-ignore
-        type: [table.apiName],
+        type: table.apiName,
         args: {
           id: t.arg({ type: "String", required: true }),
         },

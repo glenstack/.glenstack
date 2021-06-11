@@ -35,7 +35,7 @@ export type FieldInput = ScalarFieldInput | RelationshipFieldInput;
 export interface ScalarFieldInput {
   name: string;
   apiName: string;
-  type: "String" | "Boolean";
+  type: "String" | "Boolean" | "Number";
   tableRef: Expr;
 }
 
@@ -68,7 +68,7 @@ export interface ScalarField {
   id: string;
   name: string;
   apiName: string;
-  type: "String" | "Boolean";
+  type: "String" | "Boolean" | "Number";
   tableRef: Ref;
 }
 

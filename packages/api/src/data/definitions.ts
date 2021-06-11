@@ -16,7 +16,7 @@ export const definitions = (
 } => ({
   queries: {
     findMany: {
-      name: (): string => table.apiName + "GetMany",
+      name: (): string => "query" + table.apiName,
       // @ts-ignore
       query: (args): Expr => {
         const options: { size: number; after?: Expr; before?: Expr } = {
