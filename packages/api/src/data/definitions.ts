@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Expr, query as q } from "faunadb";
-import { Table, FaunaSchema, Field, RelationshipField } from "./types";
+import { Table, FaunaSchema, RelationshipField } from "./types";
 
 const generateRelationQueries = (field: RelationshipField) => {
   const existingRelation = (id: string) =>
