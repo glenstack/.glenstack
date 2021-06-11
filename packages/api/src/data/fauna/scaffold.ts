@@ -90,4 +90,24 @@ export default async (client: Client): Promise<void> => {
       ],
     })
   );
+
+  await client.query(
+    q.CreateIndex({
+      name: "relationsUnique",
+      unique: true,
+      serialized: true,
+      source: q.Collection("relations"),
+      terms: [
+        {
+          field: ["data", "relationshipRef"],
+        },
+        {
+          field: ["data", "A"],
+        },
+        {
+          field: ["data", "B"],
+        },
+      ],
+    })
+  );
 };
