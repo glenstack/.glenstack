@@ -1,7 +1,61 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Expr, query as q } from "faunadb";
-import { Table, FaunaSchema } from "./types";
+import { Table, FaunaSchema, Field, RelationshipField } from "./types";
+
+const generateRelationQueries = (field: RelationshipField) => {
+  const existingRelation = (id: string) =>
+    q.Match(q.Index("relationsUnique"), [
+      field.relationshipRef,
+      field.relationKey === "A"
+        ? q.Var("docRef")
+        : q.Ref(q.Collection(field.to.id), id),
+      field.relationKey === "B"
+        ? q.Var("docRef")
+        : q.Ref(q.Collection(field.to.id), id),
+    ]);
+
+  return {
+    connect: (ids: Array<string>) => {
+      if (!ids) return [];
+      return ids.map((id: string) =>
+        q.If(
+          q.IsEmpty(existingRelation(id)),
+          q.Create(q.Collection("relations"), {
+            data: {
+              // @ts-ignore
+              relationshipRef: field.relationshipRef,
+              // @ts-ignore
+              [field.relationKey]: q.Var("docRef"),
+              // @ts-ignore
+              [field.relationKey === "A" ? "B" : "A"]: q.Ref(
+                // @ts-ignore
+                q.Collection(field.to.id),
+                // @ts-ignore
+                id
+              ),
+            },
+          }),
+          q.Abort(`Object with id ${field.to.id} is already connected.`)
+        )
+      );
+    },
+    disconnect: (ids: Array<string>) => {
+      if (!ids) return [];
+      return ids.map((id: string) =>
+        q.If(
+          q.IsEmpty(existingRelation(id)),
+          q.Abort(`Object with id ${field.to.id} does not exist.`),
+
+          q.Map(
+            q.Paginate(existingRelation(id)),
+            q.Lambda("X", q.Delete(q.Var("X")))
+          )
+        )
+      );
+    },
+  };
+};
 
 export const definitions = (
   table: Pick<Table, "apiName" | "id">
@@ -49,52 +103,92 @@ export const definitions = (
         args,
         faunaSchema: FaunaSchema
       ) => {
-        {
-          const data: Record<string, unknown> = {};
-          let relationQueries;
-          // const args = getArgumentValues(field, node);
-          for (const [key, value] of Object.entries(args.input)) {
-            const faunaField = faunaSchema[table.apiName].fields[key];
-            if (faunaField.type === "Relation") {
-              relationQueries = q.Do(
-                // @ts-ignore
-                value.connect.map((idToConnect: string) =>
-                  q.Create(q.Collection("relations"), {
-                    data: {
-                      // @ts-ignore
-                      relationshipRef: faunaField.relationshipRef,
-                      // @ts-ignore
-                      [faunaField.relationKey]: q.Var("docRef"),
-                      // @ts-ignore
-                      [faunaField.relationKey === "A" ? "B" : "A"]: q.Ref(
-                        // @ts-ignore
-                        q.Collection(faunaField.to.id),
-                        // @ts-ignore
-                        idToConnect
-                      ),
-                    },
-                  })
-                )
-              );
-            } else {
-              data[faunaField.id] = value;
-            }
+        const data: Record<string, unknown> = {};
+        let relationQueries: Array<Expr> = [];
+        // const args = getArgumentValues(field, node);
+        for (const [key, value] of Object.entries(args.input)) {
+          const faunaField = faunaSchema[table.apiName].fields[key];
+          if (faunaField.type === "Relation") {
+            relationQueries = [
+              ...relationQueries,
+              // @ts-ignore
+              ...generateRelationQueries(faunaField).connect(value.connect),
+            ];
+          } else {
+            data[faunaField.id] = value;
           }
-          return q.Select(
-            ["doc"],
-            q.Let(
-              {
-                docRef: q.Select(
+        }
+        return q.Select(
+          ["doc"],
+          q.Let(
+            {
+              docRef: q.Select(
+                ["ref"],
+                q.Create(q.Collection(faunaSchema[table.apiName].id), {
+                  data,
+                })
+              ),
+            },
+            {
+              doc: q.Get(q.Var("docRef")),
+              relationQueries: q.Do(relationQueries),
+            }
+          )
+        );
+      },
+    },
+    updateOne: {
+      name: () => table.apiName + "UpdateOne",
+      // @ts-ignore
+      query: (
+        // @ts-ignore
+        args: GiraphQLFieldKindToConfig<table.apiName, "args">,
+        faunaSchema: FaunaSchema
+      ) => {
+        const data: Record<string, unknown> = {};
+        let relationQueries: Array<Expr> = [];
+        // const args = getArgumentValues(field, node);
+        for (const [key, value] of Object.entries(args.input)) {
+          const faunaField = faunaSchema[table.apiName].fields[key];
+          if (faunaField.type === "Relation") {
+            relationQueries = [
+              ...relationQueries,
+              // @ts-ignore
+              ...generateRelationQueries(faunaField).connect(value.connect),
+              ...generateRelationQueries(faunaField).disconnect(
+                // @ts-ignore
+                value.disconnect
+              ),
+            ];
+          } else {
+            data[faunaField.id] = value;
+          }
+        }
+        return q.Select(
+          ["doc"],
+          q.Let(
+            {
+              toUpdateRef: q.Ref(
+                q.Collection(faunaSchema[table.apiName].id),
+                args.id
+              ),
+              docRef: q.If(
+                q.Exists(q.Var("toUpdateRef")),
+                q.Select(
                   ["ref"],
-                  q.Create(q.Collection(faunaSchema[table.apiName].id), {
+                  q.Update(q.Var("toUpdateRef"), {
                     data,
                   })
                 ),
-              },
-              { doc: q.Get(q.Var("docRef")), relationQueries }
-            )
-          );
-        }
+                q.Abort("Object does not exist.")
+              ),
+            },
+            {
+              doc: q.Get(q.Var("docRef")),
+              relationQueries: q.Do(relationQueries),
+            }
+          )
+        );
       },
     },
   },
