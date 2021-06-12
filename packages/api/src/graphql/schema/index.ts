@@ -1,5 +1,7 @@
-import { Resolvers } from "../__generated__/graphql";
 import { makeExecutableSchema } from "@graphql-tools/schema";
+import type { GraphQLSchema } from "graphql";
+import type { Context } from "./../context";
+import { Resolvers } from "../__generated__/graphql";
 import typeDefs from "./index.graphql";
 import {
   typeDefs as scalarTypeDefs,
@@ -29,7 +31,6 @@ import {
   generateTypeDefs as generatePropertyTypeDefs,
   resolvers as generatePropertyResolvers,
 } from "./property";
-import type { GraphQLSchema } from "graphql";
 
 const resolvers: Resolvers = {
   Query: {
@@ -40,26 +41,30 @@ const resolvers: Resolvers = {
   },
 };
 
-export const schema = async (): Promise<GraphQLSchema> =>
+export const schema = async ({
+  context,
+}: {
+  context: Context;
+}): Promise<GraphQLSchema> =>
   makeExecutableSchema({
     typeDefs: [
       typeDefs,
       ...scalarTypeDefs,
       relayTypeDefs,
       legalTypeDefs,
-      ...(await generateOrganizationTypeDefs()),
-      ...(await generateProjectTypeDefs()),
-      ...(await generateTypeTypeDefs()),
-      ...(await generatePropertyTypeDefs()),
+      ...(await generateOrganizationTypeDefs({ context })),
+      ...(await generateProjectTypeDefs({ context })),
+      ...(await generateTypeTypeDefs({ context })),
+      ...(await generatePropertyTypeDefs({ context })),
     ],
     resolvers: [
       resolvers,
       ...scalarResolvers,
       relayResolvers,
       legalResolvers,
-      await generateOrganizationResolvers(),
-      await generateProjectResolvers(),
-      await generateTypeResolvers(),
-      await generatePropertyResolvers(),
+      ...(await generateOrganizationResolvers({ context })),
+      ...(await generateProjectResolvers({ context })),
+      ...(await generateTypeResolvers({ context })),
+      ...(await generatePropertyResolvers({ context })),
     ],
   });
