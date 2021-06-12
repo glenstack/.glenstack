@@ -92,7 +92,8 @@ const generateSelector = (
     name,
     q.Select(
       ["data", faunaSchema[parentType.name].fields[name].id],
-      CURRENT_DOC_VAR
+      CURRENT_DOC_VAR,
+      null
     ),
   ];
 };
