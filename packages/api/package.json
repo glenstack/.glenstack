@@ -7,7 +7,7 @@
     "postinstall": "npm run generate",
     "prebuild": "npm run generate",
     "build": "ts-node scripts/build.ts",
-    "lint": "eslint --ignore-path .gitignore --max-warnings=0 'src/**/*'",
+    "lint": "eslint --ignore-path .gitignore --max-warnings=0 'src/**/*.ts'",
     "precheck-types": "npm run generate",
     "check-types": "tsc",
     "prettier": "prettier --config ../../.prettierrc --ignore-path .gitignore '**/*.(js|ts|json|md)'",

@@ -6,7 +6,7 @@ import typeDefs from "./organization.graphql";
 export { typeDefs };
 export const resolvers: Resolvers = {
   Mutation: {
-    createOrganization: async (parent, { input }, context, info) => {
+    createOrganization: async (parent, { input }) => {
       const organizationRepository = new OrganizationRepository(client);
       const id = await organizationRepository.create({
         name: input.name,
@@ -20,7 +20,7 @@ export const resolvers: Resolvers = {
     },
   },
   Organization: {
-    __resolveType: ({ id }) => null,
-    name: ({ id }) => "TEST",
+    __resolveType: () => null,
+    name: () => "TEST",
   },
 };

@@ -79,19 +79,31 @@ export default (projectData: any, client: Client): GraphQLSchema => {
 
   const builder = new SchemaBuilder<{
     DefaultFieldNullability: true;
+    Scalars: {
+      Number: {
+        Input: number;
+        Output: number;
+      };
+    };
   }>({
     defaultFieldNullability: true,
   });
 
+  builder.scalarType("Number", {
+    serialize: (n) => n,
+    parseValue: (n) => {
+      if (typeof n === "number") {
+        return n;
+      }
+
+      throw new Error("Value must be a number");
+    },
+  });
   builder.queryType({});
   builder.mutationType({});
 
   // let relationshipFields: { [key: string]: any } = {};
-  let inputFields: {
-    [tableApiName: string]: {
-      [fieldApiName: string]: GiraphQLSchemaTypes.InputFieldOptions;
-    };
-  } = {};
+
   for (let table of Object.values(faunaSchema)) {
     // @ts-ignore
     builder.objectType(table.apiName, {
@@ -99,37 +111,44 @@ export default (projectData: any, client: Client): GraphQLSchema => {
         id: t.exposeID("id", {}),
       }),
     });
-    inputFields[table.apiName] = {};
 
     for (let field of Object.values(table.fields)) {
       if (field.type === "Relation") {
-        builder.inputType(tableIdToApiName[field.to.id] + "RelationInput", {
-          fields: (t) => ({
-            connect: t.field({ type: ["ID"], required: true }),
-          }),
-        });
-      }
-
-      // @ts-ignore
-      builder.objectField(table.apiName, field.apiName, (t) =>
+        builder.inputType(
+          tableIdToApiName[field.to.id] + "CreateRelationInput",
+          {
+            fields: (t) => ({
+              connect: t.field({ type: ["ID"], required: true }),
+            }),
+          }
+        );
+        builder.inputType(
+          tableIdToApiName[field.to.id] + "UpdateRelationInput",
+          {
+            fields: (t) => ({
+              connect: t.field({ type: ["ID"], required: false }),
+              disconnect: t.field({ type: ["ID"], required: false }),
+            }),
+          }
+        );
         // @ts-ignore
-        t.expose(field.apiName, {
+        builder.objectField(table.apiName, field.apiName, (t) =>
           // @ts-ignore
-          type:
-            field.type === "Relation"
-              ? [tableIdToApiName[field.to.id]]
-              : field.type,
-        })
-      );
-
-      inputFields[table.apiName][field.apiName] = {
+          t.expose(field.apiName, {
+            // @ts-ignore
+            type: [tableIdToApiName[field.to.id]],
+          })
+        );
+      } else {
         // @ts-ignore
-        type:
-          field.type === "Relation"
-            ? tableIdToApiName[field.to.id] + "RelationInput"
-            : field.type,
-        required: false,
-      };
+        builder.objectField(table.apiName, field.apiName, (t) =>
+          // @ts-ignore
+          t.expose(field.apiName, {
+            // @ts-ignore
+            type: field.type,
+          })
+        );
+      }
     }
 
     builder.queryField(definitions(table).queries.findMany.name(), (t) =>
@@ -149,6 +168,21 @@ export default (projectData: any, client: Client): GraphQLSchema => {
           ),
       })
     );
+    builder.queryField(definitions(table).queries.findOne.name(), (t) =>
+      t.field({
+        // @ts-ignore
+        type: table.apiName,
+        args: {
+          id: t.arg({ type: "String", required: true }),
+        },
+        resolve: (...args) =>
+          resolve(
+            ...args,
+            faunaSchema,
+            definitions(table).queries.findOne.query(args[1])
+          ),
+      })
+    );
 
     builder.mutationField(definitions(table).queries.createOne.name(), (t) =>
       t.field({
@@ -156,7 +190,7 @@ export default (projectData: any, client: Client): GraphQLSchema => {
         type: table.apiName,
         args: {
           // @ts-ignore
-          input: t.arg({ type: table.apiName + "Input", required: true }),
+          input: t.arg({ type: table.apiName + "CreateInput", required: true }),
         },
         resolve: (...args) =>
           resolve(
@@ -166,21 +200,59 @@ export default (projectData: any, client: Client): GraphQLSchema => {
           ),
       })
     );
-  }
-
-  for (const [tableApiName, tableInputFields] of Object.entries(inputFields)) {
-    if (!builder.configStore.typeConfigs.has(tableApiName + "Input")) {
-      builder.inputType(tableApiName + "Input", {
-        fields: (t) =>
-          Object.keys(tableInputFields).reduce(
-            (attrs, key) => ({
-              ...attrs,
-              [key]: t.field(tableInputFields[key]),
-            }),
-            {}
+    builder.mutationField(definitions(table).queries.updateOne.name(), (t) =>
+      t.field({
+        // @ts-ignore
+        type: table.apiName,
+        args: {
+          // @ts-ignore
+          input: t.arg({ type: table.apiName + "UpdateInput", required: true }),
+          id: t.arg({ type: "ID", required: true }),
+        },
+        resolve: (...args) =>
+          resolve(
+            ...args,
+            faunaSchema,
+            definitions(table).queries.updateOne.query(args[1], faunaSchema)
           ),
-      });
-    }
+      })
+    );
+
+    builder.inputType(table.apiName + "CreateInput", {
+      fields: (t) =>
+        Object.values(table.fields).reduce(
+          (attrs, field) => ({
+            ...attrs,
+            [field.apiName]: t.field({
+              //@ts-ignore
+              type:
+                field.type === "Relation"
+                  ? tableIdToApiName[field.to.id] + "CreateRelationInput"
+                  : field.type,
+              required: false,
+            }),
+          }),
+          {}
+        ),
+    });
+    builder.inputType(table.apiName + "UpdateInput", {
+      fields: (t) =>
+        Object.values(table.fields).reduce(
+          (attrs, field) => ({
+            ...attrs,
+
+            [field.apiName]: t.field({
+              //@ts-ignore
+              type:
+                field.type === "Relation"
+                  ? tableIdToApiName[field.to.id] + "UpdateRelationInput"
+                  : field.type,
+              required: false,
+            }),
+          }),
+          {}
+        ),
+    });
   }
 
   return builder.toSchema({});
