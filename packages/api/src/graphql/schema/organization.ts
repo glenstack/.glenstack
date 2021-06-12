@@ -9,8 +9,8 @@ export const resolvers: Resolvers = {
     createOrganization: async (parent, { input }) => {
       const organizationRepository = new OrganizationRepository(client);
       const id = await organizationRepository.create({
-        name: input.name,
         apiName: input.identifier,
+        name: input.name,
       });
       return {
         organization: {
@@ -18,9 +18,5 @@ export const resolvers: Resolvers = {
         },
       };
     },
-  },
-  Organization: {
-    __resolveType: () => null,
-    name: () => "TEST",
   },
 };
