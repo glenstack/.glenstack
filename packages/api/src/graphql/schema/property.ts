@@ -1,13 +1,15 @@
+import type { DocumentNode } from "graphql";
 import { client } from "../../data/fauna/client";
 import {
   RelationshipFieldRepository,
   ScalarFieldRepository,
 } from "../../data/fauna/repositories";
 import type { Resolvers } from "../__generated__/graphql";
-import typeDefs from "./property.graphql";
+import schema from "./property.graphql";
 
-export { typeDefs };
-export const resolvers: Resolvers = {
+export const generateTypeDefs = async (): Promise<DocumentNode[]> => [schema];
+
+export const resolvers = async (): Promise<Resolvers> => ({
   Mutation: {
     createScalarProperty: async (parent, { input }) => {
       const scalarFieldRepository = new ScalarFieldRepository(client);
@@ -47,4 +49,4 @@ export const resolvers: Resolvers = {
       };
     },
   },
-};
+});

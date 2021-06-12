@@ -14,18 +14,22 @@ import {
   resolvers as legalResolvers,
 } from "./legal";
 import {
-  typeDefs as organizationTypeDefs,
-  resolvers as organizationResolvers,
+  generateTypeDefs as generateOrganizationTypeDefs,
+  generateResolvers as generateOrganizationResolvers,
 } from "./organization";
 import {
-  typeDefs as projectTypeDefs,
-  resolvers as projectResolvers,
+  generateTypeDefs as generateProjectTypeDefs,
+  generateResolvers as generateProjectResolvers,
 } from "./project";
-import { typeDefs as typeTypeDefs, resolvers as typeResolvers } from "./type";
 import {
-  typeDefs as propertyTypeDefs,
-  resolvers as propertyResolvers,
+  generateTypeDefs as generateTypeTypeDefs,
+  resolvers as generateTypeResolvers,
+} from "./type";
+import {
+  generateTypeDefs as generatePropertyTypeDefs,
+  resolvers as generatePropertyResolvers,
 } from "./property";
+import type { GraphQLSchema } from "graphql";
 
 const resolvers: Resolvers = {
   Query: {
@@ -36,25 +40,26 @@ const resolvers: Resolvers = {
   },
 };
 
-export const schema = makeExecutableSchema({
-  typeDefs: [
-    typeDefs,
-    ...scalarTypeDefs,
-    relayTypeDefs,
-    legalTypeDefs,
-    organizationTypeDefs,
-    projectTypeDefs,
-    typeTypeDefs,
-    propertyTypeDefs,
-  ],
-  resolvers: [
-    resolvers,
-    ...scalarResolvers,
-    relayResolvers,
-    legalResolvers,
-    organizationResolvers,
-    projectResolvers,
-    typeResolvers,
-    propertyResolvers,
-  ],
-});
+export const schema = async (): Promise<GraphQLSchema> =>
+  makeExecutableSchema({
+    typeDefs: [
+      typeDefs,
+      ...scalarTypeDefs,
+      relayTypeDefs,
+      legalTypeDefs,
+      ...(await generateOrganizationTypeDefs()),
+      ...(await generateProjectTypeDefs()),
+      ...(await generateTypeTypeDefs()),
+      ...(await generatePropertyTypeDefs()),
+    ],
+    resolvers: [
+      resolvers,
+      ...scalarResolvers,
+      relayResolvers,
+      legalResolvers,
+      await generateOrganizationResolvers(),
+      await generateProjectResolvers(),
+      await generateTypeResolvers(),
+      await generatePropertyResolvers(),
+    ],
+  });
