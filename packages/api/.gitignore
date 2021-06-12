@@ -169,3 +169,6 @@ temp/
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/node,macos,visualstudiocode
+
+
+src/graphql/__generated__

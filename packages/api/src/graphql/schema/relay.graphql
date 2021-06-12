@@ -1,0 +1,26 @@
+scalar Cursor
+
+interface Node {
+  id: ID!
+}
+
+interface Connection {
+  edges: [Edge]
+  pageInfo: PageInfo!
+}
+
+interface Edge {
+  cursor: Cursor!
+  node: Node
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: Cursor
+  endCursor: Cursor
+}
+
+extend type Query {
+  node(id: ID!): Node
+}

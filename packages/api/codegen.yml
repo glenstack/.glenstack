@@ -1,0 +1,24 @@
+overwrite: true
+schema: "./src/graphql/**/*.graphql"
+documents: null
+generates:
+  src/graphql/__generated__/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
+      - add:
+          content:
+            - "/* eslint-disable */"
+            - "import { DeepPartial } from 'utility-types';"
+    config:
+      contextType: ../context#Context
+      scalars:
+        Cursor: string
+        HTML: string
+        Identifier: string
+      mappers:
+        LegalDocuments: "Record<string, never>"
+      defaultMapper: DeepPartial<{T}>
+  src/graphql/__generated__/schema.json:
+    plugins:
+      - "introspection"

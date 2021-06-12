@@ -3,8 +3,12 @@
   "private": true,
   "main": "dist/worker.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --outfile=dist/worker.js --format=esm --minify --sourcemap --define:VERSION=\\\"$(git rev-parse HEAD)\\\"",
+    "generate": "graphql-codegen --config codegen.yml",
+    "postinstall": "npm run generate",
+    "prebuild": "npm run generate",
+    "build": "ts-node scripts/build.ts",
     "lint": "eslint --ignore-path .gitignore --max-warnings=0 'src/**/*'",
+    "precheck-types": "npm run generate",
     "check-types": "tsc",
     "prettier": "prettier --config ../../.prettierrc --ignore-path .gitignore '**/*.(js|ts|json|md)'",
     "format": "npm run prettier -- --write",
@@ -21,7 +25,14 @@
   "devDependencies": {
     "@cloudflare/workers-types": "2.2.2",
     "@cloudflare/wrangler": "1.16.1",
+    "@graphql-codegen/add": "2.0.2",
+    "@graphql-codegen/cli": "1.21.5",
+    "@graphql-codegen/introspection": "1.18.2",
+    "@graphql-codegen/typescript": "1.22.1",
+    "@graphql-codegen/typescript-resolvers": "1.19.2",
+    "@luckycatfactory/esbuild-graphql-loader": "3.6.0",
     "@types/jest": "26.0.23",
+    "@types/node": "15.12.2",
     "@typescript-eslint/eslint-plugin": "4.24.0",
     "@typescript-eslint/parser": "4.24.0",
     "apollo-server": "2.24.0",
@@ -34,7 +45,8 @@
     "prettier": "2.3.0",
     "ts-jest": "26.5.6",
     "ts-node": "9.1.1",
-    "typescript": "4.2.4"
+    "typescript": "4.2.4",
+    "utility-types": "3.10.0"
   },
   "dependencies": {
     "@giraphql/core": "2.6.0",

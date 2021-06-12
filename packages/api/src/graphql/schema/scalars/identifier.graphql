@@ -1,0 +1,4 @@
+"""
+A camel case \`String\` used to identify an object in the API.
+"""
+scalar Identifier

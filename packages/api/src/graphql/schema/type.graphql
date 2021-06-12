@@ -1,0 +1,54 @@
+interface Type implements Node {
+  id: ID!
+  name: String!
+  project: Project!
+  propertyConnection(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): PropertyConnection!
+}
+
+type TypeConnection implements Connection {
+  edges: [TypeEdge]
+  pageInfo: PageInfo!
+}
+
+type TypeEdge implements Edge {
+  cursor: Cursor!
+  node: Type
+}
+
+input CreateTypeInput {
+  projectId: ID!
+  identifier: Identifier!
+  name: String!
+}
+
+type CreateTypePayload {
+  type: Type!
+}
+
+input UpdateTypeInput {
+  id: ID!
+  name: String
+}
+
+type UpdateTypePayload {
+  type: Type!
+}
+
+input DeleteTypeInput {
+  id: ID!
+}
+
+type DeleteTypePayload {
+  deletedTypeId: ID!
+}
+
+extend type Mutation {
+  createType(input: CreateTypeInput!): CreateTypePayload!
+  updateType(input: UpdateTypeInput!): UpdateTypePayload!
+  deleteType(input: DeleteTypeInput!): DeleteTypePayload!
+}

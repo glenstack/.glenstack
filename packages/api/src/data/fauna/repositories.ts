@@ -11,8 +11,6 @@ import {
 import { Client, query as q } from "faunadb";
 import { createCollectionAndWait } from "./utils";
 
-//TODO: Genereate apiNames automatically by camelcasing string
-
 abstract class BaseRepository<T> implements IRepository<T> {
   public readonly _client: Client;
   constructor(client: Client) {

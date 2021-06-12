@@ -1,0 +1,112 @@
+interface Property implements Node {
+  id: ID!
+  name: String!
+  type: Type!
+}
+
+enum DataType {
+  STRING
+  NUMBER
+  BOOLEAN
+}
+
+type ScalarProperty implements Property & Node {
+  id: ID!
+  name: String!
+  type: Type!
+  dataType: DataType!
+}
+
+type RelationalProperty implements Property & Node {
+  id: ID!
+  name: String!
+  type: Type!
+  toType: Type!
+}
+
+type PropertyConnection implements Connection {
+  edges: [PropertyEdge]
+  pageInfo: PageInfo!
+}
+
+type PropertyEdge implements Edge {
+  cursor: Cursor!
+  node: Property
+}
+
+input CreateScalarPropertyInput {
+  typeId: ID!
+  identifier: Identifier!
+  name: String!
+  dataType: DataType!
+}
+
+type CreateScalarPropertyPayload {
+  property: ScalarProperty!
+}
+
+input UpdateScalarPropertyInput {
+  id: ID!
+  name: String
+}
+
+type UpdateScalarPropertyPayload {
+  property: ScalarProperty!
+}
+
+input DeleteScalarPropertyInput {
+  id: ID!
+}
+
+type DeleteScalarPropertyPayload {
+  deletedPropertyId: ID!
+}
+
+input CreateRelationalPropertyInput {
+  typeId: ID!
+  identifier: Identifier!
+  name: String!
+  toTypeId: ID!
+}
+
+type CreateRelationalPropertyPayload {
+  property: RelationalProperty!
+}
+
+input UpdateRelationalPropertyInput {
+  id: ID!
+  name: String
+}
+
+type UpdateRelationalPropertyPayload {
+  property: RelationalProperty!
+}
+
+input DeleteRelationalPropertyInput {
+  id: ID!
+}
+
+type DeleteRelationalPropertyPayload {
+  deletedPropertyId: ID!
+}
+
+extend type Mutation {
+  createScalarProperty(
+    input: CreateScalarPropertyInput!
+  ): CreateScalarPropertyPayload!
+  updateScalarProperty(
+    input: UpdateScalarPropertyInput!
+  ): UpdateScalarPropertyPayload!
+  deleteScalarProperty(
+    input: DeleteScalarPropertyInput!
+  ): DeleteScalarPropertyPayload!
+  createRelationalProperty(
+    input: CreateRelationalPropertyInput!
+  ): CreateRelationalPropertyPayload!
+  updateRelationalProperty(
+    input: UpdateRelationalPropertyInput!
+  ): UpdateRelationalPropertyPayload!
+  deleteRelationalProperty(
+    input: DeleteRelationalPropertyInput!
+  ): DeleteRelationalPropertyPayload!
+}
