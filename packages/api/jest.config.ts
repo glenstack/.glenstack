@@ -4,7 +4,7 @@ const config: Config.InitialOptions = {
   preset: "ts-jest",
   testEnvironment: "node",
   displayName: "API",
-  collectCoverageFrom: ["src/**/*"],
+  collectCoverageFrom: ["src/**/*.ts"],
   coverageReporters: [["lcov", { projectRoot: "../.." }]],
 };
 
