@@ -16,8 +16,9 @@ export const Hero: FC = () => {
               Glenstack
             </h1>
             <h1 className="mt-4 text-3xl tracking-tight font-semibold text-white sm:mt-5 lg:mt-6 md:text-4xl">
-              Create, exchange, and collaborate on{" "}
-              <span className="text-yellow-500">data</span>
+              <span className="text-yellow-500">No-code</span> data editor.
+              Instant <span className="text-yellow-500">GraphQL</span>.{" "}
+              <span className="text-yellow-500">Live data</span> marketplace.{" "}
             </h1>
 
             <div className="mt-10 sm:mt-20">

@@ -7,9 +7,12 @@ import {
   ScalarFieldInput,
   TableInput,
   IRepository,
+  Organization,
+  Project,
 } from "../types";
 import { Client, query as q } from "faunadb";
 import { createCollectionAndWait } from "./utils";
+import to from "await-to-js";
 
 //TODO: Genereate apiNames automatically by camelcasing string
 
@@ -37,6 +40,37 @@ export class OrganizationRepository extends BaseRepository<OrganizationInput> {
     );
     return id;
   }
+  async get(id: string): Promise<Organization<Omit<Project, "tables">>> {
+    const [err, data] = await to(
+      this._client.query<Organization>(
+        q.Let(
+          { organizationRef: q.Ref(q.Collection("organizations"), id) },
+          q.Merge(q.Select("data", q.Get(q.Var("organizationRef"))), {
+            id,
+            projects: q.Select(
+              "data",
+              q.Map(
+                q.Paginate(
+                  q.Match(
+                    q.Index("projects_by_organization"),
+                    q.Var("organizationRef")
+                  )
+                ),
+                q.Lambda(
+                  "projectRef",
+                  q.Merge(q.Select("data", q.Get(q.Var("projectRef"))), {
+                    id: q.Select("id", q.Var("projectRef")),
+                  })
+                )
+              )
+            ),
+          })
+        )
+      )
+    );
+    if (!data) throw new Error("Failed to fetch project: " + err);
+    return data;
+  }
 }
 
 export class ProjectRepository extends BaseRepository<
@@ -62,6 +96,71 @@ export class ProjectRepository extends BaseRepository<
       })
     );
     return id;
+  }
+  async get(id: string): Promise<Project> {
+    const [err, data] = await to(
+      this._client.query<Project>(
+        q.Let(
+          { projectRef: q.Ref(q.Collection("projects"), id) },
+          q.Merge(q.Select("data", q.Get(q.Var("projectRef"))), {
+            id,
+            tables: q.Select(
+              "data",
+              q.Map(
+                q.Paginate(
+                  q.Match(q.Index("tables_by_project"), q.Var("projectRef"))
+                ),
+                q.Lambda(
+                  "tableRef",
+                  q.Merge(q.Select("data", q.Get(q.Var("tableRef"))), {
+                    id: q.Select(["ref", "id"], q.Get(q.Var("tableRef"))),
+                    fields: q.Select(
+                      "data",
+                      q.Map(
+                        q.Paginate(
+                          q.Match(q.Index("fields_by_table"), q.Var("tableRef"))
+                        ),
+                        q.Lambda(
+                          "fieldRef",
+                          q.Merge(q.Select("data", q.Get(q.Var("fieldRef"))), [
+                            {
+                              id: q.Select(
+                                ["ref", "id"],
+                                q.Get(q.Var("fieldRef"))
+                              ),
+                            },
+                            q.If(
+                              q.ContainsPath(
+                                ["data", "relationshipRef"],
+                                q.Get(q.Var("fieldRef"))
+                              ),
+                              {
+                                relationship: q.Select(
+                                  ["data"],
+                                  q.Get(
+                                    q.Select(
+                                      ["data", "relationshipRef"],
+                                      q.Get(q.Var("fieldRef"))
+                                    )
+                                  )
+                                ),
+                              },
+                              {}
+                            ),
+                          ])
+                        )
+                      )
+                    ),
+                  })
+                )
+              )
+            ),
+          })
+        )
+      )
+    );
+    if (!data) throw new Error("Failed to fetch project: " + err);
+    return data;
   }
 }
 
@@ -183,3 +282,21 @@ export class RelationshipFieldRepository extends BaseRepository<
     return id;
   }
 }
+
+const repositories = (
+  client: Client
+): {
+  organization: OrganizationRepository;
+  project: ProjectRepository;
+  table: TableRespository;
+  relationshipField: RelationshipFieldRepository;
+  scalarField: ScalarFieldRepository;
+} => ({
+  organization: new OrganizationRepository(client),
+  project: new ProjectRepository(client),
+  table: new TableRespository(client),
+  relationshipField: new RelationshipFieldRepository(client),
+  scalarField: new ScalarFieldRepository(client),
+});
+
+export default repositories;

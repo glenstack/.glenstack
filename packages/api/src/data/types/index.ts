@@ -5,24 +5,25 @@ export interface FaunaSchema {
   [tableName: string]: Table;
 }
 
-export interface OrganizationInput {
-  name: string;
-  apiName: string;
-}
-export interface Organization {
+export type OrganizationInput = Omit<Organization, "id" | "projects">;
+export interface Organization<ProjectType = Project> {
   id: string;
   name: string;
   apiName: string;
+  projects: Array<ProjectType>;
 }
-export type ProjectInput = {
-  name: string;
-  apiName: string;
+export type ProjectInput = Omit<
+  Project,
+  "id" | "organizationRef" | "tables"
+> & {
   organizationRef: Expr;
 };
 export interface Project {
+  id: string;
   name: string;
   apiName: string;
   organizationRef: Ref;
+  tables: Array<Table>;
 }
 
 export interface TableInput {

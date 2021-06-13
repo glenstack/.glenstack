@@ -3,13 +3,7 @@ import { Client, query as q } from "faunadb";
 import { getProjectSchema } from "../index";
 import { GraphQLSchema } from "graphql";
 import scaffold from "../fauna/scaffold";
-import {
-  OrganizationRepository,
-  ProjectRepository,
-  TableRespository,
-  ScalarFieldRepository,
-  RelationshipFieldRepository,
-} from "../fauna/repositories";
+import repositories from "../fauna/repositories";
 import { definitions } from "../definitions";
 
 jest.setTimeout(30000);
@@ -37,44 +31,42 @@ test("Integration Test", async () => {
   const test_client = new Client({
     secret,
   });
-  const Organization = new OrganizationRepository(test_client);
-  const Project = new ProjectRepository(test_client);
-  const Table = new TableRespository(test_client);
-  const ScalarField = new ScalarFieldRepository(test_client);
-  const RelationshipField = new RelationshipFieldRepository(test_client);
+
+  const { organization, project, table, scalarField, relationshipField } =
+    repositories(test_client);
   await scaffold(test_client);
 
-  const organizationId = await Organization.create({
+  const organizationId = await organization.create({
     name: "LibraryOrg",
     apiName: "LibraryOrg",
   });
-  const projectId = await Project.create({
+  const projectId = await project.create({
     name: "LibraryProj",
     apiName: "LibraryProj",
     organizationId,
   });
 
   for (const [key, value] of Object.entries(tables)) {
-    tables[key].id = await Table.create({
+    tables[key].id = await table.create({
       ...value,
       projectId,
     });
   }
 
-  await ScalarField.create({
+  await scalarField.create({
     name: "title",
     apiName: "title",
     tableId: tables["Book"].id,
     type: "String",
   });
-  await ScalarField.create({
+  await scalarField.create({
     name: "name",
     apiName: "name",
     tableId: tables["Author"].id,
     type: "String",
   });
 
-  await RelationshipField.create({
+  await relationshipField.create({
     name: "authors",
     apiName: "authors",
     backName: "books",
