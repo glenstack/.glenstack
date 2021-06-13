@@ -1,5 +1,4 @@
 import { ApolloServer } from "apollo-server";
-import { OrganizationRepository } from "./fauna/repositories";
 import { getProjectSchema } from "./index";
 import { GraphQLSchema } from "graphql";
 import { client } from "./fauna/client";

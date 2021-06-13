@@ -1,4 +1,4 @@
-import { query as q, Client } from "faunadb";
+import { Client } from "faunadb";
 
 import generateGraphQLSchema from "./generateGraphQLSchema";
 import { GraphQLSchema } from "graphql";
