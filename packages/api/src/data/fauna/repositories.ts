@@ -11,13 +11,13 @@ import {
   Project,
 } from "../types";
 import { Client, query as q } from "faunadb";
-import { createCollectionAndWait } from "./utils";
-import to from "await-to-js";
+import { createCollectionAndWait, query } from "./utils";
 
 //TODO: Genereate apiNames automatically by camelcasing string
 
 abstract class BaseRepository<T> implements IRepository<T> {
   public readonly _client: Client;
+
   constructor(client: Client) {
     this._client = client;
   }
@@ -31,45 +31,49 @@ export class OrganizationRepository extends BaseRepository<OrganizationInput> {
   async create(item: OrganizationInput): Promise<string> {
     const {
       ref: { id },
-    } = await this._client.query<FaunaResponse>(
-      q.Create(q.Collection("organizations"), {
-        data: {
-          ...item,
-        },
-      })
+    } = await query<FaunaResponse>(
+      this._client,
+      q.If(
+        q.IsEmpty(
+          q.Match(q.Index("organizations_apiName_unique"), item.apiName)
+        ),
+        q.Create(q.Collection("organizations"), {
+          data: {
+            ...item,
+          },
+        }),
+        q.Abort(`apiName ${item.apiName} already exists.`)
+      )
     );
     return id;
   }
   async get(id: string): Promise<Organization<Omit<Project, "tables">>> {
-    const [err, data] = await to(
-      this._client.query<Organization>(
-        q.Let(
-          { organizationRef: q.Ref(q.Collection("organizations"), id) },
-          q.Merge(q.Select("data", q.Get(q.Var("organizationRef"))), {
-            id,
-            projects: q.Select(
-              "data",
-              q.Map(
-                q.Paginate(
-                  q.Match(
-                    q.Index("projects_by_organization"),
-                    q.Var("organizationRef")
-                  )
-                ),
-                q.Lambda(
-                  "projectRef",
-                  q.Merge(q.Select("data", q.Get(q.Var("projectRef"))), {
-                    id: q.Select("id", q.Var("projectRef")),
-                  })
+    return await query<Organization>(
+      this._client,
+      q.Let(
+        { organizationRef: q.Ref(q.Collection("organizations"), id) },
+        q.Merge(q.Select("data", q.Get(q.Var("organizationRef"))), {
+          id,
+          projects: q.Select(
+            "data",
+            q.Map(
+              q.Paginate(
+                q.Match(
+                  q.Index("projects_by_organization"),
+                  q.Var("organizationRef")
                 )
+              ),
+              q.Lambda(
+                "projectRef",
+                q.Merge(q.Select("data", q.Get(q.Var("projectRef"))), {
+                  id: q.Select("id", q.Var("projectRef")),
+                })
               )
-            ),
-          })
-        )
+            )
+          ),
+        })
       )
     );
-    if (!data) throw new Error("Failed to fetch project: " + err);
-    return data;
   }
 }
 
@@ -90,77 +94,79 @@ export class ProjectRepository extends BaseRepository<
     };
     const {
       ref: { id },
-    } = await this._client.query<FaunaResponse>(
-      q.Create(q.Collection("projects"), {
-        data: { ...projectInput },
-      })
+    } = await query<FaunaResponse>(
+      this._client,
+      q.If(
+        q.IsEmpty(q.Match(q.Index("projects_apiName_unique"), apiName)),
+        q.Create(q.Collection("projects"), {
+          data: { ...projectInput },
+        }),
+        q.Abort(`apiName ${apiName} already exists within the organization`)
+      )
     );
     return id;
   }
   async get(id: string): Promise<Project> {
-    const [err, data] = await to(
-      this._client.query<Project>(
-        q.Let(
-          { projectRef: q.Ref(q.Collection("projects"), id) },
-          q.Merge(q.Select("data", q.Get(q.Var("projectRef"))), {
-            id,
-            tables: q.Select(
-              "data",
-              q.Map(
-                q.Paginate(
-                  q.Match(q.Index("tables_by_project"), q.Var("projectRef"))
-                ),
-                q.Lambda(
-                  "tableRef",
-                  q.Merge(q.Select("data", q.Get(q.Var("tableRef"))), {
-                    id: q.Select(["ref", "id"], q.Get(q.Var("tableRef"))),
-                    fields: q.Select(
-                      "data",
-                      q.Map(
-                        q.Paginate(
-                          q.Match(q.Index("fields_by_table"), q.Var("tableRef"))
-                        ),
-                        q.Lambda(
-                          "fieldRef",
-                          q.Merge(q.Select("data", q.Get(q.Var("fieldRef"))), [
+    return await query<Project>(
+      this._client,
+      q.Let(
+        { projectRef: q.Ref(q.Collection("projects"), id) },
+        q.Merge(q.Select("data", q.Get(q.Var("projectRef"))), {
+          id,
+          tables: q.Select(
+            "data",
+            q.Map(
+              q.Paginate(
+                q.Match(q.Index("tables_by_project"), q.Var("projectRef"))
+              ),
+              q.Lambda(
+                "tableRef",
+                q.Merge(q.Select("data", q.Get(q.Var("tableRef"))), {
+                  id: q.Select(["ref", "id"], q.Get(q.Var("tableRef"))),
+                  fields: q.Select(
+                    "data",
+                    q.Map(
+                      q.Paginate(
+                        q.Match(q.Index("fields_by_table"), q.Var("tableRef"))
+                      ),
+                      q.Lambda(
+                        "fieldRef",
+                        q.Merge(q.Select("data", q.Get(q.Var("fieldRef"))), [
+                          {
+                            id: q.Select(
+                              ["ref", "id"],
+                              q.Get(q.Var("fieldRef"))
+                            ),
+                          },
+                          q.If(
+                            q.ContainsPath(
+                              ["data", "relationshipRef"],
+                              q.Get(q.Var("fieldRef"))
+                            ),
                             {
-                              id: q.Select(
-                                ["ref", "id"],
-                                q.Get(q.Var("fieldRef"))
+                              relationship: q.Select(
+                                ["data"],
+                                q.Get(
+                                  q.Select(
+                                    ["data", "relationshipRef"],
+                                    q.Get(q.Var("fieldRef"))
+                                  )
+                                )
                               ),
                             },
-                            q.If(
-                              q.ContainsPath(
-                                ["data", "relationshipRef"],
-                                q.Get(q.Var("fieldRef"))
-                              ),
-                              {
-                                relationship: q.Select(
-                                  ["data"],
-                                  q.Get(
-                                    q.Select(
-                                      ["data", "relationshipRef"],
-                                      q.Get(q.Var("fieldRef"))
-                                    )
-                                  )
-                                ),
-                              },
-                              {}
-                            ),
-                          ])
-                        )
+                            {}
+                          ),
+                        ])
                       )
-                    ),
-                  })
-                )
+                    )
+                  ),
+                })
               )
-            ),
-          })
-        )
+            )
+          ),
+        })
       )
     );
-    if (!data) throw new Error("Failed to fetch project: " + err);
-    return data;
   }
 }
 
@@ -177,12 +183,17 @@ export class TableRespository extends BaseRepository<
       apiName,
       projectRef: q.Ref(q.Collection("projects"), projectId),
     };
-    const id: string = await this._client.query(q.NewId());
+    const id: string = await query(this._client, q.NewId());
     await createCollectionAndWait(this._client, id);
-    await this._client.query(
-      q.Create(q.Ref(q.Collection("tables"), id), {
-        data: { ...tableInput },
-      })
+    await query(
+      this._client,
+      q.If(
+        q.IsEmpty(q.Match(q.Index("tables_apiName_unique"), apiName)),
+        q.Create(q.Ref(q.Collection("tables"), id), {
+          data: { ...tableInput },
+        }),
+        q.Abort(`apiName ${apiName} already exists within the project`)
+      )
     );
 
     return id;
@@ -202,16 +213,22 @@ export class ScalarFieldRepository extends BaseRepository<
   }): Promise<string> {
     const fieldPayload: FieldInput = {
       ...fieldObj,
-      apiName: fieldObj.name,
       tableRef: q.Ref(q.Collection("tables"), tableId),
     };
 
     const {
       ref: { id },
-    } = await this._client.query<FaunaResponse>(
-      q.Create(q.Collection("fields"), {
-        data: { ...fieldPayload },
-      })
+    } = await query<FaunaResponse>(
+      this._client,
+      q.If(
+        q.IsEmpty(q.Match(q.Index("fields_apiName_unique"), fieldObj.apiName)),
+        q.Create(q.Collection("fields"), {
+          data: { ...fieldPayload },
+        }),
+        q.Abort(
+          `apiName ${fieldPayload.apiName} already exists within the table`
+        )
+      )
     );
     return id;
   }
@@ -222,19 +239,19 @@ export class RelationshipFieldRepository extends BaseRepository<
     tableId: string;
     to: string;
     backName: string;
-    apiBackName: string;
+    backApiName: string;
   }
 > {
   async create({
     tableId,
     backName, // Name of the field that references back to the created relational field
-    apiBackName,
+    backApiName,
     ...fieldObj
   }: Omit<RelationshipFieldInput, "tableRef" | "relationshipRef" | "type"> & {
     tableId: string;
     to: string;
     backName: string;
-    apiBackName: string;
+    backApiName: string;
   }): Promise<string> {
     const fieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
       ...fieldObj,
@@ -246,14 +263,15 @@ export class RelationshipFieldRepository extends BaseRepository<
     const backFieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
       type: "Relation",
       name: backName,
-      apiName: apiBackName,
+      apiName: backApiName,
       to: q.Ref(q.Collection("tables"), tableId),
       tableRef: q.Ref(q.Collection("tables"), fieldObj.to),
     };
 
     const {
       ref: { id },
-    } = await this._client.query<FaunaResponse>(
+    } = await query<FaunaResponse>(
+      this._client,
       q.Let(
         {
           relationship: q.Create(q.Collection("relationships"), {
@@ -264,18 +282,37 @@ export class RelationshipFieldRepository extends BaseRepository<
           }),
         },
         q.Do(
-          q.Create(q.Collection("fields"), {
-            data: {
-              ...fieldPayload,
-              relationshipRef: q.Select("ref", q.Var("relationship")),
-            },
-          }),
-          q.Create(q.Collection("fields"), {
-            data: {
-              ...backFieldPayload,
-              relationshipRef: q.Select("ref", q.Var("relationship")),
-            },
-          })
+          q.If(
+            q.IsEmpty(
+              q.Match(q.Index("fields_apiName_unique"), fieldPayload.apiName)
+            ),
+            q.Create(q.Collection("fields"), {
+              data: {
+                ...fieldPayload,
+                relationshipRef: q.Select("ref", q.Var("relationship")),
+              },
+            }),
+            q.Abort(
+              `apiName ${fieldPayload.apiName} already exists within the table`
+            )
+          ),
+          q.If(
+            q.IsEmpty(
+              q.Match(
+                q.Index("fields_apiName_unique"),
+                backFieldPayload.apiName
+              )
+            ),
+            q.Create(q.Collection("fields"), {
+              data: {
+                ...backFieldPayload,
+                relationshipRef: q.Select("ref", q.Var("relationship")),
+              },
+            }),
+            q.Abort(
+              `apiName ${backFieldPayload.apiName} already exists within the table`
+            )
+          )
         )
       )
     );

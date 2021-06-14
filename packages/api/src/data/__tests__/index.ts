@@ -40,6 +40,13 @@ test("Integration Test", async () => {
     name: "LibraryOrg",
     apiName: "LibraryOrg",
   });
+  expect(
+    organization.create({
+      name: "ABC",
+      apiName: "LibraryOrg",
+    })
+  ).rejects.toThrow(/already exists/);
+
   const projectId = await project.create({
     name: "LibraryProj",
     apiName: "LibraryProj",
@@ -70,7 +77,7 @@ test("Integration Test", async () => {
     name: "authors",
     apiName: "authors",
     backName: "books",
-    apiBackName: "books",
+    backApiName: "books",
     to: tables["Author"].id,
     tableId: tables["Book"].id,
   });

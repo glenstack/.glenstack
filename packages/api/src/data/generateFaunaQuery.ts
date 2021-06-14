@@ -186,7 +186,7 @@ export const generateFaunaQuery = (
             q.Paginate(
               q.Match(
                 q.Index(
-                  "relations" +
+                  "relations_" +
                     faunaSchema[parentType.name].fields[name].relationKey
                 ),
                 [
