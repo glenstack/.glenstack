@@ -1,17 +1,68 @@
 import React from "react";
 import { useTable } from "react-table";
 
+const EditableCell = ({
+  value: initialValue,
+  row: { index },
+  column: { id },
+}) => {
+  const [value, setValue] = React.useState(initialValue);
+
+  const onChange = e => {
+    setValue(e.target.value);
+  };
+
+  const onBlur = () => {
+    console.log("Updated data value");
+    console.log({ index, id, value });
+  };
+
+  React.useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  if (id == "status") {
+    return (
+      <input
+        className={pillMapping[value]}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+      />
+    );
+  } else {
+    return <input value={value} onChange={onChange} onBlur={onBlur} />;
+  }
+};
+
+const pillMapping = {
+  single:
+    "w-2/5 py-2 px-4 rounded-full bg-rose-200 text-rose-600 font-sans text-center",
+  relationship:
+    "w-2/5 py-2 px-4 rounded-full bg-yellow-200 text-yellow-600 font-sans text-center",
+  complicated:
+    "w-2/5 py-2 px-4 rounded-full bg-indigo-200 text-indigo-600 font-sans text-center",
+};
+
+// Set our editable cell renderer as the default Cell renderer
+const defaultColumn = {
+  Cell: EditableCell,
+};
+
 function Table({ columns, data }) {
-  // Use the state and functions returned from useTable to build your UI
+  // For this example, we're using pagination to illustrate how to stop
+  // the current page from resetting when our data changes
+  // Otherwise, nothing is different here.
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    rows,
     prepareRow,
+    rows,
   } = useTable({
     columns,
     data,
+    defaultColumn,
   });
 
   // Render the UI for your table
