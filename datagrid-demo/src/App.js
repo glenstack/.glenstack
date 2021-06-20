@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import { useTable } from "react-table";
 
 function Table({ columns, data }) {
@@ -35,7 +34,7 @@ function Table({ columns, data }) {
                       {headerGroup.headers.map(column => (
                         <th
                           scope="col"
-                          class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
+                          class="font-sans px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
                           {...column.getHeaderProps()}
                         >
                           {column.render("Header")}
@@ -55,7 +54,7 @@ function Table({ columns, data }) {
                         {row.cells.map(cell => {
                           return (
                             <td
-                              class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                              class="font-sans px-6 py-4 whitespace-nowrap text-sm text-gray-500"
                               {...cell.getCellProps()}
                             >
                               {cell.render("Cell")}
@@ -70,6 +69,96 @@ function Table({ columns, data }) {
             </div>
           </div>
         </div>
+        <nav class="border-t border-gray-200 px-4 flex items-center justify-between sm:px-0">
+          <div class="-mt-px w-0 flex-1 flex">
+            <a
+              href="#"
+              class="font-sans border-t-2 border-transparent pt-4 pr-1 inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            >
+              <svg
+                class="mr-3 h-5 w-5 text-gray-400"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+              Previous
+            </a>
+          </div>
+          <div class="hidden md:-mt-px md:flex">
+            <a
+              href="#"
+              class="font-sans border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
+            >
+              1
+            </a>
+            <a
+              href="#"
+              class="font-sans border-rose-500 text-rose-600 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
+              aria-current="page"
+            >
+              2
+            </a>
+            <a
+              href="#"
+              class="font-sans border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
+            >
+              3
+            </a>
+            <span class="font-sans border-transparent text-gray-500 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium">
+              ...
+            </span>
+            <a
+              href="#"
+              class="font-sans border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
+            >
+              8
+            </a>
+            <a
+              href="#"
+              class="font-sans border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
+            >
+              9
+            </a>
+            <a
+              href="#"
+              class="font-sans border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
+            >
+              10
+            </a>
+          </div>
+          <div class="-mt-px w-0 flex-1 flex justify-end">
+            <a
+              href="#"
+              class="font-sans border-t-2 border-transparent pt-4 pl-1 inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            >
+              Next
+              <svg
+                class="ml-3 h-5 w-5 text-gray-400"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </a>
+          </div>
+        </nav>
       </div>
     </>
   );
@@ -163,66 +252,6 @@ function App() {
       lastName: "cows",
       age: 7,
       status: "single",
-    },
-    {
-      firstName: "weight",
-      lastName: "flower",
-      age: 20,
-      status: "complicated",
-    },
-    {
-      firstName: "ray",
-      lastName: "hole",
-      age: 27,
-      status: "single",
-    },
-    {
-      firstName: "credit",
-      lastName: "audience",
-      age: 9,
-      status: "single",
-    },
-    {
-      firstName: "dock",
-      lastName: "muscle",
-      age: 6,
-      status: "relationship",
-    },
-    {
-      firstName: "childhood",
-      lastName: "plough",
-      age: 22,
-      status: "complicated",
-    },
-    {
-      firstName: "friend",
-      lastName: "estate",
-      age: 28,
-      status: "single",
-    },
-    {
-      firstName: "rabbits",
-      lastName: "machine",
-      age: 4,
-      status: "single",
-    },
-    {
-      firstName: "alley",
-      lastName: "category",
-      age: 6,
-      status: "single",
-    },
-    {
-      firstName: "aunt",
-      lastName: "top",
-      age: 22,
-      status: "complicated",
-    },
-    {
-      firstName: "union",
-      lastName: "thread",
-      age: 24,
-      status: "relationship",
     },
   ];
 

@@ -1250,6 +1250,51 @@
   resolved "https://registry.yarnpkg.com/@emotion/unitless/-/unitless-0.7.4.tgz#a87b4b04e5ae14a88d48ebef15015f6b7d1f5677"
   integrity sha512-kBa+cDHOR9jpRJ+kcGMsysrls0leukrm68DmFQoMIWQcXdr2cZvyvypWuGYT7U+9kAExUE7+T7r6G3C3A6L8MQ==
 
+"@fontsource/jost@4.3.0":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource/jost/-/jost-4.3.0.tgz#c9b7915e2c7bdac969ea3aae08e86549ffded741"
+  integrity sha512-bhIajHyaFZ6DD6D76jLx7tTBoNLF7UHlJw0Xu6dD6jFB3N0rI71DG8fVCdzFMlF6o5ptE4xBJcMDlcRfCSt8nw==
+
+"@fortawesome/fontawesome-common-types@^0.2.35":
+  version "0.2.35"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.35.tgz#01dd3d054da07a00b764d78748df20daf2b317e9"
+  integrity sha512-IHUfxSEDS9dDGqYwIW7wTN6tn/O8E0n5PcAHz9cAaBoZw6UpG20IG/YM3NNLaGPwPqgjBAFjIURzqoQs3rrtuw==
+
+"@fortawesome/fontawesome-svg-core@1.2.35":
+  version "1.2.35"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.35.tgz#85aea8c25645fcec88d35f2eb1045c38d3e65cff"
+  integrity sha512-uLEXifXIL7hnh2sNZQrIJWNol7cTVIzwI+4qcBIq9QWaZqUblm0IDrtSqbNg+3SQf8SMGHkiSigD++rHmCHjBg==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.35"
+
+"@fortawesome/free-brands-svg-icons@5.15.3":
+  version "5.15.3"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-brands-svg-icons/-/free-brands-svg-icons-5.15.3.tgz#bec2821d23b9c667be1d192a6c5bfb2667e588eb"
+  integrity sha512-1hirPcbjj72ZJtFvdnXGPbAbpn3Ox6mH3g5STbANFp3vGSiE5u5ingAKV06mK6ZVqNYxUPlh4DlTnaIvLtF2kw==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.35"
+
+"@fortawesome/free-regular-svg-icons@5.15.3":
+  version "5.15.3"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-regular-svg-icons/-/free-regular-svg-icons-5.15.3.tgz#1ec4f2410ff638db549c5c5484fc60b66407dbe6"
+  integrity sha512-q4/p8Xehy9qiVTdDWHL4Z+o5PCLRChePGZRTXkl+/Z7erDVL8VcZUuqzJjs6gUz6czss4VIPBRdCz6wP37/zMQ==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.35"
+
+"@fortawesome/free-solid-svg-icons@5.15.3":
+  version "5.15.3"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-5.15.3.tgz#52eebe354f60dc77e0bde934ffc5c75ffd04f9d8"
+  integrity sha512-XPeeu1IlGYqz4VWGRAT5ukNMd4VHUEEJ7ysZ7pSSgaEtNvSo+FLurybGJVmiqkQdK50OkSja2bfZXOeyMGRD8Q==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.35"
+
+"@fortawesome/react-fontawesome@0.1.14":
+  version "0.1.14"
+  resolved "https://registry.yarnpkg.com/@fortawesome/react-fontawesome/-/react-fontawesome-0.1.14.tgz#bf28875c3935b69ce2dc620e1060b217a47f64ca"
+  integrity sha512-4wqNb0gRLVaBm/h+lGe8UfPPivcbuJ6ecI4hIgW0LjI7kzpYB9FkN0L9apbVzg+lsBdcTf0AlBtODjcSX5mmKA==
+  dependencies:
+    prop-types "^15.7.2"
+
 "@fullhuman/postcss-purgecss@^3.1.3":
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/@fullhuman/postcss-purgecss/-/postcss-purgecss-3.1.3.tgz#47af7b87c9bfb3de4bc94a38f875b928fffdf339"
@@ -1603,6 +1648,16 @@
     "@svgr/plugin-jsx" "^4.1.0"
     "@svgr/plugin-svgo" "^4.0.3"
     loader-utils "^1.1.0"
+
+"@tailwindcss/typography@0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@tailwindcss/typography/-/typography-0.4.0.tgz#b80974ad6af93df7b06e1981cb4d79698b6ad5c7"
+  integrity sha512-3BfOYT5MYNEq81Ism3L2qu/HRP2Q5vWqZtZRQqQrthHuaTK9qpuPfbMT5WATjAM5J1OePKBaI5pLoX4S1JGNMQ==
+  dependencies:
+    lodash.castarray "^4.4.0"
+    lodash.isplainobject "^4.0.6"
+    lodash.merge "^4.6.2"
+    lodash.uniq "^4.5.0"
 
 "@types/babel__core@^7.1.0":
   version "7.1.14"
@@ -6664,15 +6719,30 @@ lodash._reinterpolate@^3.0.0:
   resolved "https://registry.yarnpkg.com/lodash._reinterpolate/-/lodash._reinterpolate-3.0.0.tgz#0ccf2d89166af03b3663c796538b75ac6e114d9d"
   integrity sha1-DM8tiRZq8Ds2Y8eWU4t1rG4RTZ0=
 
+lodash.castarray@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/lodash.castarray/-/lodash.castarray-4.4.0.tgz#c02513515e309daddd4c24c60cfddcf5976d9115"
+  integrity sha1-wCUTUV4wna3dTCTGDP3c9ZdtkRU=
+
 lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
+lodash.isplainobject@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/lodash.isplainobject/-/lodash.isplainobject-4.0.6.tgz#7c526a52d89b45c45cc690b88163be0497f550cb"
+  integrity sha1-fFJqUtibRcRcxpC4gWO+BJf1UMs=
+
 lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
   integrity sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=
+
+lodash.merge@^4.6.2:
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
+  integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
 
 lodash.sortby@^4.7.0:
   version "4.7.0"
@@ -8575,7 +8645,7 @@ prompts@^2.0.1:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.5.4, prop-types@^15.6.2:
+prop-types@^15.5.4, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
