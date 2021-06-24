@@ -13,7 +13,8 @@ import {
 import { Client } from "faunadb";
 import { createCollectionAndWait, query, enrichedQuery as q } from "./utils";
 
-//TODO: Generate apiNames automatically by camelcasing string
+//TODO: Generate apiNames automatically by camelcasing string?
+//TODO: Properly throw error if updating non-existent documents
 
 abstract class BaseRepository<T> implements IRepository<T> {
   public readonly _client: Client;

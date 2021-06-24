@@ -2,22 +2,22 @@ import { Expr, values } from "faunadb";
 import Ref = values.Ref;
 // import { FieldOptionsFromKind } from "@giraphql/core";
 export interface FaunaSchema {
-  [tableName: string]: Table;
+  [tableName: string]: Omit<Table, "fields"> & {
+    fields: {
+      [fieldName: string]: Field;
+    };
+  };
 }
 
-export type OrganizationInput = Omit<Organization, "id" | "projects">;
 export interface Organization<ProjectType = Project> {
   id: string;
   name: string;
   apiName: string;
   projects: Array<ProjectType>;
 }
-export type ProjectInput = Omit<
-  Project,
-  "id" | "organizationRef" | "tables"
-> & {
-  organizationRef: Expr;
-};
+
+export type OrganizationInput = Omit<Organization, "id" | "projects">;
+
 export interface Project {
   id: string;
   name: string;
@@ -26,28 +26,12 @@ export interface Project {
   tables: Array<Table>;
 }
 
-export interface TableInput {
-  name: string;
-  apiName: string;
-  projectRef: Expr;
-}
-export type FieldInput = ScalarFieldInput | RelationshipFieldInput;
-
-export interface ScalarFieldInput {
-  name: string;
-  apiName: string;
-  type: "String" | "Boolean" | "Number";
-  tableRef: Expr;
-}
-
-export interface RelationshipFieldInput {
-  name: string;
-  apiName: string;
-  relationshipRef: Ref;
-  type: "Relation";
-  tableRef: Expr;
-  to: Expr;
-}
+export type ProjectInput = Omit<
+  Project,
+  "id" | "organizationRef" | "tables"
+> & {
+  organizationRef: Expr;
+};
 
 export interface FaunaResponse<Type = Record<string, unknown>> {
   ref: Ref;
@@ -57,11 +41,14 @@ export interface FaunaResponse<Type = Record<string, unknown>> {
 export interface Table {
   name: string;
   apiName: string;
-  fields: {
-    [fieldName: string]: Field;
-  };
+  fields: Array<Field>;
   id: string;
+  projectRef: Ref;
 }
+
+export type TableInput = Pick<Table, "name" | "apiName"> & {
+  projectRef: Expr;
+};
 
 export type Field = ScalarField | RelationshipField;
 
@@ -69,7 +56,7 @@ export interface ScalarField {
   id: string;
   name: string;
   apiName: string;
-  type: "String" | "Boolean" | "Number";
+  type: "String" | "Boolean" | "Number" | "EmailAddress";
   tableRef: Ref;
 }
 
@@ -82,7 +69,19 @@ export interface RelationshipField {
   relationship: { A: Ref; B: Ref };
   relationKey: "A" | "B";
   to: Ref;
+  tableRef: Ref;
 }
+
+export type ScalarFieldInput = Omit<ScalarField, "tableRef" | "id"> & {
+  tableRef: Expr;
+};
+
+export type RelationshipFieldInput = Pick<
+  RelationshipField,
+  "name" | "apiName" | "type" | "relationshipRef"
+> & { tableRef: Expr; to: Expr };
+
+export type FieldInput = ScalarFieldInput | RelationshipFieldInput;
 
 // export interface IWrite<T> {
 //   create(item: T): Promise<boolean>;
