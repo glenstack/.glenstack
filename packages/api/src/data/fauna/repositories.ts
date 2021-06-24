@@ -307,34 +307,28 @@ export class ScalarFieldRepository extends BaseRepository<
 
   async update(
     id: string,
-    {
-      tableId,
-      ...updateInput
-    }: Omit<ScalarFieldInput, "tableRef"> & {
-      tableId: string;
-    }
+    updateInput: Partial<Pick<ScalarFieldInput, "name" | "apiName">>
   ): Promise<string> {
-    const fieldPayload: FieldInput = {
+    const fieldPayload: Partial<Pick<ScalarFieldInput, "name" | "apiName">> = {
       ...updateInput,
-      tableRef: q.Ref(q.Collection("tables"), tableId),
     };
 
+    let queryExpr = q.Update(q.Ref(q.Collection("fields"), id), {
+      data: fieldPayload,
+    });
+
     if (fieldPayload.apiName) {
-      await query(
-        this._client,
-        q.WithoutDuplicates(
-          q.Update(q.Ref(q.Collection("fields"), id), {
-            data: fieldPayload,
-          }),
-          q.Match(q.Index("fields_apiName_unique"), fieldPayload.apiName),
-          `apiName ${fieldPayload.apiName} already exists within the table`
-        )
-      );
-    } else {
-      q.Update(q.Ref(q.Collection("tables"), id), {
-        data: fieldPayload,
-      });
+      {
+        queryExpr = q.WithoutDuplicates(
+          queryExpr,
+          q.Match(q.Index("projects_apiName_unique"), fieldPayload.apiName),
+          `apiName ${fieldPayload.apiName} already exists within the organization`
+        );
+      }
     }
+
+    await query<FaunaResponse>(this._client, queryExpr);
+
     return id;
   }
 }
@@ -343,39 +337,23 @@ export class RelationshipFieldRepository extends BaseRepository<
   Omit<RelationshipFieldInput, "tableRef" | "relationshipRef" | "type"> & {
     tableId: string;
     to: string;
-    backName: string;
-    backApiName: string;
   }
 > {
   async create({
     tableId,
-    backName, // Name of the field that references back to the created relational field
-    backApiName,
     ...createInput
   }: Omit<RelationshipFieldInput, "tableRef" | "relationshipRef" | "type"> & {
     tableId: string;
     to: string;
-    backName: string;
-    backApiName: string;
   }): Promise<string> {
     const fieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
       ...createInput,
-      to: q.Ref(q.Collection("tables"), createInput.to),
       type: "Relation",
-      apiName: createInput.name,
+      to: q.Ref(q.Collection("tables"), createInput.to),
       tableRef: q.Ref(q.Collection("tables"), tableId),
     };
-    const backFieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
-      type: "Relation",
-      name: backName,
-      apiName: backApiName,
-      to: q.Ref(q.Collection("tables"), tableId),
-      tableRef: q.Ref(q.Collection("tables"), createInput.to),
-    };
 
-    const {
-      ref: { id },
-    } = await query<FaunaResponse>(
+    const id = await query<string>(
       this._client,
       q.Let(
         {
@@ -386,41 +364,117 @@ export class RelationshipFieldRepository extends BaseRepository<
             },
           }),
         },
-        q.Do(
-          q.If(
-            q.IsEmpty(
-              q.Match(q.Index("fields_apiName_unique"), fieldPayload.apiName)
-            ),
+        q.WithoutDuplicates(
+          q.Select(
+            ["ref", "id"],
             q.Create(q.Collection("fields"), {
               data: {
                 ...fieldPayload,
                 relationshipRef: q.Select("ref", q.Var("relationship")),
               },
-            }),
-            q.Abort(
-              `apiName ${fieldPayload.apiName} already exists within the table`
-            )
+            })
           ),
-          q.If(
-            q.IsEmpty(
-              q.Match(
-                q.Index("fields_apiName_unique"),
-                backFieldPayload.apiName
-              )
-            ),
-            q.Create(q.Collection("fields"), {
-              data: {
-                ...backFieldPayload,
-                relationshipRef: q.Select("ref", q.Var("relationship")),
-              },
-            }),
-            q.Abort(
-              `apiName ${backFieldPayload.apiName} already exists within the table`
-            )
-          )
+          q.Match(q.Index("fields_apiName_unique"), fieldPayload.apiName),
+          `apiName ${fieldPayload.apiName} already exists within the table`
         )
       )
     );
+    return id;
+  }
+
+  async createBidirectional({
+    tableId,
+    backName, // Name of the field that references back to the created relational field
+    backApiName,
+    ...createInput
+  }: Omit<RelationshipFieldInput, "tableRef" | "relationshipRef" | "type"> & {
+    tableId: string;
+    to: string;
+    backName: string;
+    backApiName: string;
+  }): Promise<Array<string>> {
+    const fieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
+      ...createInput,
+      type: "Relation",
+      to: q.Ref(q.Collection("tables"), createInput.to),
+      tableRef: q.Ref(q.Collection("tables"), tableId),
+    };
+    const backFieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
+      type: "Relation",
+      name: backName,
+      apiName: backApiName,
+      to: q.Ref(q.Collection("tables"), tableId),
+      tableRef: q.Ref(q.Collection("tables"), createInput.to),
+    };
+
+    const ids = await query<Array<string>>(
+      this._client,
+      q.Let(
+        {
+          relationship: q.Create(q.Collection("relationships"), {
+            data: {
+              A: q.Ref(q.Collection("tables"), tableId),
+              B: q.Ref(q.Collection("tables"), createInput.to),
+            },
+          }),
+        },
+        q.Do([
+          q.WithoutDuplicates(
+            q.Select(
+              ["ref", "id"],
+              q.Create(q.Collection("fields"), {
+                data: {
+                  ...fieldPayload,
+                  relationshipRef: q.Select("ref", q.Var("relationship")),
+                },
+              })
+            ),
+            q.Match(q.Index("fields_apiName_unique"), fieldPayload.apiName),
+            `apiName ${fieldPayload.apiName} already exists within the table`
+          ),
+          q.WithoutDuplicates(
+            q.Select(
+              ["ref", "id"],
+              q.Create(q.Collection("fields"), {
+                data: {
+                  ...backFieldPayload,
+                  relationshipRef: q.Select("ref", q.Var("relationship")),
+                },
+              })
+            ),
+            q.Match(q.Index("fields_apiName_unique"), backFieldPayload.apiName),
+            `apiName ${backFieldPayload.apiName} already exists within the table`
+          ),
+        ])
+      )
+    );
+    return ids;
+  }
+
+  async update(
+    id: string,
+    updateInput: Partial<Pick<RelationshipFieldInput, "name" | "apiName">>
+  ): Promise<string> {
+    const fieldPayload: Partial<
+      Pick<RelationshipFieldInput, "name" | "apiName">
+    > = updateInput;
+
+    let queryExpr = q.Update(q.Ref(q.Collection("fields"), id), {
+      data: fieldPayload,
+    });
+
+    if (fieldPayload.apiName) {
+      {
+        queryExpr = q.WithoutDuplicates(
+          queryExpr,
+          q.Match(q.Index("projects_apiName_unique"), fieldPayload.apiName),
+          `apiName ${fieldPayload.apiName} already exists within the organization`
+        );
+      }
+    }
+
+    await query<FaunaResponse>(this._client, queryExpr);
+
     return id;
   }
 }

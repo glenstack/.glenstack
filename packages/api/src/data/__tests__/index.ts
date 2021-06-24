@@ -83,14 +83,21 @@ test("Integration Test", async () => {
     type: "String",
   });
 
-  await relationshipField.create({
-    name: "authors",
-    apiName: "authors",
-    backName: "books",
-    backApiName: "books",
-    to: tables["Author"].id,
-    tableId: tables["Book"].id,
-  });
+  const [authorsFieldId, booksFieldId] =
+    await relationshipField.createBidirectional({
+      name: "authors",
+      apiName: "wrongAuthors",
+      backName: "books",
+      backApiName: "wrongBooks",
+      to: tables["Author"].id,
+      tableId: tables["Book"].id,
+    });
+
+  /**
+   * If the relationship fields do not update correctly then the GraphQL queries after will automatically fail
+   */
+  await relationshipField.update(authorsFieldId, { apiName: "authors" });
+  await relationshipField.update(booksFieldId, { apiName: "books" });
 
   const schema: GraphQLSchema = await getProjectSchema(test_client, projectId);
   const server = new ApolloServer({
