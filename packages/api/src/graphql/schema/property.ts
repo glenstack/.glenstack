@@ -1,3 +1,4 @@
+import { toGlobalId } from "graphql-relay";
 import type { DocumentNode } from "graphql";
 import type { Context } from "./../context";
 import { client } from "../../data/fauna/client";
@@ -7,6 +8,7 @@ import {
 } from "../../data/fauna/repositories";
 import type { Resolvers } from "../__generated__/graphql";
 import schema from "./property.graphql";
+import { capitalize } from "../../utils";
 
 export const generateTypeDefs = async ({
   context,
@@ -57,9 +59,25 @@ export const resolvers = async ({
             name: input.name,
             to: input.toTypeId,
           });
+
+          const relationalPropertyType = capitalize(
+            `${input.identifier}RelationalProperty`
+          );
+          const typeIdentifier = "";
+          const typeType = capitalize(`${typeIdentifier}Type`);
+          const projectIdentifier = "library";
+          const projectType = capitalize(`${projectIdentifier}Project`);
+          const organizationIdentifier = "acme";
+          const organizationType = capitalize(
+            `${organizationIdentifier}Organization`
+          );
+
           return {
             property: {
-              id,
+              id: toGlobalId(
+                `${organizationType}${projectType}${typeType}${relationalPropertyType}`,
+                id
+              ),
             },
           };
         },

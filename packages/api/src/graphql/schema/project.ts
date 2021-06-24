@@ -1,5 +1,7 @@
+import { capitalize } from "./../../utils";
 import type { DocumentNode } from "graphql";
 import type { Context } from "./../context";
+import { toGlobalId } from "graphql-relay";
 import { client } from "../../data/fauna/client";
 import { ProjectRepository } from "./../../data/fauna/repositories";
 import type { Resolvers } from "../__generated__/graphql";
@@ -30,9 +32,16 @@ export const generateResolvers = async ({
             apiName: input.identifier,
             name: input.name,
           });
+
+          const projectType = capitalize(`${input.identifier}Project`);
+          const organizationIdentifier = "acme"; // TODO
+          const organizationType = capitalize(
+            `${organizationIdentifier}Organization`
+          );
+
           return {
             project: {
-              id,
+              id: toGlobalId(`${organizationType}${projectType}`, id),
             },
           };
         },
