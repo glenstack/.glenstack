@@ -1,0 +1,4 @@
+"""
+A \`String\` of HTML.
+"""
+scalar HTML

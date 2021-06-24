@@ -11,8 +11,6 @@ import {
 import { Client, query as q } from "faunadb";
 import { createCollectionAndWait } from "./utils";
 
-//TODO: Genereate apiNames automatically by camelcasing string
-
 abstract class BaseRepository<T> implements IRepository<T> {
   public readonly _client: Client;
   constructor(client: Client) {
@@ -126,9 +124,48 @@ export class RelationshipFieldRepository extends BaseRepository<
     apiBackName: string;
   }
 > {
-  async create({
+  private async createUnidirectional({
     tableId,
-    backName, // Name of the field that references back to the created relational field
+    ...fieldObj
+  }: Omit<RelationshipFieldInput, "tableRef" | "relationshipRef" | "type"> & {
+    tableId: string;
+    to: string;
+  }) {
+    const fieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
+      ...fieldObj,
+      to: q.Ref(q.Collection("tables"), fieldObj.to),
+      type: "Relation",
+      apiName: fieldObj.name,
+      tableRef: q.Ref(q.Collection("tables"), tableId),
+    };
+    const {
+      ref: { id },
+    } = await this._client.query<FaunaResponse>(
+      q.Let(
+        {
+          relationship: q.Create(q.Collection("relationships"), {
+            data: {
+              A: q.Ref(q.Collection("tables"), tableId),
+              B: q.Ref(q.Collection("tables"), fieldObj.to),
+            },
+          }),
+        },
+        q.Do(
+          q.Create(q.Collection("fields"), {
+            data: {
+              ...fieldPayload,
+              relationshipRef: q.Select("ref", q.Var("relationship")),
+            },
+          })
+        )
+      )
+    );
+    return id;
+  }
+
+  private async createBidirectional({
+    tableId,
+    backName,
     apiBackName,
     ...fieldObj
   }: Omit<RelationshipFieldInput, "tableRef" | "relationshipRef" | "type"> & {
@@ -136,7 +173,7 @@ export class RelationshipFieldRepository extends BaseRepository<
     to: string;
     backName: string;
     apiBackName: string;
-  }): Promise<string> {
+  }) {
     const fieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
       ...fieldObj,
       to: q.Ref(q.Collection("tables"), fieldObj.to),
@@ -151,7 +188,6 @@ export class RelationshipFieldRepository extends BaseRepository<
       to: q.Ref(q.Collection("tables"), tableId),
       tableRef: q.Ref(q.Collection("tables"), fieldObj.to),
     };
-
     const {
       ref: { id },
     } = await this._client.query<FaunaResponse>(
@@ -181,5 +217,28 @@ export class RelationshipFieldRepository extends BaseRepository<
       )
     );
     return id;
+  }
+
+  async create(
+    input: Omit<
+      RelationshipFieldInput,
+      "tableRef" | "relationshipRef" | "type"
+    > &
+      (
+        | {
+            tableId: string;
+            to: string;
+          }
+        | {
+            tableId: string;
+            to: string;
+            backName: string;
+            apiBackName: string;
+          }
+      )
+  ): Promise<string> {
+    return "backName" in input
+      ? this.createBidirectional(input)
+      : this.createUnidirectional(input);
   }
 }

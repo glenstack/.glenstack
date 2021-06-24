@@ -1,0 +1,54 @@
+interface Project implements Node {
+  id: ID!
+  name: String!
+  organization: Organization!
+  typeConnection(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): TypeConnection!
+}
+
+type ProjectConnection implements Connection {
+  edges: [ProjectEdge]
+  pageInfo: PageInfo!
+}
+
+type ProjectEdge implements Edge {
+  cursor: Cursor!
+  node: Project
+}
+
+input CreateProjectInput {
+  organizationId: ID!
+  identifier: Identifier!
+  name: String!
+}
+
+type CreateProjectPayload {
+  project: Project!
+}
+
+input UpdateProjectInput {
+  id: ID!
+  name: String
+}
+
+type UpdateProjectPayload {
+  project: Project!
+}
+
+input DeleteProjectInput {
+  id: ID!
+}
+
+type DeleteProjectPayload {
+  deletedProjectId: ID!
+}
+
+extend type Mutation {
+  createProject(input: CreateProjectInput!): CreateProjectPayload!
+  updateProject(input: UpdateProjectInput!): UpdateProjectPayload!
+  deleteProject(input: DeleteProjectInput!): DeleteProjectPayload!
+}

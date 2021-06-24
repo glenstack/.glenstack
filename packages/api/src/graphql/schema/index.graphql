@@ -1,0 +1,19 @@
+"""
+The query root of Glenstack's GraphQL API.
+"""
+type Query {
+  """
+  The current version of the Glenstack API.
+  """
+  version: String!
+}
+
+"""
+The mutation root of Glenstack's GraphQL API.
+"""
+type Mutation {
+  """
+  The current version of the Glenstack API.
+  """
+  version: String!
+}

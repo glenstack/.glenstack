@@ -1,0 +1,67 @@
+interface Organization implements Node {
+  id: ID!
+  name: String!
+  projectConnection(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): ProjectConnection!
+}
+
+type OrganizationConnection implements Connection {
+  edges: [OrganizationEdge]
+  pageInfo: PageInfo!
+}
+
+type OrganizationEdge implements Edge {
+  cursor: Cursor!
+  node: Organization
+}
+
+extend type Query {
+  organizationConnection(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): OrganizationConnection!
+}
+
+input CreateOrganizationInput {
+  identifier: Identifier!
+  name: String!
+}
+
+type CreateOrganizationPayload {
+  organization: Organization!
+}
+
+input UpdateOrganizationInput {
+  id: ID!
+  name: String
+}
+
+type UpdateOrganizationPayload {
+  organization: Organization!
+}
+
+input DeleteOrganizationInput {
+  id: ID!
+}
+
+type DeleteOrganizationPayload {
+  deletedOrganizationId: ID!
+}
+
+extend type Mutation {
+  createOrganization(
+    input: CreateOrganizationInput!
+  ): CreateOrganizationPayload!
+  updateOrganization(
+    input: UpdateOrganizationInput!
+  ): UpdateOrganizationPayload!
+  deleteOrganization(
+    input: DeleteOrganizationInput!
+  ): DeleteOrganizationPayload!
+}

@@ -1,0 +1,20 @@
+"""
+Legal documents regarding the use of Glenstack and its API.
+"""
+type LegalDocuments {
+  """
+  Glenstack's Privacy Policy.
+  """
+  privacyPolicy: HTML!
+  """
+  Glenstack's Terms of Service.
+  """
+  termsOfService: HTML!
+}
+
+extend type Query {
+  """
+  Legal documnets regarding the use of Glenstack and its API.
+  """
+  legal: LegalDocuments!
+}

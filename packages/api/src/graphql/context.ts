@@ -12,13 +12,14 @@ type User = {
 export type Context = {
   user?: User;
   sentry: Toucan;
+  things?: number;
 };
 
 export const makeContextValue = async (
   request: Request,
   sentry: Toucan
 ): Promise<Context> => {
-  return { sentry };
+  return { sentry, things: 5 };
 };
 
 export interface Resolver<Return, Arguments = Record<string, unknown>> {
