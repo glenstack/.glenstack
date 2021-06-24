@@ -48,10 +48,20 @@ test("Integration Test", async () => {
   ).rejects.toThrow(/already exists/);
 
   const projectId = await project.create({
+    name: "WrongName",
+    apiName: "WrongApiName",
+    organizationId,
+  });
+  await project.update(projectId, {
     name: "LibraryProj",
     apiName: "LibraryProj",
     organizationId,
   });
+
+  expect(project.get(projectId)).resolves.toHaveProperty(
+    "apiName",
+    "LibraryProj"
+  );
 
   for (const [key, value] of Object.entries(tables)) {
     tables[key].id = await table.create({

@@ -1,5 +1,15 @@
 import to from "await-to-js";
-import { Client, errors, ExprArg, query as q } from "faunadb";
+import { Client, errors, ExprArg, Expr, query as q } from "faunadb";
+
+const WithoutDuplicates = (
+  expr: ExprArg,
+  search: ExprArg,
+  errorMessage: string
+): Expr => {
+  return q.If(q.IsEmpty(search), expr, q.Abort(errorMessage));
+};
+
+export const enrichedQuery = { ...q, WithoutDuplicates };
 
 export const createCollectionAndWait = async (
   client: Client,
