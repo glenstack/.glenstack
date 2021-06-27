@@ -56,7 +56,13 @@ export interface ScalarField {
   id: string;
   name: string;
   apiName: string;
-  type: "String" | "Boolean" | "Number" | "EmailAddress";
+  type:
+    | "String"
+    | ["String"]
+    | "Boolean"
+    | "Number"
+    | "EmailAddress"
+    | ["EmailAddress"];
   tableRef: Ref;
 }
 

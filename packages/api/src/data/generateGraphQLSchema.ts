@@ -9,7 +9,7 @@ import { generateFaunaQuery } from "./generateFaunaQuery";
 import { FaunaSchema, Field, Project, Table } from "./types";
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from "graphql";
 import { definitions } from "./definitions";
-import { GraphQLEmailAddress } from "graphql-scalars";
+import { GraphQLEmailAddress, GraphQLJSON } from "graphql-scalars";
 
 // const getGiraphType = (
 //   type: string
@@ -85,12 +85,17 @@ export default (project: Project, client: Client): GraphQLSchema => {
         Input: GraphQLScalarType;
         Output: GraphQLScalarType;
       };
+      JSON: {
+        Input: GraphQLScalarType;
+        Output: GraphQLScalarType;
+      };
     };
   }>({
     defaultFieldNullability: true,
   });
 
   builder.addScalarType("EmailAddress", GraphQLEmailAddress, {});
+  builder.addScalarType("JSON", GraphQLJSON, {});
 
   builder.scalarType("Number", {
     serialize: (n) => n,
