@@ -1,5 +1,6 @@
 /* eslint-disable */
 import SchemaBuilder, {
+  ArgBuilder,
   InputFieldRef,
   InputShapeFromFields,
 } from "@giraphql/core";
@@ -16,6 +17,27 @@ import { GraphQLEmailAddress, GraphQLJSON } from "graphql-scalars";
 // ): GiraphQLSchemaTypes.FieldOptions["type"] => {
 //   return type;
 // };
+
+export interface SchemaTypes {
+  DefaultFieldNullability: true;
+  Scalars: {
+    Number: {
+      Input: number;
+      Output: number;
+    };
+    EmailAddress: {
+      Input: GraphQLScalarType;
+      Output: GraphQLScalarType;
+    };
+    JSON: {
+      Input: GraphQLScalarType;
+      Output: GraphQLScalarType;
+    };
+  };
+}
+
+export type TypesWithDefaults =
+  GiraphQLSchemaTypes.ExtendDefaultTypes<SchemaTypes>;
 
 export default (project: Project, client: Client): GraphQLSchema => {
   const resolve = async (
@@ -74,23 +96,7 @@ export default (project: Project, client: Client): GraphQLSchema => {
   },
   {});
 
-  const builder = new SchemaBuilder<{
-    DefaultFieldNullability: true;
-    Scalars: {
-      Number: {
-        Input: number;
-        Output: number;
-      };
-      EmailAddress: {
-        Input: GraphQLScalarType;
-        Output: GraphQLScalarType;
-      };
-      JSON: {
-        Input: GraphQLScalarType;
-        Output: GraphQLScalarType;
-      };
-    };
-  }>({
+  const builder = new SchemaBuilder<SchemaTypes>({
     defaultFieldNullability: true,
   });
 
@@ -111,7 +117,11 @@ export default (project: Project, client: Client): GraphQLSchema => {
   builder.mutationType({});
 
   // let relationshipFields: { [key: string]: any } = {};
-
+  builder.inputType("Where", {
+    fields: (t) => ({
+      title_eq: t.field({ type: "String", required: false }),
+    }),
+  });
   for (let table of Object.values(faunaSchema)) {
     // @ts-ignore
     builder.objectType(table.apiName, {
@@ -167,6 +177,8 @@ export default (project: Project, client: Client): GraphQLSchema => {
           first: t.arg({ type: "Int", required: false, defaultValue: 100 }),
           after: t.arg({ type: "String", required: false }),
           before: t.arg({ type: "String", required: false }),
+          //@ts-ignore
+          where: t.arg({ type: "Where", required: false }),
         },
         resolve: (...args) =>
           resolve(

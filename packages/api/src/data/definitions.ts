@@ -108,8 +108,19 @@ export const definitions = (
         if (args.before) {
           options.before = q.Ref(q.Collection(table.id), args.before);
         }
+        let filter: boolean | Expr = true;
+        if (args.where?.title_eq) {
+          filter = q.Equals(
+            args.where.title_eq,
+            q.Select(["data", "294845251673129473"], q.Get(q.Var("ref")))
+          );
+        }
+
         return q.Map(
-          q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
+          q.Filter(
+            q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
+            q.Lambda("ref", filter)
+          ),
           q.Lambda("ref", q.Get(q.Var("ref")))
         );
       },

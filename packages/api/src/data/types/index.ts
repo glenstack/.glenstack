@@ -52,17 +52,18 @@ export type TableInput = Pick<Table, "name" | "apiName"> & {
 
 export type Field = ScalarField | RelationshipField;
 
+export type ScalarType =
+  | "String"
+  | "Boolean"
+  | "Number"
+  | "EmailAddress"
+  | "JSON";
+
 export interface ScalarField {
   id: string;
   name: string;
   apiName: string;
-  type:
-    | "String"
-    | ["String"]
-    | "Boolean"
-    | "Number"
-    | "EmailAddress"
-    | ["EmailAddress"];
+  type: ScalarType | [ScalarType];
   tableRef: Ref;
 }
 
