@@ -190,9 +190,28 @@ export const Footer: FC<{ noCTA?: boolean }> = ({ noCTA = false }) => {
           </div>
         </div>
         <div className="mt-12 border-t border-gray-200 pt-8">
-          <p className="text-base text-gray-400 xl:text-center">
-            &copy; 2021 Glenstack Ltd. All rights reserved.
-          </p>
+          <div className="w-full text-sm font-light text-gray-400 lg:flex lg:justify-between lg:items-center">
+            <span className="block mb-2 lg:w-1/3 lg:my-0">
+              ©2021 Glenstack Ltd. Made worldwide.
+            </span>{" "}
+            <ul className="lg:w-1/3 lg:text-center">
+              <li className="inline-block mb-0 mr-4 last:mr-0">
+                {/* <a href="/privacy/">Privacy Policy</a>{" "} */}
+              </li>
+              <li className="inline-block mb-0 mr-4 last:mr-0">
+                {/* <a href="/terms/">Terms of Service</a>{" "} */}
+              </li>
+            </ul>{" "}
+            <div className="mt-6 lg:my-0 lg:w-1/3 lg:text-right">
+              <a
+                href="https://status.glenstack.com"
+                className="inline-block lg:ml-auto"
+              >
+                <span className="inline-block w-2 h-2 mr-1 rounded-full bg-green-500"></span>{" "}
+                <span>All Systems Operational</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
