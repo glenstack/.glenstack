@@ -3,13 +3,7 @@ import { Client, query as q } from "faunadb";
 import { getProjectSchema } from "../index";
 import { GraphQLSchema } from "graphql";
 import scaffold from "../fauna/scaffold";
-import {
-  OrganizationRepository,
-  ProjectRepository,
-  TableRespository,
-  ScalarFieldRepository,
-  RelationshipFieldRepository,
-} from "../fauna/repositories";
+import repositories from "../fauna/repositories";
 import { definitions } from "../definitions";
 
 jest.setTimeout(30000);
@@ -37,51 +31,73 @@ test("Integration Test", async () => {
   const test_client = new Client({
     secret,
   });
-  const Organization = new OrganizationRepository(test_client);
-  const Project = new ProjectRepository(test_client);
-  const Table = new TableRespository(test_client);
-  const ScalarField = new ScalarFieldRepository(test_client);
-  const RelationshipField = new RelationshipFieldRepository(test_client);
+
+  const { organization, project, table, scalarField, relationshipField } =
+    repositories(test_client);
   await scaffold(test_client);
 
-  const organizationId = await Organization.create({
+  const organizationId = await organization.create({
     name: "LibraryOrg",
     apiName: "LibraryOrg",
   });
-  const projectId = await Project.create({
+  expect(
+    organization.create({
+      name: "ABC",
+      apiName: "LibraryOrg",
+    })
+  ).rejects.toThrow(/already exists/);
+
+  const projectId = await project.create({
+    name: "WrongName",
+    apiName: "WrongApiName",
+    organizationId,
+  });
+  await project.update(projectId, {
     name: "LibraryProj",
     apiName: "LibraryProj",
     organizationId,
   });
 
+  expect(project.get(projectId)).resolves.toHaveProperty(
+    "apiName",
+    "LibraryProj"
+  );
+
   for (const [key, value] of Object.entries(tables)) {
-    tables[key].id = await Table.create({
+    tables[key].id = await table.create({
       ...value,
       projectId,
     });
   }
 
-  await ScalarField.create({
+  await scalarField.create({
     name: "title",
     apiName: "title",
     tableId: tables["Book"].id,
     type: "String",
   });
-  await ScalarField.create({
+  await scalarField.create({
     name: "name",
     apiName: "name",
     tableId: tables["Author"].id,
     type: "String",
   });
 
-  await RelationshipField.create({
-    name: "authors",
-    apiName: "authors",
-    backName: "books",
-    apiBackName: "books",
-    to: tables["Author"].id,
-    tableId: tables["Book"].id,
-  });
+  const [authorsFieldId, booksFieldId] =
+    await relationshipField.createBidirectional({
+      name: "authors",
+      apiName: "wrongAuthors",
+      backName: "books",
+      backApiName: "wrongBooks",
+      to: tables["Author"].id,
+      tableId: tables["Book"].id,
+    });
+
+  /**
+   * If the relationship fields do not update correctly then the GraphQL queries after will automatically fail
+   */
+  await relationshipField.update(authorsFieldId, { apiName: "authors" });
+  await relationshipField.update(booksFieldId, { apiName: "books" });
 
   const schema: GraphQLSchema = await getProjectSchema(test_client, projectId);
   const server = new ApolloServer({

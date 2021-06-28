@@ -7,35 +7,72 @@ import {
   ScalarFieldInput,
   TableInput,
   IRepository,
+  Organization,
+  Project,
 } from "../types";
-import { Client, query as q } from "faunadb";
-import { createCollectionAndWait } from "./utils";
+import { Client } from "faunadb";
+import { createCollectionAndWait, query, enrichedQuery as q } from "./utils";
 
-//TODO: Genereate apiNames automatically by camelcasing string
+//TODO: Generate apiNames automatically by camelcasing string?
+//TODO: Properly throw error if updating non-existent documents
 
 abstract class BaseRepository<T> implements IRepository<T> {
   public readonly _client: Client;
+
   constructor(client: Client) {
     this._client = client;
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  create(item: T): Promise<string> {
+  create(createInput: T): Promise<string> {
     throw new Error("Method not implemented.");
   }
 }
 
 export class OrganizationRepository extends BaseRepository<OrganizationInput> {
-  async create(item: OrganizationInput): Promise<string> {
+  async create(createInput: OrganizationInput): Promise<string> {
     const {
       ref: { id },
-    } = await this._client.query<FaunaResponse>(
-      q.Create(q.Collection("organizations"), {
-        data: {
-          ...item,
-        },
-      })
+    } = await query<FaunaResponse>(
+      this._client,
+      q.WithoutDuplicates(
+        q.Create(q.Collection("organizations"), {
+          data: {
+            ...createInput,
+          },
+        }),
+        q.Match(q.Index("organizations_apiName_unique"), createInput.apiName),
+        `apiName ${createInput.apiName} already exists.`
+      )
     );
     return id;
+  }
+  async get(id: string): Promise<Organization<Omit<Project, "tables">>> {
+    return await query<Organization>(
+      this._client,
+      q.Let(
+        { organizationRef: q.Ref(q.Collection("organizations"), id) },
+        q.Merge(q.Select("data", q.Get(q.Var("organizationRef"))), {
+          id,
+          projects: q.Select(
+            "data",
+            q.Map(
+              q.Paginate(
+                q.Match(
+                  q.Index("projects_by_organization"),
+                  q.Var("organizationRef")
+                )
+              ),
+              q.Lambda(
+                "projectRef",
+                q.Merge(q.Select("data", q.Get(q.Var("projectRef"))), {
+                  id: q.Select("id", q.Var("projectRef")),
+                })
+              )
+            )
+          ),
+        })
+      )
+    );
   }
 }
 
@@ -44,24 +81,131 @@ export class ProjectRepository extends BaseRepository<
 > {
   async create({
     organizationId,
-    name,
-    apiName,
+    ...createInput
   }: Omit<ProjectInput, "organizationRef"> & {
     organizationId: string;
   }): Promise<string> {
-    const projectInput: ProjectInput = {
-      name,
-      apiName,
+    const projectPayload: ProjectInput = {
+      ...createInput,
       organizationRef: q.Ref(q.Collection("organizations"), organizationId),
     };
     const {
       ref: { id },
-    } = await this._client.query<FaunaResponse>(
-      q.Create(q.Collection("projects"), {
-        data: { ...projectInput },
-      })
+    } = await query<FaunaResponse>(
+      this._client,
+      q.If(
+        q.IsEmpty(
+          q.Match(q.Index("projects_apiName_unique"), createInput.apiName)
+        ),
+        q.Create(q.Collection("projects"), {
+          data: { ...projectPayload },
+        }),
+        q.Abort(
+          `apiName ${createInput.apiName} already exists within the organization`
+        )
+      )
     );
     return id;
+  }
+  async update(
+    id: string,
+    {
+      organizationId,
+      ...updateInput
+    }: Partial<
+      Omit<ProjectInput, "organizationRef"> & {
+        organizationId: string;
+      }
+    >
+  ): Promise<string> {
+    const projectPayload: Partial<ProjectInput> = updateInput;
+
+    if (organizationId) {
+      projectPayload.organizationRef = q.Ref(
+        q.Collection("organizations"),
+        organizationId
+      );
+    }
+
+    let queryExpr = q.Update(q.Ref(q.Collection("projects"), id), {
+      data: { ...projectPayload },
+    });
+
+    if (updateInput.apiName) {
+      {
+        queryExpr = q.WithoutDuplicates(
+          queryExpr,
+          q.Match(q.Index("projects_apiName_unique"), updateInput.apiName),
+          `apiName ${updateInput.apiName} already exists within the organization`
+        );
+      }
+    }
+
+    await query<FaunaResponse>(this._client, queryExpr);
+
+    return id;
+  }
+  async get(id: string): Promise<Project> {
+    return await query<Project>(
+      this._client,
+      q.Let(
+        { projectRef: q.Ref(q.Collection("projects"), id) },
+        q.Merge(q.Select("data", q.Get(q.Var("projectRef"))), {
+          id,
+          tables: q.Select(
+            "data",
+            q.Map(
+              q.Paginate(
+                q.Match(q.Index("tables_by_project"), q.Var("projectRef"))
+              ),
+              q.Lambda(
+                "tableRef",
+                q.Merge(q.Select("data", q.Get(q.Var("tableRef"))), {
+                  id: q.Select(["ref", "id"], q.Get(q.Var("tableRef"))),
+                  fields: q.Select(
+                    "data",
+                    q.Map(
+                      q.Paginate(
+                        q.Match(q.Index("fields_by_table"), q.Var("tableRef"))
+                      ),
+                      q.Lambda(
+                        "fieldRef",
+                        q.Merge(q.Select("data", q.Get(q.Var("fieldRef"))), [
+                          {
+                            id: q.Select(
+                              ["ref", "id"],
+                              q.Get(q.Var("fieldRef"))
+                            ),
+                          },
+                          q.If(
+                            q.ContainsPath(
+                              ["data", "relationshipRef"],
+                              q.Get(q.Var("fieldRef"))
+                            ),
+                            {
+                              relationship: q.Select(
+                                ["data"],
+                                q.Get(
+                                  q.Select(
+                                    ["data", "relationshipRef"],
+                                    q.Get(q.Var("fieldRef"))
+                                  )
+                                )
+                              ),
+                            },
+                            {}
+                          ),
+                        ])
+                      )
+                    )
+                  ),
+                })
+              )
+            )
+          ),
+        })
+      )
+    );
   }
 }
 
@@ -70,21 +214,58 @@ export class TableRespository extends BaseRepository<
 > {
   async create({
     projectId,
-    name,
-    apiName,
+    ...createInput
   }: Omit<TableInput, "projectRef"> & { projectId: string }): Promise<string> {
-    const tableInput: TableInput = {
-      name,
-      apiName,
+    const tablePayload: TableInput = {
+      ...createInput,
       projectRef: q.Ref(q.Collection("projects"), projectId),
     };
-    const id: string = await this._client.query(q.NewId());
+    const id: string = await query(this._client, q.NewId());
     await createCollectionAndWait(this._client, id);
-    await this._client.query(
-      q.Create(q.Ref(q.Collection("tables"), id), {
-        data: { ...tableInput },
-      })
+    await query(
+      this._client,
+      q.If(
+        q.IsEmpty(
+          q.Match(q.Index("tables_apiName_unique"), createInput.apiName)
+        ),
+        q.Create(q.Ref(q.Collection("tables"), id), {
+          data: { ...tablePayload },
+        }),
+        q.Abort(
+          `apiName ${createInput.apiName} already exists within the project`
+        )
+      )
     );
+
+    return id;
+  }
+  async update(
+    id: string,
+    {
+      projectId,
+      ...updateInput
+    }: Partial<Omit<TableInput, "projectRef"> & { projectId: string }>
+  ): Promise<string> {
+    const tablePayload: Partial<TableInput> = updateInput;
+    if (projectId) {
+      tablePayload.projectRef = q.Ref(q.Collection("projects"), projectId);
+    }
+
+    let queryExpr = q.Update(q.Ref(q.Collection("tables"), id), {
+      data: tablePayload,
+    });
+
+    if (tablePayload.apiName) {
+      {
+        queryExpr = q.WithoutDuplicates(
+          queryExpr,
+          q.Match(q.Index("projects_apiName_unique"), tablePayload.apiName),
+          `apiName ${tablePayload.apiName} already exists within the organization`
+        );
+      }
+    }
+
+    await query<FaunaResponse>(this._client, queryExpr);
 
     return id;
   }
@@ -97,23 +278,58 @@ export class ScalarFieldRepository extends BaseRepository<
 > {
   async create({
     tableId,
-    ...fieldObj
+    ...createInput
   }: Omit<ScalarFieldInput, "tableRef"> & {
     tableId: string;
   }): Promise<string> {
     const fieldPayload: FieldInput = {
-      ...fieldObj,
-      apiName: fieldObj.name,
+      ...createInput,
       tableRef: q.Ref(q.Collection("tables"), tableId),
     };
 
     const {
       ref: { id },
-    } = await this._client.query<FaunaResponse>(
-      q.Create(q.Collection("fields"), {
-        data: { ...fieldPayload },
-      })
+    } = await query<FaunaResponse>(
+      this._client,
+      q.If(
+        q.IsEmpty(
+          q.Match(q.Index("fields_apiName_unique"), createInput.apiName)
+        ),
+        q.Create(q.Collection("fields"), {
+          data: { ...fieldPayload },
+        }),
+        q.Abort(
+          `apiName ${fieldPayload.apiName} already exists within the table`
+        )
+      )
     );
+    return id;
+  }
+
+  async update(
+    id: string,
+    updateInput: Partial<Pick<ScalarFieldInput, "name" | "apiName">>
+  ): Promise<string> {
+    const fieldPayload: Partial<Pick<ScalarFieldInput, "name" | "apiName">> = {
+      ...updateInput,
+    };
+
+    let queryExpr = q.Update(q.Ref(q.Collection("fields"), id), {
+      data: fieldPayload,
+    });
+
+    if (fieldPayload.apiName) {
+      {
+        queryExpr = q.WithoutDuplicates(
+          queryExpr,
+          q.Match(q.Index("projects_apiName_unique"), fieldPayload.apiName),
+          `apiName ${fieldPayload.apiName} already exists within the organization`
+        );
+      }
+    }
+
+    await query<FaunaResponse>(this._client, queryExpr);
+
     return id;
   }
 }
@@ -122,64 +338,162 @@ export class RelationshipFieldRepository extends BaseRepository<
   Omit<RelationshipFieldInput, "tableRef" | "relationshipRef" | "type"> & {
     tableId: string;
     to: string;
-    backName: string;
-    apiBackName: string;
   }
 > {
   async create({
     tableId,
-    backName, // Name of the field that references back to the created relational field
-    apiBackName,
-    ...fieldObj
+    ...createInput
   }: Omit<RelationshipFieldInput, "tableRef" | "relationshipRef" | "type"> & {
     tableId: string;
     to: string;
-    backName: string;
-    apiBackName: string;
   }): Promise<string> {
     const fieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
-      ...fieldObj,
-      to: q.Ref(q.Collection("tables"), fieldObj.to),
+      ...createInput,
       type: "Relation",
-      apiName: fieldObj.name,
+      to: q.Ref(q.Collection("tables"), createInput.to),
       tableRef: q.Ref(q.Collection("tables"), tableId),
     };
-    const backFieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
-      type: "Relation",
-      name: backName,
-      apiName: apiBackName,
-      to: q.Ref(q.Collection("tables"), tableId),
-      tableRef: q.Ref(q.Collection("tables"), fieldObj.to),
-    };
 
-    const {
-      ref: { id },
-    } = await this._client.query<FaunaResponse>(
+    const id = await query<string>(
+      this._client,
       q.Let(
         {
           relationship: q.Create(q.Collection("relationships"), {
             data: {
               A: q.Ref(q.Collection("tables"), tableId),
-              B: q.Ref(q.Collection("tables"), fieldObj.to),
+              B: q.Ref(q.Collection("tables"), createInput.to),
             },
           }),
         },
-        q.Do(
-          q.Create(q.Collection("fields"), {
-            data: {
-              ...fieldPayload,
-              relationshipRef: q.Select("ref", q.Var("relationship")),
-            },
-          }),
-          q.Create(q.Collection("fields"), {
-            data: {
-              ...backFieldPayload,
-              relationshipRef: q.Select("ref", q.Var("relationship")),
-            },
-          })
+        q.WithoutDuplicates(
+          q.Select(
+            ["ref", "id"],
+            q.Create(q.Collection("fields"), {
+              data: {
+                ...fieldPayload,
+                relationshipRef: q.Select("ref", q.Var("relationship")),
+              },
+            })
+          ),
+          q.Match(q.Index("fields_apiName_unique"), fieldPayload.apiName),
+          `apiName ${fieldPayload.apiName} already exists within the table`
         )
       )
     );
     return id;
   }
+
+  async createBidirectional({
+    tableId,
+    backName, // Name of the field that references back to the created relational field
+    backApiName,
+    ...createInput
+  }: Omit<RelationshipFieldInput, "tableRef" | "relationshipRef" | "type"> & {
+    tableId: string;
+    to: string;
+    backName: string;
+    backApiName: string;
+  }): Promise<Array<string>> {
+    const fieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
+      ...createInput,
+      type: "Relation",
+      to: q.Ref(q.Collection("tables"), createInput.to),
+      tableRef: q.Ref(q.Collection("tables"), tableId),
+    };
+    const backFieldPayload: Omit<RelationshipFieldInput, "relationshipRef"> = {
+      type: "Relation",
+      name: backName,
+      apiName: backApiName,
+      to: q.Ref(q.Collection("tables"), tableId),
+      tableRef: q.Ref(q.Collection("tables"), createInput.to),
+    };
+
+    const ids = await query<Array<string>>(
+      this._client,
+      q.Let(
+        {
+          relationship: q.Create(q.Collection("relationships"), {
+            data: {
+              A: q.Ref(q.Collection("tables"), tableId),
+              B: q.Ref(q.Collection("tables"), createInput.to),
+            },
+          }),
+        },
+        q.Do([
+          q.WithoutDuplicates(
+            q.Select(
+              ["ref", "id"],
+              q.Create(q.Collection("fields"), {
+                data: {
+                  ...fieldPayload,
+                  relationshipRef: q.Select("ref", q.Var("relationship")),
+                },
+              })
+            ),
+            q.Match(q.Index("fields_apiName_unique"), fieldPayload.apiName),
+            `apiName ${fieldPayload.apiName} already exists within the table`
+          ),
+          q.WithoutDuplicates(
+            q.Select(
+              ["ref", "id"],
+              q.Create(q.Collection("fields"), {
+                data: {
+                  ...backFieldPayload,
+                  relationshipRef: q.Select("ref", q.Var("relationship")),
+                },
+              })
+            ),
+            q.Match(q.Index("fields_apiName_unique"), backFieldPayload.apiName),
+            `apiName ${backFieldPayload.apiName} already exists within the table`
+          ),
+        ])
+      )
+    );
+    return ids;
+  }
+
+  async update(
+    id: string,
+    updateInput: Partial<Pick<RelationshipFieldInput, "name" | "apiName">>
+  ): Promise<string> {
+    const fieldPayload: Partial<
+      Pick<RelationshipFieldInput, "name" | "apiName">
+    > = updateInput;
+
+    let queryExpr = q.Update(q.Ref(q.Collection("fields"), id), {
+      data: fieldPayload,
+    });
+
+    if (fieldPayload.apiName) {
+      {
+        queryExpr = q.WithoutDuplicates(
+          queryExpr,
+          q.Match(q.Index("projects_apiName_unique"), fieldPayload.apiName),
+          `apiName ${fieldPayload.apiName} already exists within the organization`
+        );
+      }
+    }
+
+    await query<FaunaResponse>(this._client, queryExpr);
+
+    return id;
+  }
 }
+
+const repositories = (
+  client: Client
+): {
+  organization: OrganizationRepository;
+  project: ProjectRepository;
+  table: TableRespository;
+  relationshipField: RelationshipFieldRepository;
+  scalarField: ScalarFieldRepository;
+} => ({
+  organization: new OrganizationRepository(client),
+  project: new ProjectRepository(client),
+  table: new TableRespository(client),
+  relationshipField: new RelationshipFieldRepository(client),
+  scalarField: new ScalarFieldRepository(client),
+});
+
+export default repositories;
