@@ -1,14 +1,16 @@
 /* eslint-disable */
 import SchemaBuilder, {
+  ArgBuilder,
   InputFieldRef,
   InputShapeFromFields,
 } from "@giraphql/core";
 
 import { Expr, query as q, Client } from "faunadb";
 import { generateFaunaQuery } from "./generateFaunaQuery";
-import { FaunaSchema, Field, Table } from "./types";
-import { GraphQLResolveInfo, GraphQLSchema } from "graphql";
+import { FaunaSchema, Field, Project, Table } from "./types";
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from "graphql";
 import { definitions } from "./definitions";
+import { GraphQLEmailAddress, GraphQLJSON } from "graphql-scalars";
 
 // const getGiraphType = (
 //   type: string
@@ -16,7 +18,28 @@ import { definitions } from "./definitions";
 //   return type;
 // };
 
-export default (projectData: any, client: Client): GraphQLSchema => {
+export interface SchemaTypes {
+  DefaultFieldNullability: true;
+  Scalars: {
+    Number: {
+      Input: number;
+      Output: number;
+    };
+    EmailAddress: {
+      Input: GraphQLScalarType;
+      Output: GraphQLScalarType;
+    };
+    JSON: {
+      Input: GraphQLScalarType;
+      Output: GraphQLScalarType;
+    };
+  };
+}
+
+export type TypesWithDefaults =
+  GiraphQLSchemaTypes.ExtendDefaultTypes<SchemaTypes>;
+
+export default (project: Project, client: Client): GraphQLSchema => {
   const resolve = async (
     root: any,
     args: any,
@@ -35,14 +58,9 @@ export default (projectData: any, client: Client): GraphQLSchema => {
   };
 
   let tableIdToApiName: Record<string, string> = {};
-  const faunaSchema: FaunaSchema = projectData.tables.reduce(function (
+  const faunaSchema: FaunaSchema = project.tables.reduce(function (
     tableObj: FaunaSchema,
-    table: {
-      apiName: string;
-      name: string;
-      id: string;
-      fields: Array<Field>;
-    }
+    table: Table
   ) {
     if (table.apiName in tableObj) {
       throw new Error("Encountered duplicate table name (table.apiName).");
@@ -51,7 +69,7 @@ export default (projectData: any, client: Client): GraphQLSchema => {
     tableObj[table.apiName] = {
       ...table,
       fields: table.fields.reduce(function (
-        fieldObj: Table["fields"],
+        fieldObj: Record<string, Field>,
         field: Field
       ) {
         if (field.apiName in fieldObj) {
@@ -75,19 +93,15 @@ export default (projectData: any, client: Client): GraphQLSchema => {
       {}),
     };
     return tableObj;
-  }, {});
+  },
+  {});
 
-  const builder = new SchemaBuilder<{
-    DefaultFieldNullability: true;
-    Scalars: {
-      Number: {
-        Input: number;
-        Output: number;
-      };
-    };
-  }>({
+  const builder = new SchemaBuilder<SchemaTypes>({
     defaultFieldNullability: true,
   });
+
+  builder.addScalarType("EmailAddress", GraphQLEmailAddress, {});
+  builder.addScalarType("JSON", GraphQLJSON, {});
 
   builder.scalarType("Number", {
     serialize: (n) => n,
@@ -103,7 +117,11 @@ export default (projectData: any, client: Client): GraphQLSchema => {
   builder.mutationType({});
 
   // let relationshipFields: { [key: string]: any } = {};
-
+  builder.inputType("Where", {
+    fields: (t) => ({
+      title_eq: t.field({ type: "String", required: false }),
+    }),
+  });
   for (let table of Object.values(faunaSchema)) {
     // @ts-ignore
     builder.objectType(table.apiName, {
@@ -159,6 +177,8 @@ export default (projectData: any, client: Client): GraphQLSchema => {
           first: t.arg({ type: "Int", required: false, defaultValue: 100 }),
           after: t.arg({ type: "String", required: false }),
           before: t.arg({ type: "String", required: false }),
+          //@ts-ignore
+          where: t.arg({ type: "Where", required: false }),
         },
         resolve: (...args) =>
           resolve(

@@ -5,7 +5,7 @@ import { Table, FaunaSchema, RelationshipField } from "./types";
 
 const generateRelationQueries = (field: RelationshipField) => {
   const existingRelation = (id: string) =>
-    q.Match(q.Index("relationsUnique"), [
+    q.Match(q.Index("relations_unique"), [
       field.relationshipRef,
       field.relationKey === "A"
         ? q.Var("docRef")
@@ -20,23 +20,36 @@ const generateRelationQueries = (field: RelationshipField) => {
       if (!ids) return [];
       return ids.map((id: string) =>
         q.If(
-          q.IsEmpty(existingRelation(id)),
-          q.Create(q.Collection("relations"), {
-            data: {
+          q.Exists(
+            q.Ref(
               // @ts-ignore
-              relationshipRef: field.relationshipRef,
+              q.Collection(field.to.id),
               // @ts-ignore
-              [field.relationKey]: q.Var("docRef"),
-              // @ts-ignore
-              [field.relationKey === "A" ? "B" : "A"]: q.Ref(
+              id
+            )
+          ),
+          q.If(
+            q.IsEmpty(existingRelation(id)),
+            q.Create(q.Collection("relations"), {
+              data: {
                 // @ts-ignore
-                q.Collection(field.to.id),
+                relationshipRef: field.relationshipRef,
                 // @ts-ignore
-                id
-              ),
-            },
-          }),
-          q.Abort(`Object with id ${field.to.id} is already connected.`)
+                [field.relationKey]: q.Var("docRef"),
+                // @ts-ignore
+                [field.relationKey === "A" ? "B" : "A"]: q.Ref(
+                  // @ts-ignore
+                  q.Collection(field.to.id),
+                  // @ts-ignore
+                  id
+                ),
+              },
+            }),
+            q.Abort(`Object with id ${field.to.id} is already connected.`)
+          ),
+          q.Abort(
+            `Cannot connect object with id ${field.to.id} as it does not exist.`
+          )
         )
       );
     },
@@ -44,12 +57,25 @@ const generateRelationQueries = (field: RelationshipField) => {
       if (!ids) return [];
       return ids.map((id: string) =>
         q.If(
-          q.IsEmpty(existingRelation(id)),
-          q.Abort(`Object with id ${field.to.id} does not exist.`),
+          q.Exists(
+            q.Ref(
+              // @ts-ignore
+              q.Collection(field.to.id),
+              // @ts-ignore
+              id
+            )
+          ),
+          q.If(
+            q.IsEmpty(existingRelation(id)),
+            q.Abort(`Object with id ${field.to.id} was not connected.`),
 
-          q.Map(
-            q.Paginate(existingRelation(id)),
-            q.Lambda("X", q.Delete(q.Var("X")))
+            q.Map(
+              q.Paginate(existingRelation(id)),
+              q.Lambda("X", q.Delete(q.Var("X")))
+            )
+          ),
+          q.Abort(
+            `Cannot disconnect object with id ${field.to.id} as it does not exist.`
           )
         )
       );
@@ -82,8 +108,19 @@ export const definitions = (
         if (args.before) {
           options.before = q.Ref(q.Collection(table.id), args.before);
         }
+        let filter: boolean | Expr = true;
+        if (args.where?.title_eq) {
+          filter = q.Equals(
+            args.where.title_eq,
+            q.Select(["data", "294845251673129473"], q.Get(q.Var("ref")))
+          );
+        }
+
         return q.Map(
-          q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
+          q.Filter(
+            q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
+            q.Lambda("ref", filter)
+          ),
           q.Lambda("ref", q.Get(q.Var("ref")))
         );
       },

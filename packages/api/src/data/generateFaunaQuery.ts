@@ -9,17 +9,9 @@ import {
   getNullableType,
   GraphQLList,
   GraphQLResolveInfo,
-  defaultFieldResolver,
-  GraphQLSchema,
-  GraphQLString,
-  GraphQLObjectType,
-  GraphQLID,
-  GraphQLNonNull,
 } from "graphql";
 
-import { getArgumentValues } from "graphql/execution/values";
-
-const isFaunaObjectType = (obj) => false;
+// import { getArgumentValues } from "graphql/execution/values";
 
 const CURRENT_DOC = "__CD__";
 const CURRENT_DOC_VAR = q.Var(CURRENT_DOC);
@@ -50,7 +42,7 @@ const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
   }
   const isList = type instanceof GraphQLList;
   // @ts-ignore
-  const typeInList = isList ? type.ofType : null;
+  const typeInList = isList ? getNullableType(type.ofType) : null;
   const isLeaf = isLeafType(type) || isLeafType(typeInList);
   const isQuery = parentType === gqlSchema.getQueryType();
   const isMutation = parentType === gqlSchema.getMutationType();
@@ -73,7 +65,6 @@ const generateParseFn = (typeInfo, fieldName, gqlSchema) => (node) => {
     isMutation,
     returnName,
     selectionSet: node.selectionSet,
-    isFaunaObjectType: isFaunaObjectType(typeInList || type),
   };
 };
 
@@ -148,14 +139,10 @@ export const generateFaunaQuery = (
         const {
           name,
           field,
-          type,
           parentType,
           isList,
           isLeaf,
           isRoot,
-          isQuery,
-          isMutation,
-          isFaunaObjectType,
           returnName,
           selectionSet,
           typeInList,
@@ -165,12 +152,14 @@ export const generateFaunaQuery = (
 
         // if (isRoot && !isFaunaObjectType)
         //   throw new Error("Invalid root type. Must be a FaunaGraphQL type.");
-        if (isLeaf)
+        if (isLeaf) {
           return generateSelector(faunaSchema, returnName, parentType);
+        }
 
         // if (selectionSet && !isRoot) {
-        //       return generateSelector(returnName, parentType)
-        //   }
+        //   console.log(name);
+        //   return generateSelector(faunaSchema, returnName, parentType);
+        // }
 
         // console.log(
         //   "arguments:" + JSON.stringify(getArgumentValues(field, node))
@@ -186,7 +175,7 @@ export const generateFaunaQuery = (
             q.Paginate(
               q.Match(
                 q.Index(
-                  "relations" +
+                  "relations_" +
                     faunaSchema[parentType.name].fields[name].relationKey
                 ),
                 [

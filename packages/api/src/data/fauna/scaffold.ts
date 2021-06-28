@@ -50,7 +50,7 @@ export default async (client: Client): Promise<void> => {
   );
   await client.query(
     q.CreateIndex({
-      name: "relationsA",
+      name: "relations_A",
       unique: false,
       serialized: true,
       source: q.Collection("relations"),
@@ -71,7 +71,7 @@ export default async (client: Client): Promise<void> => {
   );
   await client.query(
     q.CreateIndex({
-      name: "relationsB",
+      name: "relations_B",
       unique: false,
       serialized: true,
       source: q.Collection("relations"),
@@ -91,9 +91,74 @@ export default async (client: Client): Promise<void> => {
     })
   );
 
+  /**
+   * Indices for uniqueness constraints
+   */
+
   await client.query(
     q.CreateIndex({
-      name: "relationsUnique",
+      name: "organizations_apiName_unique",
+      unique: true,
+      serialized: true,
+      source: q.Collection("organizations"),
+      terms: [
+        {
+          field: ["data", "apiName"],
+        },
+      ],
+    })
+  );
+  await client.query(
+    q.CreateIndex({
+      name: "projects_apiName_unique",
+      unique: true,
+      serialized: true,
+      source: q.Collection("projects"),
+      terms: [
+        {
+          field: ["data", "organizationRef"],
+        },
+        {
+          field: ["data", "apiName"],
+        },
+      ],
+    })
+  );
+  await client.query(
+    q.CreateIndex({
+      name: "tables_apiName_unique",
+      unique: true,
+      serialized: true,
+      source: q.Collection("projects"),
+      terms: [
+        {
+          field: ["data", "projectRef"],
+        },
+        {
+          field: ["data", "apiName"],
+        },
+      ],
+    })
+  );
+  await client.query(
+    q.CreateIndex({
+      name: "fields_apiName_unique",
+      unique: true,
+      serialized: true,
+      source: q.Collection("fields"),
+      terms: [
+        {
+          field: ["data", "tableRef"],
+        },
+        {
+          field: ["data", "apiName"],
+        },
+      ],
+    })
+  );
+  await client.query(
+    q.CreateIndex({
+      name: "relations_unique",
       unique: true,
       serialized: true,
       source: q.Collection("relations"),
