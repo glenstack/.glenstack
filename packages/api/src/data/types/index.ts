@@ -1,4 +1,5 @@
 import { Expr, values } from "faunadb";
+import { GraphQLScalarType } from "graphql/type";
 import Ref = values.Ref;
 // import { FieldOptionsFromKind } from "@giraphql/core";
 export interface FaunaSchema {
@@ -9,6 +10,25 @@ export interface FaunaSchema {
   };
 }
 
+export interface GiraphQLSchemaTypes {
+  DefaultFieldNullability: true;
+  Scalars: {
+    Number: {
+      Input: number;
+      Output: number;
+    };
+    EmailAddress: {
+      Input: GraphQLScalarType;
+      Output: GraphQLScalarType;
+    };
+    JSON: {
+      Input: GraphQLScalarType;
+      Output: GraphQLScalarType;
+    };
+  };
+}
+export type TypesWithDefaults =
+  GiraphQLSchemaTypes.ExtendDefaultTypes<GiraphQLSchemaTypes>;
 export interface Organization<ProjectType = Project> {
   id: string;
   name: string;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Expr, query as q } from "faunadb";
+import { Expr, ExprArg, query as q } from "faunadb";
 import { Table, FaunaSchema, RelationshipField } from "./types";
 
 const generateRelationQueries = (field: RelationshipField) => {
@@ -83,6 +83,15 @@ const generateRelationQueries = (field: RelationshipField) => {
   };
 };
 
+const generateOperators = (
+  fieldId: string,
+  value: ExprArg
+): Record<string, Expr> => ({
+  equals: q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref")))),
+  not: q.Not(q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref"))))),
+  lt: q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref")))),
+});
+
 export const definitions = (
   table: Pick<Table, "apiName" | "id">
 ): {
@@ -98,7 +107,15 @@ export const definitions = (
     findMany: {
       name: (): string => "query" + table.apiName,
       // @ts-ignore
-      query: (args): Expr => {
+      query: (
+        args: {
+          first: number;
+          before: string;
+          after: string;
+          where: Record<string, Record<string, ExprArg>>;
+        },
+        faunaSchema: FaunaSchema
+      ): Expr => {
         const options: { size: number; after?: Expr; before?: Expr } = {
           size: args.first,
         };
@@ -108,19 +125,31 @@ export const definitions = (
         if (args.before) {
           options.before = q.Ref(q.Collection(table.id), args.before);
         }
-        let filter: boolean | Expr = true;
-        if (args.where?.title_eq) {
-          filter = q.Equals(
-            args.where.title_eq,
-            q.Select(["data", "294845251673129473"], q.Get(q.Var("ref")))
+        const filters: Array<boolean | Expr> = [];
+        if (args.where) {
+          for (const [fieldName, operators] of Object.entries(args.where)) {
+            for (const [operator, value] of Object.entries(operators)) {
+              filters.push(
+                generateOperators(
+                  faunaSchema[table.apiName].fields[fieldName].id,
+                  value
+                )[operator]
+              );
+            }
+          }
+        }
+        if (filters.length > 0) {
+          return q.Map(
+            q.Filter(
+              q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
+              q.Lambda("ref", q.And(...filters))
+            ),
+            q.Lambda("ref", q.Get(q.Var("ref")))
           );
         }
-
         return q.Map(
-          q.Filter(
-            q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
-            q.Lambda("ref", filter)
-          ),
+          q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
+
           q.Lambda("ref", q.Get(q.Var("ref")))
         );
       },

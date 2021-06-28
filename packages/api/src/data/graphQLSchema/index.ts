@@ -6,38 +6,24 @@ import SchemaBuilder, {
 } from "@giraphql/core";
 
 import { Expr, query as q, Client } from "faunadb";
-import { generateFaunaQuery } from "./generateFaunaQuery";
-import { FaunaSchema, Field, Project, Table } from "./types";
+import { generateFaunaQuery } from "../generateFaunaQuery";
+import {
+  FaunaSchema,
+  Field,
+  Project,
+  Table,
+  GiraphQLSchemaTypes,
+} from "../types";
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from "graphql";
-import { definitions } from "./definitions";
+import { definitions } from "../definitions";
 import { GraphQLEmailAddress, GraphQLJSON } from "graphql-scalars";
+import generateFilters from "./generateFilters";
 
 // const getGiraphType = (
 //   type: string
 // ): GiraphQLSchemaTypes.FieldOptions["type"] => {
 //   return type;
 // };
-
-export interface SchemaTypes {
-  DefaultFieldNullability: true;
-  Scalars: {
-    Number: {
-      Input: number;
-      Output: number;
-    };
-    EmailAddress: {
-      Input: GraphQLScalarType;
-      Output: GraphQLScalarType;
-    };
-    JSON: {
-      Input: GraphQLScalarType;
-      Output: GraphQLScalarType;
-    };
-  };
-}
-
-export type TypesWithDefaults =
-  GiraphQLSchemaTypes.ExtendDefaultTypes<SchemaTypes>;
 
 export default (project: Project, client: Client): GraphQLSchema => {
   const resolve = async (
@@ -96,7 +82,7 @@ export default (project: Project, client: Client): GraphQLSchema => {
   },
   {});
 
-  const builder = new SchemaBuilder<SchemaTypes>({
+  const builder = new SchemaBuilder<GiraphQLSchemaTypes>({
     defaultFieldNullability: true,
   });
 
@@ -116,12 +102,24 @@ export default (project: Project, client: Client): GraphQLSchema => {
   builder.queryType({});
   builder.mutationType({});
 
-  // let relationshipFields: { [key: string]: any } = {};
-  builder.inputType("Where", {
+  builder.inputType("StringWhereInput", {
     fields: (t) => ({
-      title_eq: t.field({ type: "String", required: false }),
+      equals: t.field({ type: "String", required: false }),
+      not: t.field({ type: "String", required: false }),
+      in: t.field({ type: ["String"], required: false }),
+      notIn: t.field({ type: ["String"], required: false }),
+      contains: t.field({ type: "String", required: false }),
+      startsWith: t.field({ type: "String", required: false }),
+      endsWith: t.field({ type: "String", required: false }),
+      lt: t.field({ type: "String", required: false }),
+      lte: t.field({ type: "String", required: false }),
+      gt: t.field({ type: "String", required: false }),
+      gte: t.field({ type: "String", required: false }),
     }),
   });
+
+  // let relationshipFields: { [key: string]: any } = {};
+
   for (let table of Object.values(faunaSchema)) {
     // @ts-ignore
     builder.objectType(table.apiName, {
@@ -178,13 +176,13 @@ export default (project: Project, client: Client): GraphQLSchema => {
           after: t.arg({ type: "String", required: false }),
           before: t.arg({ type: "String", required: false }),
           //@ts-ignore
-          where: t.arg({ type: "Where", required: false }),
+          where: t.arg({ type: table.apiName + "WhereInput", required: false }),
         },
         resolve: (...args) =>
           resolve(
             ...args,
             faunaSchema,
-            definitions(table).queries.findMany.query(args[1])
+            definitions(table).queries.findMany.query(args[1], faunaSchema)
           ),
       })
     );
@@ -273,6 +271,8 @@ export default (project: Project, client: Client): GraphQLSchema => {
           {}
         ),
     });
+
+    generateFilters(builder, table);
   }
 
   return builder.toSchema({});
