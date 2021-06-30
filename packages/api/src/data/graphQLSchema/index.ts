@@ -14,12 +14,12 @@ import {
   Project,
   Table,
   GiraphQLSchemaTypes,
+  ScalarField,
 } from "../types";
-import { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from "graphql";
-import { definitions, operatorArgsByType } from "../definitions";
+import { GraphQLResolveInfo, GraphQLSchema } from "graphql";
+import { definitions } from "../definitions";
 import { GraphQLEmailAddress, GraphQLJSON } from "graphql-scalars";
-import generateFilters from "./generateFilters";
-import InputFieldBuilder from "@giraphql/core/lib/fieldUtils/input";
+import buildFilterInputs from "./buildFilterInputs";
 
 // const getGiraphType = (
 //   type: string
@@ -104,6 +104,20 @@ export default (project: Project, client: Client): GraphQLSchema => {
   builder.queryType({});
   builder.mutationType({});
 
+  const operatorArgsByType = Object.entries(definitions.operators).reduce(
+    (
+      obj: Record<string, Record<string, ScalarField["type"]>>,
+      [operator, value]
+    ) => {
+      for (const allowedType of value.allowedTypes) {
+        obj[allowedType] = obj[allowedType] || {};
+        obj[allowedType][operator] = value.argType(allowedType);
+      }
+      return obj;
+    },
+    {}
+  );
+
   for (const [scalarType, value] of Object.entries(operatorArgsByType)) {
     builder.inputType(scalarType + "WhereInput", {
       fields: (t) =>
@@ -183,7 +197,7 @@ export default (project: Project, client: Client): GraphQLSchema => {
       }
     }
 
-    builder.queryField(definitions(table).queries.findMany.name(), (t) =>
+    builder.queryField(definitions.queries(table).findMany.name(), (t) =>
       t.field({
         // @ts-ignore
         type: [table.apiName],
@@ -198,11 +212,11 @@ export default (project: Project, client: Client): GraphQLSchema => {
           resolve(
             ...args,
             faunaSchema,
-            definitions(table).queries.findMany.query(args[1], faunaSchema)
+            definitions.queries(table).findMany.query(args[1], faunaSchema)
           ),
       })
     );
-    builder.queryField(definitions(table).queries.findOne.name(), (t) =>
+    builder.queryField(definitions.queries(table).findOne.name(), (t) =>
       t.field({
         // @ts-ignore
         type: table.apiName,
@@ -213,12 +227,12 @@ export default (project: Project, client: Client): GraphQLSchema => {
           resolve(
             ...args,
             faunaSchema,
-            definitions(table).queries.findOne.query(args[1])
+            definitions.queries(table).findOne.query(args[1], faunaSchema)
           ),
       })
     );
 
-    builder.mutationField(definitions(table).queries.createOne.name(), (t) =>
+    builder.mutationField(definitions.queries(table).createOne.name(), (t) =>
       t.field({
         // @ts-ignore
         type: table.apiName,
@@ -230,11 +244,11 @@ export default (project: Project, client: Client): GraphQLSchema => {
           resolve(
             ...args,
             faunaSchema,
-            definitions(table).queries.createOne.query(args[1], faunaSchema)
+            definitions.queries(table).createOne.query(args[1], faunaSchema)
           ),
       })
     );
-    builder.mutationField(definitions(table).queries.updateOne.name(), (t) =>
+    builder.mutationField(definitions.queries(table).updateOne.name(), (t) =>
       t.field({
         // @ts-ignore
         type: table.apiName,
@@ -247,7 +261,7 @@ export default (project: Project, client: Client): GraphQLSchema => {
           resolve(
             ...args,
             faunaSchema,
-            definitions(table).queries.updateOne.query(args[1], faunaSchema)
+            definitions.queries(table).updateOne.query(args[1], faunaSchema)
           ),
       })
     );
@@ -288,7 +302,7 @@ export default (project: Project, client: Client): GraphQLSchema => {
         ),
     });
 
-    generateFilters(builder, table);
+    buildFilterInputs(builder, table);
   }
 
   return builder.toSchema({});

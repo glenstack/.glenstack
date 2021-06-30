@@ -90,70 +90,85 @@ const generateRelationQueries = (field: RelationshipField) => {
   };
 };
 
-const generateOperators: Record<
-  string,
-  {
-    allowedTypes: Array<ScalarType>;
-    argType: (type: ScalarType) => ScalarField["type"];
-    expr: (fieldId: string, value: ExprArg) => Expr;
-  }
-> = {
-  equals: {
-    allowedTypes: ["String", "Number"],
-    argType: (type: ScalarType) => type,
-    expr: (fieldId: string, value: ExprArg) =>
-      //@ts-ignore
-      q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref")), null)),
-  },
-  not: {
-    allowedTypes: ["String", "Number"],
-    argType: (type: ScalarType) => type,
-    expr: (fieldId: string, value: ExprArg) =>
-      q.Not(q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref"))))),
-  },
-  lt: {
-    allowedTypes: ["String", "Number"],
-    argType: (type: ScalarType) => type,
-    expr: (fieldId: string, value: ExprArg) =>
-      q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref")))),
-  },
-};
-
-// export const operatorsByType: Record<string, Record<string, unknown>> = {};
-// for (const [key, value] of Object.entries(generateOperators())) {
-//   for (const allowedType in value.allowedTypes) {
-//     operatorsByType[JSON.stringify(allowedType)] = {
-//       ...operatorsByType[JSON.stringify(allowedType)],
-//     };
-//   }
-// }
-
-export const operatorArgsByType = Object.entries(generateOperators).reduce(
-  (
-    obj: Record<string, Record<string, ScalarField["type"]>>,
-    [operator, value]
-  ) => {
-    for (const allowedType of value.allowedTypes) {
-      obj[allowedType] = obj[allowedType] || {};
-      obj[allowedType][operator] = value.argType(allowedType);
+export const definitions: {
+  operators: Record<
+    string,
+    {
+      allowedTypes: Array<ScalarType>;
+      argType: (type: ScalarType) => ScalarField["type"];
+      expr: (fieldId: string, value: ExprArg) => Expr;
     }
-    return obj;
-  },
-  {}
-);
-
-export const definitions = (
-  table: Pick<Table, "apiName" | "id">
-): {
-  queries: {
+  >;
+  queries: (table: Pick<Table, "apiName" | "id">) => {
     [p: string]: {
       name: () => string;
-      // @ts-ignore
-      query: (args: any, faunaSchema?: FaunaSchema) => Expr;
+      query: (args: any, faunaSchema: FaunaSchema) => Expr;
     };
   };
-} => ({
-  queries: {
+} = {
+  operators: {
+    equals: {
+      allowedTypes: ["String", "Number", "Boolean", "JSON", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.Equals(q.Select(["data", fieldId], q.Get(q.Var("ref")), null), value),
+    },
+    notEquals: {
+      allowedTypes: ["String", "Number", "Boolean", "JSON", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        q.Not(
+          q.Equals(
+            //@ts-ignore
+            q.Select(["data", fieldId], q.Get(q.Var("ref")), null),
+            value
+          )
+        ),
+    },
+    lt: {
+      allowedTypes: ["String", "Number", "Boolean", "JSON", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.LT(q.Select(["data", fieldId], q.Get(q.Var("ref")), null), value),
+    },
+    gt: {
+      allowedTypes: ["String", "Number", "Boolean", "JSON", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.GT(q.Select(["data", fieldId], q.Get(q.Var("ref")), null), value),
+    },
+    startsWith: {
+      allowedTypes: ["String", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.StartsWith(
+          q.Select(["data", fieldId], q.Get(q.Var("ref")), ""),
+          value
+        ),
+    },
+    endsWith: {
+      allowedTypes: ["String", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.EndsWith(q.Select(["data", fieldId], q.Get(q.Var("ref")), ""), value),
+    },
+    contains: {
+      allowedTypes: ["String", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.ContainsStr(
+          q.Select(["data", fieldId], q.Get(q.Var("ref")), ""),
+          value
+        ),
+    },
+  },
+  queries: (table: Pick<Table, "apiName" | "id">) => ({
     findMany: {
       name: (): string => "query" + table.apiName,
       // @ts-ignore
@@ -180,7 +195,7 @@ export const definitions = (
           for (const [fieldName, operators] of Object.entries(args.where)) {
             for (const [operator, value] of Object.entries(operators)) {
               filters.push(
-                generateOperators[operator].expr(
+                definitions.operators[operator].expr(
                   faunaSchema[table.apiName].fields[fieldName].id,
                   value
                 )
@@ -307,5 +322,5 @@ export const definitions = (
         );
       },
     },
-  },
-});
+  }),
+};
