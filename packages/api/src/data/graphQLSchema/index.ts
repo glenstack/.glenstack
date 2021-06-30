@@ -1,6 +1,7 @@
 /* eslint-disable */
 import SchemaBuilder, {
   ArgBuilder,
+  InputFieldMap,
   InputFieldRef,
   InputShapeFromFields,
 } from "@giraphql/core";
@@ -15,9 +16,10 @@ import {
   GiraphQLSchemaTypes,
 } from "../types";
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from "graphql";
-import { definitions } from "../definitions";
+import { definitions, operatorArgsByType } from "../definitions";
 import { GraphQLEmailAddress, GraphQLJSON } from "graphql-scalars";
 import generateFilters from "./generateFilters";
+import InputFieldBuilder from "@giraphql/core/lib/fieldUtils/input";
 
 // const getGiraphType = (
 //   type: string
@@ -102,21 +104,35 @@ export default (project: Project, client: Client): GraphQLSchema => {
   builder.queryType({});
   builder.mutationType({});
 
-  builder.inputType("StringWhereInput", {
-    fields: (t) => ({
-      equals: t.field({ type: "String", required: false }),
-      not: t.field({ type: "String", required: false }),
-      in: t.field({ type: ["String"], required: false }),
-      notIn: t.field({ type: ["String"], required: false }),
-      contains: t.field({ type: "String", required: false }),
-      startsWith: t.field({ type: "String", required: false }),
-      endsWith: t.field({ type: "String", required: false }),
-      lt: t.field({ type: "String", required: false }),
-      lte: t.field({ type: "String", required: false }),
-      gt: t.field({ type: "String", required: false }),
-      gte: t.field({ type: "String", required: false }),
-    }),
-  });
+  for (const [scalarType, value] of Object.entries(operatorArgsByType)) {
+    builder.inputType(scalarType + "WhereInput", {
+      fields: (t) =>
+        Object.entries(value).reduce(
+          (obj: InputFieldMap, [operator, argType]) => {
+            obj[operator] = t.field({ type: argType, required: false });
+
+            return obj;
+          },
+          {}
+        ),
+    });
+  }
+
+  // builder.inputType("StringWhereInput", {
+  //   fields: (t) => ({
+  //     equals: t.field({ type: "String", required: false }),
+  //     not: t.field({ type: "String", required: false }),
+  //     in: t.field({ type: ["String"], required: false }),
+  //     notIn: t.field({ type: ["String"], required: false }),
+  //     contains: t.field({ type: "String", required: false }),
+  //     startsWith: t.field({ type: "String", required: false }),
+  //     endsWith: t.field({ type: "String", required: false }),
+  //     lt: t.field({ type: "String", required: false }),
+  //     lte: t.field({ type: "String", required: false }),
+  //     gt: t.field({ type: "String", required: false }),
+  //     gte: t.field({ type: "String", required: false }),
+  //   }),
+  // });
 
   // let relationshipFields: { [key: string]: any } = {};
 

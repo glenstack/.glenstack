@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Expr, ExprArg, query as q } from "faunadb";
-import { Table, FaunaSchema, RelationshipField } from "./types";
+
+import {
+  Table,
+  FaunaSchema,
+  RelationshipField,
+  ScalarType,
+  ScalarField,
+} from "./types";
 
 const generateRelationQueries = (field: RelationshipField) => {
   const existingRelation = (id: string) =>
@@ -83,14 +90,57 @@ const generateRelationQueries = (field: RelationshipField) => {
   };
 };
 
-const generateOperators = (
-  fieldId: string,
-  value: ExprArg
-): Record<string, Expr> => ({
-  equals: q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref")))),
-  not: q.Not(q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref"))))),
-  lt: q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref")))),
-});
+const generateOperators: Record<
+  string,
+  {
+    allowedTypes: Array<ScalarType>;
+    argType: (type: ScalarType) => ScalarField["type"];
+    expr: (fieldId: string, value: ExprArg) => Expr;
+  }
+> = {
+  equals: {
+    allowedTypes: ["String", "Number"],
+    argType: (type: ScalarType) => type,
+    expr: (fieldId: string, value: ExprArg) =>
+      //@ts-ignore
+      q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref")), null)),
+  },
+  not: {
+    allowedTypes: ["String", "Number"],
+    argType: (type: ScalarType) => type,
+    expr: (fieldId: string, value: ExprArg) =>
+      q.Not(q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref"))))),
+  },
+  lt: {
+    allowedTypes: ["String", "Number"],
+    argType: (type: ScalarType) => type,
+    expr: (fieldId: string, value: ExprArg) =>
+      q.Equals(value, q.Select(["data", fieldId], q.Get(q.Var("ref")))),
+  },
+};
+
+// export const operatorsByType: Record<string, Record<string, unknown>> = {};
+// for (const [key, value] of Object.entries(generateOperators())) {
+//   for (const allowedType in value.allowedTypes) {
+//     operatorsByType[JSON.stringify(allowedType)] = {
+//       ...operatorsByType[JSON.stringify(allowedType)],
+//     };
+//   }
+// }
+
+export const operatorArgsByType = Object.entries(generateOperators).reduce(
+  (
+    obj: Record<string, Record<string, ScalarField["type"]>>,
+    [operator, value]
+  ) => {
+    for (const allowedType of value.allowedTypes) {
+      obj[allowedType] = obj[allowedType] || {};
+      obj[allowedType][operator] = value.argType(allowedType);
+    }
+    return obj;
+  },
+  {}
+);
 
 export const definitions = (
   table: Pick<Table, "apiName" | "id">
@@ -130,10 +180,10 @@ export const definitions = (
           for (const [fieldName, operators] of Object.entries(args.where)) {
             for (const [operator, value] of Object.entries(operators)) {
               filters.push(
-                generateOperators(
+                generateOperators[operator].expr(
                   faunaSchema[table.apiName].fields[fieldName].id,
                   value
-                )[operator]
+                )
               );
             }
           }
