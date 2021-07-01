@@ -9,13 +9,13 @@
     "prettier": "prettier --config ../../.prettierrc --ignore-path .gitignore '**/*.(js|ts|json|md)'",
     "format": "npm run prettier -- --write",
     "check-format": "npm run prettier -- --list-different",
-    "precommit": "doppler run --command= 'npm run check-types && lint-staged && npm run build && npm run coverage'",
+    "precommit": "doppler run --command='npm run check-types && lint-staged && npm run build && npm run coverage'",
     "validate": "concurrently 'npm:check-types' 'npm:check-format' 'npm:lint' 'npm:build' 'npm:coverage'",
     "test": "doppler run -- jest",
     "coverage": "doppler run -- npm run test -- --coverage",
     "test:watch": "doppler run -- npm run test -- -o --watch",
     "start": "doppler run -- wrangler dev",
-    "start:data": "doppler run -- ts-node src/data/test_data.ts",
+    "start:demo": "DEMO_PROJECT_ID='302914045660365323' doppler run -- ts-node src/data/demo_server.ts",
     "start:https": "doppler run -- wrangler dev --local-protocol https"
   },
   "devDependencies": {

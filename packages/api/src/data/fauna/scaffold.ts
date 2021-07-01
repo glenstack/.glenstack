@@ -1,12 +1,24 @@
 import { Client, query as q } from "faunadb";
 
 export default async (client: Client): Promise<void> => {
-  await client.query(q.CreateCollection({ name: "organizations" }));
-  await client.query(q.CreateCollection({ name: "projects" }));
-  await client.query(q.CreateCollection({ name: "tables" }));
-  await client.query(q.CreateCollection({ name: "fields" }));
-  await client.query(q.CreateCollection({ name: "relations" }));
-  await client.query(q.CreateCollection({ name: "relationships" }));
+  await client.query(
+    q.CreateCollection({ name: "organizations", history_days: null })
+  );
+  await client.query(
+    q.CreateCollection({ name: "projects", history_days: null })
+  );
+  await client.query(
+    q.CreateCollection({ name: "tables", history_days: null })
+  );
+  await client.query(
+    q.CreateCollection({ name: "fields", history_days: null })
+  );
+  await client.query(
+    q.CreateCollection({ name: "relations", history_days: null })
+  );
+  await client.query(
+    q.CreateCollection({ name: "relationships", history_days: null })
+  );
   console.log(await client.query(q.Exists(q.Collection("relations"))));
   await client.query(
     q.CreateIndex({
