@@ -8,10 +8,14 @@ import { definitions } from "../definitions";
 
 jest.setTimeout(30000);
 test("Integration Test", async () => {
-  const test_db_name = "altest_" + Date.now();
+  const test_db_name = "test_" + Date.now();
+
+  if (!process.env.FAUNA_INTEGRATION_TEST_KEY) {
+    throw new Error("Missing env 'FAUNA_INTEGRATION_TEST_KEY'");
+  }
 
   const client = new Client({
-    secret: "fnAEKpUbg1ACBTYHxtqayKNrCnnmgHLyWoSSlyvX",
+    secret: process.env.FAUNA_INTEGRATION_TEST_KEY,
   });
 
   const tables: Record<string, { name: string; apiName: string; id: string }> =

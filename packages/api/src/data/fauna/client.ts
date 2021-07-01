@@ -1,8 +1,11 @@
 import "cross-fetch/polyfill";
 import { Client } from "faunadb";
 
-export const getClient = (secret: string): Client =>
-  new Client({
+export const getClient = (secret: string | null | undefined): Client => {
+  if (!secret) {
+    throw new Error("Client requires a secret.");
+  }
+  return new Client({
     secret,
     fetch: (requestInfo: RequestInfo, requestInit?: RequestInit) => {
       const signal = requestInit?.signal;
@@ -25,5 +28,5 @@ export const getClient = (secret: string): Client =>
       ]);
     },
   });
-
-export const client = getClient("fnAEI3aezIACAcwwrsWsIDvyHVRNnSFOSg1Yjz8T");
+};
+export const client = getClient(process.env.FAUNA_ADMIN_KEY);
