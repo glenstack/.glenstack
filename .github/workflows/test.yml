@@ -1,6 +1,7 @@
 name: Test
 on: [push]
-
+env:
+  DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
 jobs:
   test:
     runs-on: ubuntu-latest
