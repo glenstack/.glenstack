@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: "${{ steps.nvm.outputs.NVMRC }}"
-      - name: Install doppler
+      - name: Install Doppler
         run: (curl -Ls https://cli.doppler.com/install.sh || wget -qO- https://cli.doppler.com/install.sh) | sudo sh
       - name: Install
         run: npm ci
