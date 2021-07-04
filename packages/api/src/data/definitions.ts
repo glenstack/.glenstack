@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Expr, query as q } from "faunadb";
-import { Table, FaunaSchema, RelationshipField } from "./types";
+import { Expr, ExprArg, query as q } from "faunadb";
+
+import {
+  Table,
+  FaunaSchema,
+  RelationshipField,
+  ScalarType,
+  ScalarField,
+} from "./types";
 
 const generateRelationQueries = (field: RelationshipField) => {
   const existingRelation = (id: string) =>
@@ -83,22 +90,97 @@ const generateRelationQueries = (field: RelationshipField) => {
   };
 };
 
-export const definitions = (
-  table: Pick<Table, "apiName" | "id">
-): {
-  queries: {
+export const definitions: {
+  operators: Record<
+    string,
+    {
+      allowedTypes: Array<ScalarType>;
+      argType: (type: ScalarType) => ScalarField["type"];
+      expr: (fieldId: string, value: ExprArg) => Expr;
+    }
+  >;
+  queries: (table: Pick<Table, "apiName" | "id">) => {
     [p: string]: {
       name: () => string;
-      // @ts-ignore
-      query: (args: any, faunaSchema?: FaunaSchema) => Expr;
+      query: (args: any, faunaSchema: FaunaSchema) => Expr;
     };
   };
-} => ({
-  queries: {
+} = {
+  operators: {
+    equals: {
+      allowedTypes: ["String", "Number", "Boolean", "JSON", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.Equals(q.Select(["data", fieldId], q.Get(q.Var("ref")), null), value),
+    },
+    notEquals: {
+      allowedTypes: ["String", "Number", "Boolean", "JSON", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        q.Not(
+          q.Equals(
+            //@ts-ignore
+            q.Select(["data", fieldId], q.Get(q.Var("ref")), null),
+            value
+          )
+        ),
+    },
+    lt: {
+      allowedTypes: ["String", "Number", "Boolean", "JSON", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.LT(q.Select(["data", fieldId], q.Get(q.Var("ref")), null), value),
+    },
+    gt: {
+      allowedTypes: ["String", "Number", "Boolean", "JSON", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.GT(q.Select(["data", fieldId], q.Get(q.Var("ref")), null), value),
+    },
+    startsWith: {
+      allowedTypes: ["String", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.StartsWith(
+          q.Select(["data", fieldId], q.Get(q.Var("ref")), ""),
+          value
+        ),
+    },
+    endsWith: {
+      allowedTypes: ["String", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.EndsWith(q.Select(["data", fieldId], q.Get(q.Var("ref")), ""), value),
+    },
+    contains: {
+      allowedTypes: ["String", "EmailAddress"],
+      argType: (type: ScalarType) => type,
+      expr: (fieldId: string, value: ExprArg) =>
+        //@ts-ignore
+        q.ContainsStr(
+          q.Select(["data", fieldId], q.Get(q.Var("ref")), ""),
+          value
+        ),
+    },
+  },
+  queries: (table: Pick<Table, "apiName" | "id">) => ({
     findMany: {
       name: (): string => "query" + table.apiName,
       // @ts-ignore
-      query: (args): Expr => {
+      query: (
+        args: {
+          first: number;
+          before: string;
+          after: string;
+          where: Record<string, Record<string, ExprArg>>;
+        },
+        faunaSchema: FaunaSchema
+      ): Expr => {
         const options: { size: number; after?: Expr; before?: Expr } = {
           size: args.first,
         };
@@ -108,19 +190,31 @@ export const definitions = (
         if (args.before) {
           options.before = q.Ref(q.Collection(table.id), args.before);
         }
-        let filter: boolean | Expr = true;
-        if (args.where?.title_eq) {
-          filter = q.Equals(
-            args.where.title_eq,
-            q.Select(["data", "294845251673129473"], q.Get(q.Var("ref")))
+        const filters: Array<boolean | Expr> = [];
+        if (args.where) {
+          for (const [fieldName, operators] of Object.entries(args.where)) {
+            for (const [operator, value] of Object.entries(operators)) {
+              filters.push(
+                definitions.operators[operator].expr(
+                  faunaSchema[table.apiName].fields[fieldName].id,
+                  value
+                )
+              );
+            }
+          }
+        }
+        if (filters.length > 0) {
+          return q.Map(
+            q.Filter(
+              q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
+              q.Lambda("ref", q.And(...filters))
+            ),
+            q.Lambda("ref", q.Get(q.Var("ref")))
           );
         }
-
         return q.Map(
-          q.Filter(
-            q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
-            q.Lambda("ref", filter)
-          ),
+          q.Paginate(q.Documents(q.Collection(table.id)), { ...options }),
+
           q.Lambda("ref", q.Get(q.Var("ref")))
         );
       },
@@ -228,5 +322,5 @@ export const definitions = (
         );
       },
     },
-  },
-});
+  }),
+};

@@ -8,10 +8,14 @@ import { definitions } from "../definitions";
 
 jest.setTimeout(30000);
 test("Integration Test", async () => {
-  const test_db_name = "altest_" + Date.now();
+  const test_db_name = "test_" + Date.now();
+
+  if (!process.env.FAUNA_INTEGRATION_TEST_KEY) {
+    throw new Error("Missing env 'FAUNA_INTEGRATION_TEST_KEY'");
+  }
 
   const client = new Client({
-    secret: "fnAEKpUbg1ACBTYHxtqayKNrCnnmgHLyWoSSlyvX",
+    secret: process.env.FAUNA_INTEGRATION_TEST_KEY,
   });
 
   const tables: Record<string, { name: string; apiName: string; id: string }> =
@@ -108,7 +112,7 @@ test("Integration Test", async () => {
    * First query should return empty array
    */
 
-  let queryName = definitions(tables["Book"]).queries.findMany.name();
+  let queryName = definitions.queries(tables["Book"]).findMany.name();
   let result = await server.executeOperation({
     query: `query { ${queryName} {
         id
@@ -128,7 +132,7 @@ test("Integration Test", async () => {
    * Create single book and expect that book in the response.
    */
 
-  queryName = definitions(tables["Book"]).queries.createOne.name();
+  queryName = definitions.queries(tables["Book"]).createOne.name();
   result = await server.executeOperation({
     query: `mutation ($title: String!) { ${queryName} (input: {title: $title}) {
         id
@@ -154,7 +158,7 @@ test("Integration Test", async () => {
    * Create single author of that book and expect that author with the right book in the response.
    */
 
-  queryName = definitions(tables["Author"]).queries.createOne.name();
+  queryName = definitions.queries(tables["Author"]).createOne.name();
   result = await server.executeOperation({
     query: `mutation ($name: String!, $connect: [ID!]!) { ${queryName} (input: {name: $name, books: {connect: $connect}}) {
         id
