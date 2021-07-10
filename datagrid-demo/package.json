@@ -1,0 +1,47 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "rescripts eject"
+  },
+  "dependencies": {
+    "@craco/craco": "5.8.0",
+    "@fontsource/jost": "4.3.0",
+    "@fortawesome/fontawesome-svg-core": "1.2.35",
+    "@fortawesome/free-brands-svg-icons": "5.15.3",
+    "@fortawesome/free-regular-svg-icons": "5.15.3",
+    "@fortawesome/free-solid-svg-icons": "5.15.3",
+    "@fortawesome/react-fontawesome": "0.1.14",
+    "namor": "^1.1.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "3.0.1",
+    "react-table": "latest",
+    "styled-components": "^4.3.2"
+  },
+  "devDependencies": {
+    "@rescripts/cli": "^0.0.11",
+    "@rescripts/rescript-use-babel-config": "^0.0.8",
+    "@rescripts/rescript-use-eslint-config": "^0.0.9",
+    "@tailwindcss/typography": "0.4.0",
+    "autoprefixer": "^9.8.6",
+    "babel-eslint": "10.0.1",
+    "eslint-config-prettier": "^6.15.0",
+    "postcss": "^7.0.36",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.1.4"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
