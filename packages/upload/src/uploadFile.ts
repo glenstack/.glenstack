@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { parseRequest } from "./formData";
-import { ONE_DAY } from "./utils";
+import { ONE_WEEK } from "./utils";
 import { parseFile } from "./parse";
 
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
@@ -18,7 +18,7 @@ export const uploadFile = async (request: Request): Promise<Response> => {
 
     const id = uuid();
     await FILES.put(`File:${id}`, arrayBuffer, {
-      expirationTtl: ONE_DAY,
+      expirationTtl: ONE_WEEK,
       metadata: {
         name: file.name,
         size: file.size,
