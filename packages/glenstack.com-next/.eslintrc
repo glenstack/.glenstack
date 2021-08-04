@@ -1,0 +1,19 @@
+{
+  "extends": ["next", "eslint:recommended", "prettier"],
+  "overrides": [
+    {
+      "files": "**/*.ts?(x)",
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "./tsconfig.test.json"
+      },
+      "plugins": ["@typescript-eslint/eslint-plugin"],
+      "extends": [
+        "next",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+      ]
+    }
+  ]
+}
