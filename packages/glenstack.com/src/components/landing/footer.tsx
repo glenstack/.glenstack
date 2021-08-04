@@ -11,6 +11,8 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FooterCTA } from "./footerCTA";
+import { useState } from "react";
+import { useEffect } from "react";
 
 const navigation = {
   support: [
@@ -84,6 +86,36 @@ const navigation = {
 };
 
 export const Footer: FC<{ noCTA?: boolean }> = ({ noCTA = false }) => {
+  const [status, setStatus] = useState<{ text: string; color: string }>({
+    text: "Loading...",
+    color: "bg-grey-500",
+  });
+
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(
+        "https://status.glenstack.com/api/v1/status-page/info"
+      );
+      const {
+        config: { all_monitors_operational, not_all_monitors_operational },
+        monitors,
+      } = await response.json();
+      let text = all_monitors_operational;
+      let color = "bg-green-500";
+
+      for (const {
+        last_check: { operational },
+      } of monitors) {
+        if (!operational) {
+          text = not_all_monitors_operational;
+          color = "bg-yellow-500";
+          break;
+        }
+      }
+      setStatus({ text, color });
+    })();
+  }, []);
+
   return (
     <footer className="bg-white" aria-labelledby="footerHeading">
       {!noCTA && <FooterCTA />}
@@ -192,24 +224,18 @@ export const Footer: FC<{ noCTA?: boolean }> = ({ noCTA = false }) => {
         <div className="mt-12 border-t border-gray-200 pt-8">
           <div className="w-full text-sm font-light text-gray-400 lg:flex lg:justify-between lg:items-center">
             <span className="block mb-2 lg:w-1/3 lg:my-0">
-              ©2021 Glenstack Ltd. Made worldwide.
-            </span>{" "}
-            <ul className="lg:w-1/3 lg:text-center">
-              <li className="inline-block mb-0 mr-4 last:mr-0">
-                {/* <a href="/privacy/">Privacy Policy</a>{" "} */}
-              </li>
-              <li className="inline-block mb-0 mr-4 last:mr-0">
-                {/* <a href="/terms/">Terms of Service</a>{" "} */}
-              </li>
-            </ul>{" "}
+              ©2021 Glenstack Ltd.
+            </span>
             <div className="mt-6 lg:my-0 lg:w-1/3 lg:text-right">
-              <a
+              <MagicLink
                 href="https://status.glenstack.com"
                 className="inline-block lg:ml-auto"
               >
-                <span className="inline-block w-2 h-2 mr-1 rounded-full bg-green-500"></span>{" "}
-                <span>All Systems Operational</span>
-              </a>
+                <span
+                  className={`inline-block w-2 h-2 mr-2 rounded-full ${status.color}`}
+                ></span>
+                <span>{status.text}</span>
+              </MagicLink>
             </div>
           </div>
         </div>
