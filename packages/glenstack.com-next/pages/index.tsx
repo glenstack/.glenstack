@@ -1,7 +1,8 @@
 import Head from "next/head";
-// import Image from "next/image";
+import { FC } from "react";
+import { Image } from "components/image";
 
-export default function Home() {
+const Home: FC = () => {
   return (
     <div>
       <Head>
@@ -52,10 +53,12 @@ export default function Home() {
         >
           Powered by{" "}
           <span>
-            {/* <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} /> */}
+            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
           </span>
         </a>
       </footer>
     </div>
   );
-}
+};
+
+export default Home;
