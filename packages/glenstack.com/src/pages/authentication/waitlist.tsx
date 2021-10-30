@@ -15,7 +15,7 @@ export const WaitList: FC = () => {
     <>
       <SEO
         title="Join Waitlist"
-        description="Join the Glenstack Waitlist before we launch in Summer, 2021."
+        description="Join the Glenstack Waitlist before we launch in winter, 2021."
       />
       <Header />
       <div className="bg-indigo-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

@@ -28,28 +28,28 @@ export const Content: FC<{ html: string }> = ({ html }) => (
   <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
 );
 
-const { useGetLegalQuery } = gql(`
-  query GetLegal {
-    legal {
-      termsOfService
-      privacyPolicy
-    }
-  }
-`);
+// const { useGetLegalQuery } = gql(`
+//   query GetLegal {
+//     legal {
+//       termsOfService
+//       privacyPolicy
+//     }
+//   }
+// `);
 
 export const LegalContent: FC<{ type: "privacy" | "terms" }> = ({ type }) => {
-  const { data } = useGetLegalQuery();
+  // const { data } = useGetLegalQuery();
 
-  if (data)
-    return (
-      <Content
-        html={
-          type === "privacy"
-            ? data.legal.privacyPolicy
-            : data.legal.termsOfService
-        }
-      />
-    );
+  // if (data)
+  //   return (
+  //     <Content
+  //       html={
+  //         type === "privacy"
+  //           ? data.legal.privacyPolicy
+  //           : data.legal.termsOfService
+  //       }
+  //     />
+  //   );
 
   return <Fallback {...legalTypes[type]} />;
 };
