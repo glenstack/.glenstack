@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "cookie": "0.4.1",
-    "jsrsasign": "10.2.0",
+    "jsrsasign": "10.5.25",
     "toucan-js": "2.5.0-beta.1",
     "ts-node": "^10.0.0",
     "uuid": "8.3.2",
