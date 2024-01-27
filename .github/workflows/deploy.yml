@@ -21,7 +21,7 @@ jobs:
       - name: Install
         run: npm ci
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@1.3.0
+        uses: cloudflare/wrangler-action@v3
         with:
           environment: production
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -51,7 +51,7 @@ jobs:
       - name: Install
         run: npm ci
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@1.3.0
+        uses: cloudflare/wrangler-action@v3
         with:
           environment: production
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -81,7 +81,7 @@ jobs:
       - name: Install
         run: npm ci
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@1.3.0
+        uses: cloudflare/wrangler-action@v3
         with:
           environment: production
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -111,7 +111,7 @@ jobs:
       - name: Install
         run: npm ci
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@1.3.0
+        uses: cloudflare/wrangler-action@v3
         with:
           environment: production
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -141,7 +141,7 @@ jobs:
       - name: Install
         run: npm ci
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@1.3.0
+        uses: cloudflare/wrangler-action@v3
         with:
           environment: production
           apiToken: ${{ secrets.CF_API_TOKEN }}
