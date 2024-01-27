@@ -1,5 +1,5 @@
 name = "authentication-dev"
-type = "javascript"
+main = "dist/worker.js"
 account_id = "41d154df19739a540756d193a9715370"
 zone_id = "1a50aad2a97cd8ee713df553f2214779"
 workers_dev = true
