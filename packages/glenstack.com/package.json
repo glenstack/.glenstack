@@ -23,7 +23,7 @@
   },
   "scripts": {
     "prebuild": "npm run codegen",
-    "build": "REACT_APP_GIT_SHA=$(git rev-parse HEAD) craco build",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider REACT_APP_GIT_SHA=$(git rev-parse HEAD) craco build",
     "lint": "eslint --ignore-path .gitignore --max-warnings=0 'src/**/*.ts?(x)'",
     "codegen": "graphql-let --config .graphql-let.production.yml --require dotenv/config",
     "precheck-types": "npm run codegen",
@@ -37,7 +37,7 @@
     "coverage": "npm run test -- --coverage",
     "test:watch": "npm run test -- -o --watch",
     "eject": "react-scripts eject",
-    "start": "craco start"
+    "start": "NODE_OPTIONS=--openssl-legacy-provider craco start"
   },
   "eslintConfig": {
     "extends": [
