@@ -1,9 +1,11 @@
 name = "glenstack-com-dev"
+compatibility_date = "2024-01-28"
+main = "./workers-site/dist/worker.js"
 account_id = "41d154df19739a540756d193a9715370"
 zone_id = "1a50aad2a97cd8ee713df553f2214779"
 workers_dev = true
 vars = { ENVIRONMENT = "development", SENTRY_DSN = "", SENTRY_DSN_WORKER = "" }
-site = { bucket = "build", entry-point = "workers-site"}
+site = { bucket = "build" }
 
 [build]
 command = "npm install && npm run build"
