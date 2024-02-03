@@ -1,0 +1,47 @@
+{
+  "name": "glenstack.com-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD) next build && next export",
+    "lint": "next lint",
+    "check-types": "tsc",
+    "prettier": "prettier --config ../../.prettierrc --ignore-path .gitignore '**/*.(js|ts|jsx|tsx|json|md)'",
+    "format": "npm run prettier -- --write",
+    "check-format": "npm run prettier -- --list-different",
+    "precommit": "npm run check-types && lint-staged && npm run build && npm run coverage",
+    "validate": "concurrently 'npm:check-types' 'npm:check-format' 'npm:lint' 'npm:build' 'npm:coverage'",
+    "test": "jest",
+    "coverage": "npm run test -- --coverage",
+    "test:watch": "npm run test -- -o --watch",
+    "start": "next dev"
+  },
+  "dependencies": {
+    "@fontsource/jost": "4.5.0",
+    "@sentry/nextjs": "6.10.0",
+    "next": "11.0.2-canary.26",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "0.3.3",
+    "@tailwindcss/typography": "0.4.1",
+    "@types/jest": "26.0.24",
+    "@types/react": "17.0.15",
+    "@typescript-eslint/eslint-plugin": "4.29.0",
+    "@typescript-eslint/parser": "4.29.0",
+    "autoprefixer": "10.3.1",
+    "concurrently": "6.2.0",
+    "eslint": "7.32.0",
+    "eslint-config-next": "11.0.1",
+    "eslint-config-prettier": "8.3.0",
+    "jest": "27.0.6",
+    "lint-staged": "11.1.1",
+    "postcss": "8.3.6",
+    "prettier": "2.3.2",
+    "tailwindcss": "2.2.7",
+    "ts-jest": "27.0.4",
+    "ts-node": "10.1.0",
+    "typescript": "4.3.5"
+  }
+}
