@@ -41,7 +41,7 @@
     "@glenstack/cf-workers-graphql": "1.0.4",
     "@graphql-tools/schema": "6.0.18",
     "await-to-js": "3.0.0",
-    "cross-fetch": "3.1.4",
+    "cross-fetch": "3.1.5",
     "faunadb": "4.2.0",
     "graphql": "15.3.0",
     "graphql-scalars": "^1.10.0",
