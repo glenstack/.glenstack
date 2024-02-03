@@ -5,6 +5,7 @@ import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { MagicLink } from "../magicLink";
 
 const links = [
+  { name: "Bounties", href: "/bounties" },
   { name: "About", href: "/about" },
   { name: "Sign In", href: "/login" },
 ];

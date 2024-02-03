@@ -346,7 +346,7 @@ export const HowWereBuildingGlenstack: FC = () => {
             </p>
             <hr />
             <p>
-              Glenstack will be launching later this summer, 2021. Please
+              Glenstack will be launching later this winter, 2021. Please
               consider{" "}
               <MagicLink href="/waitlist">joining our waitlist</MagicLink> or{" "}
               <MagicLink href="/contact">getting in touch</MagicLink> if you
